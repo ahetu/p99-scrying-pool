@@ -1,6 +1,7 @@
 "use client";
 
-import { Character, ItemData } from "@/lib/types";
+import { useState } from "react";
+import { Character, ItemData, BonusPointAllocation } from "@/lib/types";
 import { getBaseStats, getBonusPointsForClass, calculateMaxMana, calculateMaxHp, getManaStat } from "@/lib/baseStats";
 
 interface StatsSummaryProps {
@@ -8,12 +9,52 @@ interface StatsSummaryProps {
   items: Record<string, ItemData | null>;
 }
 
+const EMPTY_BP: BonusPointAllocation = { str: 0, sta: 0, agi: 0, dex: 0, wis: 0, int: 0, cha: 0 };
+
 export default function StatsSummary({ character, items }: StatsSummaryProps) {
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [liveBp, setLiveBp] = useState<BonusPointAllocation>(character.bonusPoints || EMPTY_BP);
+  const [editBp, setEditBp] = useState<BonusPointAllocation>(liveBp);
+
   const base = getBaseStats(character.race, character.className);
-  const bp = character.bonusPoints || { str: 0, sta: 0, agi: 0, dex: 0, wis: 0, int: 0, cha: 0 };
-  const hasBonusPoints = character.bonusPoints != null;
+  const bp = editing ? editBp : liveBp;
+  const hasBonusPoints = !editing && (character.bonusPoints != null || liveBp !== EMPTY_BP);
   const maxBonus = getBonusPointsForClass(character.className);
   const usedBonus = bp.str + bp.sta + bp.agi + bp.dex + bp.wis + bp.int + bp.cha;
+
+  function startEditing() {
+    setEditBp({ ...liveBp });
+    setEditing(true);
+  }
+
+  function cancelEditing() {
+    setEditing(false);
+  }
+
+  function updateEditPoint(stat: keyof BonusPointAllocation, value: number) {
+    const clamped = Math.max(0, value);
+    const otherUsed = usedBonus - editBp[stat];
+    const maxForStat = maxBonus - otherUsed;
+    setEditBp((prev) => ({ ...prev, [stat]: Math.min(clamped, maxForStat) }));
+  }
+
+  async function saveEdits() {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/character/${character.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bonusPoints: editBp }),
+      });
+      if (res.ok) {
+        setLiveBp(editBp);
+        setEditing(false);
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
 
   const gear = {
     ac: 0, hp: 0, mana: 0,
@@ -63,17 +104,73 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
     gear.mana,
   );
 
+  const remainingBonus = maxBonus - usedBonus;
+
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <h3 className="text-amber-300/80 text-sm font-bold uppercase tracking-wider mb-4 text-center">
-        Character Stats
-      </h3>
-      {!hasBonusPoints && (
+      <div className="flex items-center justify-center gap-3 mb-4">
+        <h3 className="text-amber-300/80 text-sm font-bold uppercase tracking-wider">
+          Character Stats
+        </h3>
+        {!editing && (
+          <button
+            onClick={startEditing}
+            className="text-zinc-600 hover:text-amber-400 transition-colors text-[10px] uppercase tracking-wide"
+          >
+            Edit Points
+          </button>
+        )}
+      </div>
+
+      {editing && (
+        <div className="bg-zinc-900/60 border border-amber-900/20 rounded-lg p-4 mb-4" style={{ animation: "fadeIn 0.2s ease-out" }}>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-zinc-400 text-[10px]">
+              Allocate your {maxBonus} creation bonus points
+              <span className={`ml-2 font-bold ${remainingBonus < 0 ? "text-red-400" : remainingBonus === 0 ? "text-green-400" : "text-amber-400"}`}>
+                {remainingBonus} remaining
+              </span>
+            </p>
+          </div>
+          <div className="grid grid-cols-7 gap-2 mb-3">
+            {(["str", "sta", "agi", "dex", "wis", "int", "cha"] as const).map((stat) => (
+              <div key={stat} className="text-center">
+                <label className="text-zinc-500 text-[9px] uppercase tracking-wide block mb-1">{stat}</label>
+                <input
+                  type="number"
+                  min="0"
+                  max={maxBonus}
+                  value={editBp[stat]}
+                  onChange={(e) => updateEditPoint(stat, parseInt(e.target.value) || 0)}
+                  className="w-full bg-zinc-900 border border-zinc-700/50 rounded px-1 py-1.5 text-amber-200 text-center text-xs focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={cancelEditing}
+              className="text-zinc-500 hover:text-zinc-300 text-xs px-3 py-1 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={saveEdits}
+              disabled={saving || remainingBonus < 0}
+              className="bg-amber-600/80 hover:bg-amber-600 disabled:opacity-40 text-zinc-950 text-xs font-bold px-4 py-1 rounded transition-colors"
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!editing && !hasBonusPoints && (
         <p className="text-zinc-600 text-[10px] text-center mb-3 italic">
           Creation bonus points not set ({maxBonus} pts available)
         </p>
       )}
-      {hasBonusPoints && usedBonus < maxBonus && (
+      {!editing && hasBonusPoints && usedBonus < maxBonus && (
         <p className="text-amber-700/60 text-[10px] text-center mb-3 italic">
           {maxBonus - usedBonus} unspent creation bonus points
         </p>

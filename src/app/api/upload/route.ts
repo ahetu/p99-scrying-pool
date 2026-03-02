@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     await fetchMultipleItems(itemNames);
 
-    const id = await generateSlug(name);
+    const id = generateSlug(name);
     const now = new Date().toISOString();
 
     const character: Character = {

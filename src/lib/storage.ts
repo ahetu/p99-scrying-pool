@@ -8,17 +8,8 @@ function nameToSlug(name: string): string {
   return name.trim().replace(/[^a-zA-Z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
 }
 
-export async function generateSlug(name: string): Promise<string> {
-  await fs.mkdir(CHARACTERS_DIR, { recursive: true });
-  const base = nameToSlug(name);
-  const files = await fs.readdir(CHARACTERS_DIR);
-  const existing = new Set(files.map((f) => f.replace(".json", "")));
-
-  if (!existing.has(base)) return base;
-
-  let i = 2;
-  while (existing.has(`${base}-${i}`)) i++;
-  return `${base}-${i}`;
+export function generateSlug(name: string): string {
+  return nameToSlug(name);
 }
 
 export async function saveCharacter(character: Character): Promise<void> {
@@ -35,6 +26,14 @@ export async function getCharacter(id: string): Promise<Character | null> {
   } catch {
     return null;
   }
+}
+
+export async function updateCharacter(id: string, updates: Partial<Character>): Promise<Character | null> {
+  const character = await getCharacter(id);
+  if (!character) return null;
+  const updated = { ...character, ...updates, updatedAt: new Date().toISOString() };
+  await saveCharacter(updated);
+  return updated;
 }
 
 export async function listCharacters(): Promise<CharacterSummary[]> {

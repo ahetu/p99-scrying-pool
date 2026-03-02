@@ -35,7 +35,9 @@ export const EQUIPMENT_SLOTS: SlotDefinition[] = [
 
 const INVENTORY_LOCATION_MAP: Record<string, string> = {
   "Charm": "charm",
+  "Ear": "ear1",
   "Left Ear": "ear1",
+  "Right Ear": "ear2",
   "Head": "head",
   "Face": "face",
   "Neck": "neck",
@@ -46,7 +48,6 @@ const INVENTORY_LOCATION_MAP: Record<string, string> = {
   "Left Wrist": "wrist1",
   "Right Wrist": "wrist2",
   "Wrist": "wrist1",
-  "Right Ear": "ear2",
   "Chest": "chest",
   "Waist": "waist",
   "Legs": "legs",
@@ -55,6 +56,7 @@ const INVENTORY_LOCATION_MAP: Record<string, string> = {
   "Left Finger": "finger1",
   "Right Finger": "finger2",
   "Finger": "finger1",
+  "Fingers": "finger1",
   "Primary": "primary",
   "Secondary": "secondary",
   "Range": "range",

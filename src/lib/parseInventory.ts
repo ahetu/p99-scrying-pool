@@ -46,7 +46,8 @@ export function parseInventoryFile(
   for (const row of rows) {
     if (row.location.includes("-") || row.location.includes("Pack") ||
         row.location.includes("Bank") || row.location.includes("SharedBank") ||
-        row.location.includes("Slot")) {
+        row.location.includes("Slot") || row.location.startsWith("General") ||
+        row.location === "Held") {
       continue;
     }
 
