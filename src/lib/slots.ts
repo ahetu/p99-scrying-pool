@@ -7,26 +7,29 @@ export interface SlotDefinition {
 }
 
 export const EQUIPMENT_SLOTS: SlotDefinition[] = [
-  { id: "charm", label: "Charm", inventoryKey: "Charm", column: "left", order: 0 },
-  { id: "ear1", label: "Ear", inventoryKey: "Ear", column: "left", order: 1 },
-  { id: "head", label: "Head", inventoryKey: "Head", column: "left", order: 2 },
-  { id: "face", label: "Face", inventoryKey: "Face", column: "left", order: 3 },
-  { id: "neck", label: "Neck", inventoryKey: "Neck", column: "left", order: 4 },
-  { id: "shoulders", label: "Shoulders", inventoryKey: "Shoulders", column: "left", order: 5 },
-  { id: "arms", label: "Arms", inventoryKey: "Arms", column: "left", order: 6 },
-  { id: "back", label: "Back", inventoryKey: "Back", column: "left", order: 7 },
-  { id: "wrist1", label: "Wrist", inventoryKey: "Wrist1", column: "left", order: 8 },
-  { id: "wrist2", label: "Wrist", inventoryKey: "Wrist2", column: "left", order: 9 },
+  // Left column (9) — paired items split across sides
+  { id: "ear1", label: "Ear", inventoryKey: "Ear", column: "left", order: 0 },
+  { id: "head", label: "Head", inventoryKey: "Head", column: "left", order: 1 },
+  { id: "neck", label: "Neck", inventoryKey: "Neck", column: "left", order: 2 },
+  { id: "shoulders", label: "Shoulders", inventoryKey: "Shoulders", column: "left", order: 3 },
+  { id: "chest", label: "Chest", inventoryKey: "Chest", column: "left", order: 4 },
+  { id: "arms", label: "Arms", inventoryKey: "Arms", column: "left", order: 5 },
+  { id: "wrist1", label: "Wrist", inventoryKey: "Wrist1", column: "left", order: 6 },
+  { id: "legs", label: "Legs", inventoryKey: "Legs", column: "left", order: 7 },
+  { id: "finger1", label: "Finger", inventoryKey: "Finger1", column: "left", order: 8 },
 
+  // Right column (9) — mirrors left
   { id: "ear2", label: "Ear", inventoryKey: "Ear2", column: "right", order: 0 },
-  { id: "chest", label: "Chest", inventoryKey: "Chest", column: "right", order: 1 },
-  { id: "waist", label: "Waist", inventoryKey: "Waist", column: "right", order: 2 },
-  { id: "legs", label: "Legs", inventoryKey: "Legs", column: "right", order: 3 },
-  { id: "feet", label: "Feet", inventoryKey: "Feet", column: "right", order: 4 },
+  { id: "face", label: "Face", inventoryKey: "Face", column: "right", order: 1 },
+  { id: "charm", label: "Charm", inventoryKey: "Charm", column: "right", order: 2 },
+  { id: "back", label: "Back", inventoryKey: "Back", column: "right", order: 3 },
+  { id: "waist", label: "Waist", inventoryKey: "Waist", column: "right", order: 4 },
   { id: "hands", label: "Hands", inventoryKey: "Hands", column: "right", order: 5 },
-  { id: "finger1", label: "Finger", inventoryKey: "Finger1", column: "right", order: 6 },
-  { id: "finger2", label: "Finger", inventoryKey: "Finger2", column: "right", order: 7 },
+  { id: "wrist2", label: "Wrist", inventoryKey: "Wrist2", column: "right", order: 6 },
+  { id: "feet", label: "Feet", inventoryKey: "Feet", column: "right", order: 7 },
+  { id: "finger2", label: "Finger", inventoryKey: "Finger2", column: "right", order: 8 },
 
+  // Bottom row — weapons & ammo
   { id: "primary", label: "Primary", inventoryKey: "Primary", column: "bottom", order: 0 },
   { id: "secondary", label: "Secondary", inventoryKey: "Secondary", column: "bottom", order: 1 },
   { id: "range", label: "Range", inventoryKey: "Range", column: "bottom", order: 2 },
