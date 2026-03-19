@@ -98,6 +98,7 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
 
   const ac = calculateDisplayAC(
     character.className,
+    character.race,
     character.level,
     total("agi"),
     gear.ac,
@@ -194,9 +195,9 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
             <StatBar
               label="AC"
               value={ac.total}
-              max={500}
+              max={1200}
               color="from-blue-500 to-blue-400"
-              sub={`${ac.defense} def+${ac.agi} agi+${ac.items} items`}
+              sub={`${ac.worn} worn AC`}
             />
             <StatBar
               label="HP"

@@ -201,32 +201,81 @@ const CLASS_DEFENSE_CAP_60: Record<string, number> = {
 
 function getDefenseSkill(className: string, level: number): number {
   const cap60 = CLASS_DEFENSE_CAP_60[className] || 200;
-  return Math.min(cap60, Math.floor(level * cap60 / 60));
+  return Math.min(cap60, level * 5 + 5);
 }
 
-function getAgiAC(agi: number): number {
-  if (agi <= 74) return 0;
-  if (agi <= 137) return Math.floor((agi - 74) / 3);
-  if (agi <= 200) return 21 + Math.floor((agi - 137) / 4);
-  return 36 + Math.floor((agi - 200) / 6);
-}
+const SILK_CLASSES = new Set(["Necromancer", "Wizard", "Magician", "Enchanter"]);
 
 /**
  * Estimated displayed AC (unbuffed).
- * Display AC ≈ floor(defense_skill / 3) + AGI_bonus + item_AC
+ *
+ * Based on Dzarn's developer AC breakdown (2014) and Torven's EQEmu analysis.
+ * Sources:
+ *   https://forums.daybreakgames.com/eq/index.php?threads/ac-vs-acv2.210028/
+ *   https://www.eqemulator.org/forums/showthread.php?t=40543
+ *
+ * Simplified for P99 (no AAs, heroic stats, buffs, avoidance stat, or food/drink):
+ *   MitigationAC = floor(WornAC * 4/3) + RaceBonus + floor(DefSkill / divisor) + floor(AGI/20 if >70)
+ *   AvoidanceAC  = floor(DefSkill * 400/225) + floor(8000 * (AGI-40) / 36000)
+ *   DisplayAC    = floor(1000 * (MitigationAC + AvoidanceAC) / 847)
+ *
  * Defense skill assumes max for class/level.
  */
 export function calculateDisplayAC(
   className: string,
+  race: string,
   level: number,
   totalAgi: number,
   itemAC: number,
-): { total: number; defense: number; agi: number; items: number } {
+): { total: number; worn: number } {
   const defenseSkill = getDefenseSkill(className, level);
-  const defense = Math.floor(defenseSkill / 3);
-  const agi = getAgiAC(totalAgi);
-  const total = defense + agi + itemAC;
-  return { total, defense, agi, items: itemAC };
+
+  // --- Mitigation AC (ACSum) ---
+  let mitigation = Math.floor(itemAC * 4 / 3);
+
+  // Race/class bonuses (added after the 4/3 item multiplier per Dzarn)
+  if (race === "Iksar") {
+    mitigation += Math.min(35, Math.max(10, level));
+  }
+  mitigation += getClassACBonus(className, level, totalAgi);
+
+  const isSilk = SILK_CLASSES.has(className);
+  mitigation += Math.floor(defenseSkill / (isSilk ? 2 : 3));
+
+  if (totalAgi > 70) {
+    mitigation += Math.floor(totalAgi / 20);
+  }
+
+  // --- Avoidance AC (ComputedDefense) ---
+  let avoidance = Math.floor(defenseSkill * 400 / 225);
+  avoidance += Math.floor(8000 * Math.max(0, totalAgi - 40) / 36000);
+
+  // --- Display AC with 1000/847 obfuscation multiplier ---
+  const total = Math.floor(1000 * (mitigation + avoidance) / 847);
+
+  return { total, worn: itemAC };
+}
+
+/**
+ * Class-specific AC bonuses per Dzarn's post.
+ * Monk: (level+5)*4/3 if under weight hard cap (we assume ideal weight).
+ * Rogue: small bonus above level 30 based on AGI, capped at 12.
+ */
+function getClassACBonus(className: string, level: number, agi: number): number {
+  if (className === "Monk") {
+    return Math.floor((level + 5) * 4 / 3);
+  }
+  if (className === "Rogue" && level > 30 && agi > 75) {
+    const scaler = level - 26;
+    let bonus: number;
+    if (agi < 80) bonus = Math.floor(scaler / 4);
+    else if (agi < 85) bonus = Math.floor((scaler * 2) / 4);
+    else if (agi < 90) bonus = Math.floor((scaler * 3) / 4);
+    else if (agi < 100) bonus = Math.floor((scaler * 4) / 4);
+    else bonus = Math.floor((scaler * 5) / 4);
+    return Math.min(12, bonus);
+  }
+  return 0;
 }
 
 export type { StatBlock };
