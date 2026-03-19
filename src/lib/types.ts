@@ -31,7 +31,7 @@ export interface ItemData {
   name: string;
   lucyImgId: number | null;
   statsBlock: string;
-  stats: ParsedStats;
+  stats: ParsedStats | null;
   wikiUrl: string;
   fetchedAt: string;
 }

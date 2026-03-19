@@ -1,5 +1,5 @@
 import { getCharacter } from "@/lib/storage";
-import { fetchItemFromWiki } from "@/lib/wikiItemLookup";
+import { fetchMultipleItems } from "@/lib/wikiItemLookup";
 import { ItemData } from "@/lib/types";
 import { notFound } from "next/navigation";
 import CharacterHeader from "@/components/CharacterHeader";
@@ -20,12 +20,11 @@ export default async function CharacterPage({ params }: PageProps) {
     notFound();
   }
 
-  const items: Record<string, ItemData | null> = {};
-  for (const [, equipped] of Object.entries(character.equipment)) {
-    if (equipped && !items[equipped.name]) {
-      items[equipped.name] = await fetchItemFromWiki(equipped.name);
-    }
-  }
+  const itemNames = Object.values(character.equipment)
+    .filter((item): item is NonNullable<typeof item> => item !== null)
+    .map((item) => item.name);
+
+  const items: Record<string, ItemData | null> = await fetchMultipleItems(itemNames);
 
   return (
     <div className="min-h-screen">

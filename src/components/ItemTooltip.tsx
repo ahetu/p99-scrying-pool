@@ -10,6 +10,33 @@ interface ItemTooltipProps {
 export default function ItemTooltip({ item }: ItemTooltipProps) {
   const s = item.stats;
 
+  if (!s) {
+    return (
+      <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 border border-amber-500/50 rounded-lg shadow-2xl shadow-black/80 p-3.5 min-w-[270px] max-w-[340px] font-mono text-xs leading-relaxed glow-amber">
+        <div className="flex items-start gap-2.5 mb-2 pb-2 border-b border-amber-900/30">
+          {item.lucyImgId && (
+            <img
+              src={getItemIconUrl(item.lucyImgId)}
+              alt={item.name}
+              width={40}
+              height={40}
+              className="border border-amber-700/40 rounded bg-zinc-800 flex-shrink-0"
+            />
+          )}
+          <span className="bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-transparent font-bold text-sm leading-tight">
+            {item.name}
+          </span>
+        </div>
+        <p className="text-zinc-500 text-[10px] italic">Stats could not be parsed from wiki</p>
+        {item.wikiUrl && (
+          <a href={item.wikiUrl} target="_blank" rel="noopener noreferrer" className="text-amber-400/60 text-[10px] underline mt-1 block">
+            View on Wiki
+          </a>
+        )}
+      </div>
+    );
+  }
+
   const flags: string[] = [];
   if (s.magic) flags.push("MAGIC ITEM");
   if (s.lore) flags.push("LORE ITEM");

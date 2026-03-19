@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "wiki.project1999.com",
-        pathname: "/images/**",
+        hostname: "p99wiki.eqgeeks.org",
+        pathname: "/**",
       },
     ],
   },

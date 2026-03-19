@@ -67,6 +67,7 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
     const itemData = items[equipped.name];
     if (!itemData) continue;
     const s = itemData.stats;
+    if (!s) continue;
     gear.ac += s.ac || 0;
     gear.hp += s.hp || 0;
     gear.mana += s.mana || 0;

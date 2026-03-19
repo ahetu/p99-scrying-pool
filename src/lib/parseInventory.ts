@@ -51,6 +51,8 @@ export function parseInventoryFile(
       continue;
     }
 
+    if (row.name === "Empty" && row.id === 0) continue;
+
     let slotId = mapInventoryLocationToSlot(row.location);
     if (!slotId) continue;
 

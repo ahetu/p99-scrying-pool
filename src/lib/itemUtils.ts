@@ -1,3 +1,3 @@
 export function getItemIconUrl(lucyImgId: number): string {
-  return `https://wiki.project1999.com/images/Item_${lucyImgId}.png`;
+  return `https://p99wiki.eqgeeks.org/index.php?title=Special:Redirect/file/Item_${lucyImgId}.png`;
 }
