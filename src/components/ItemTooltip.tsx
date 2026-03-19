@@ -12,7 +12,7 @@ export default function ItemTooltip({ item }: ItemTooltipProps) {
 
   if (!s) {
     return (
-      <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 border border-amber-500/50 rounded-lg shadow-2xl shadow-black/80 p-3.5 min-w-[270px] max-w-[340px] font-mono text-xs leading-relaxed glow-amber">
+      <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 border border-amber-500/50 rounded-lg shadow-2xl shadow-black/80 p-4 min-w-[270px] max-w-[340px] font-sans font-medium text-[13px] leading-relaxed glow-amber">
         <div className="flex items-start gap-2.5 mb-2 pb-2 border-b border-amber-900/30">
           {item.lucyImgId && (
             <img
@@ -27,9 +27,9 @@ export default function ItemTooltip({ item }: ItemTooltipProps) {
             {item.name}
           </span>
         </div>
-        <p className="text-zinc-500 text-[10px] italic">Stats could not be parsed from wiki</p>
+        <p className="text-zinc-500 text-[11px] italic">Stats could not be parsed from wiki</p>
         {item.wikiUrl && (
-          <a href={item.wikiUrl} target="_blank" rel="noopener noreferrer" className="text-amber-400/60 text-[10px] underline mt-1 block">
+          <a href={item.wikiUrl} target="_blank" rel="noopener noreferrer" className="text-amber-400/60 text-[11px] underline mt-1 block">
             View on Wiki
           </a>
         )}
@@ -58,9 +58,9 @@ export default function ItemTooltip({ item }: ItemTooltipProps) {
   const activeSaves = savePairs.filter(([, v]) => v !== null && v !== 0);
 
   return (
-    <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 border border-amber-500/50 rounded-lg shadow-2xl shadow-black/80 p-3.5 min-w-[270px] max-w-[340px] font-mono text-xs leading-relaxed glow-amber">
+    <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 border border-amber-500/50 rounded-lg shadow-2xl shadow-black/80 p-4 min-w-[270px] max-w-[340px] font-sans font-medium text-[13px] leading-normal glow-amber">
       {/* Header */}
-      <div className="flex items-start gap-2.5 mb-2 pb-2 border-b border-amber-900/30">
+      <div className="flex items-start gap-2.5 mb-2.5 pb-2.5 border-b border-amber-900/30">
         {item.lucyImgId && (
           <img
             src={getItemIconUrl(item.lucyImgId)}
@@ -76,25 +76,25 @@ export default function ItemTooltip({ item }: ItemTooltipProps) {
       </div>
 
       {flags.length > 0 && (
-        <div className="text-zinc-500 text-[10px] tracking-wide">{flags.join(" ")}</div>
+        <div className="text-zinc-500 text-[11px] tracking-wide uppercase">{flags.join(" \u00b7 ")}</div>
       )}
 
       {s.slots.length > 0 && (
-        <div className="text-zinc-300 mt-0.5">
+        <div className="text-zinc-400 mt-1">
           Slot: <span className="text-zinc-200">{s.slots.join(" ")}</span>
         </div>
       )}
 
       {s.skill && (
-        <div className="text-zinc-300">
-          Skill: {s.skill}
-          {s.delay !== null && <span className="ml-3">Atk Delay: {s.delay}</span>}
+        <div className="text-zinc-400 mt-0.5">
+          Skill: <span className="text-zinc-200">{s.skill}</span>
+          {s.delay !== null && <span className="ml-3 text-zinc-400">Atk Delay: <span className="text-zinc-200">{s.delay}</span></span>}
         </div>
       )}
 
       {s.damage !== null && (
-        <div className="text-zinc-200">
-          DMG: <span className="text-red-300">{s.damage}</span>
+        <div className="text-zinc-400 mt-0.5">
+          DMG: <span className="text-red-300 font-semibold tabular-nums">{s.damage}</span>
           {s.ratio !== null && (
             <span className="text-zinc-600 ml-2">(Ratio: {s.ratio})</span>
           )}
@@ -102,61 +102,61 @@ export default function ItemTooltip({ item }: ItemTooltipProps) {
       )}
 
       {s.ac !== null && s.ac !== 0 && (
-        <div className={`font-semibold ${s.ac < 0 ? "text-red-400" : "text-blue-300"}`}>AC: {s.ac}</div>
+        <div className={`font-semibold mt-0.5 tabular-nums ${s.ac < 0 ? "text-red-400" : "text-blue-300"}`}>AC: {s.ac}</div>
       )}
 
       {(s.hp !== null || s.mana !== null) && (
-        <div className="mt-0.5">
+        <div className="mt-1 tabular-nums">
           {s.hp !== null && s.hp !== 0 && (
-            <span className={s.hp < 0 ? "text-red-400" : "text-green-400"}>HP: {s.hp > 0 ? "+" : ""}{s.hp} </span>
+            <span className={`font-semibold ${s.hp < 0 ? "text-red-400" : "text-green-400"}`}>HP: {s.hp > 0 ? "+" : ""}{s.hp} </span>
           )}
           {s.mana !== null && s.mana !== 0 && (
-            <span className={s.mana < 0 ? "text-red-400" : "text-blue-400"}>MANA: {s.mana > 0 ? "+" : ""}{s.mana}</span>
+            <span className={`font-semibold ${s.mana < 0 ? "text-red-400" : "text-blue-400"}`}>MANA: {s.mana > 0 ? "+" : ""}{s.mana}</span>
           )}
         </div>
       )}
 
       {activeStats.length > 0 && (
-        <div className="text-amber-200/90 mt-0.5">
-          {activeStats.map(([label, val], i) => (
+        <div className="text-amber-200/90 mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 tabular-nums">
+          {activeStats.map(([label, val]) => (
             <span key={label}>
-              {i > 0 && " "}
-              {label}: <span className={val! < 0 ? "text-red-400" : "text-amber-100"}>{val! > 0 ? "+" : ""}{val}</span>
+              <span className="text-zinc-400">{label}:</span>{" "}
+              <span className={`font-semibold ${val! < 0 ? "text-red-400" : "text-amber-100"}`}>{val! > 0 ? "+" : ""}{val}</span>
             </span>
           ))}
         </div>
       )}
 
       {activeSaves.length > 0 && (
-        <div className="mt-0.5">
-          {activeSaves.map(([label, val], i) => (
-            <span key={label} className={val! < 0 ? "text-red-400" : "text-purple-300/80"}>
-              {i > 0 && " "}
-              {label}: {val! > 0 ? "+" : ""}{val}
+        <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 tabular-nums">
+          {activeSaves.map(([label, val]) => (
+            <span key={label}>
+              <span className="text-zinc-400">{label}:</span>{" "}
+              <span className={`font-semibold ${val! < 0 ? "text-red-400" : "text-purple-300"}`}>{val! > 0 ? "+" : ""}{val}</span>
             </span>
           ))}
         </div>
       )}
 
       {s.effect && (
-        <div className="text-emerald-300 mt-0.5">
-          Effect: {s.effect}
-          {s.effectType && <span className="text-zinc-500"> ({s.effectType})</span>}
+        <div className="text-emerald-300 mt-1.5">
+          Effect: <span className="font-semibold">{s.effect}</span>
+          {s.effectType && <span className="text-zinc-500 font-normal"> ({s.effectType})</span>}
         </div>
       )}
 
-      <div className="divider-ornate my-1.5" />
+      <div className="divider-ornate my-2" />
 
-      <div className="text-zinc-500 flex justify-between">
+      <div className="text-zinc-500 text-[11px] flex justify-between">
         {s.weight !== null && <span>WT: {s.weight}</span>}
         {s.size && <span>Size: {s.size}</span>}
       </div>
 
       {s.classes.length > 0 && (
-        <div className="text-zinc-500 mt-0.5">Class: {s.classes.join(" ")}</div>
+        <div className="text-zinc-500 text-[11px] mt-0.5">Class: {s.classes.join(" ")}</div>
       )}
       {s.races.length > 0 && (
-        <div className="text-zinc-500">Race: {s.races.join(" ")}</div>
+        <div className="text-zinc-500 text-[11px]">Race: {s.races.join(" ")}</div>
       )}
     </div>
   );
