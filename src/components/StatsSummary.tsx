@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Character, ItemData, BonusPointAllocation } from "@/lib/types";
-import { getBaseStats, getBonusPointsForClass, calculateMaxMana, calculateMaxHp, getManaStat } from "@/lib/baseStats";
+import { getBaseStats, getBonusPointsForClass, calculateMaxMana, calculateMaxHp, getManaStat, calculateDisplayAC } from "@/lib/baseStats";
 
 interface StatsSummaryProps {
   character: Character;
@@ -96,6 +96,13 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
     gear.hp,
   );
 
+  const ac = calculateDisplayAC(
+    character.className,
+    character.level,
+    total("agi"),
+    gear.ac,
+  );
+
   const manaStat = getManaStat(character.className);
   const totalMana = calculateMaxMana(
     character.className,
@@ -184,7 +191,13 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
             Defense &amp; Resources
           </div>
           <div className="space-y-2">
-            <StatBar label="AC" value={gear.ac} max={300} color="from-blue-500 to-blue-400" gearOnly />
+            <StatBar
+              label="AC"
+              value={ac.total}
+              max={500}
+              color="from-blue-500 to-blue-400"
+              sub={`${ac.defense} def+${ac.agi} agi+${ac.items} items`}
+            />
             <StatBar
               label="HP"
               value={totalHp}

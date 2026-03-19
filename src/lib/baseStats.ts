@@ -178,4 +178,55 @@ export function calculateMaxMana(
   return Math.floor(baseMana) + itemMana;
 }
 
+/**
+ * Defense skill cap at level 60 by class.
+ * Source: https://wiki.project1999.com/Skills
+ */
+const CLASS_DEFENSE_CAP_60: Record<string, number> = {
+  "Warrior": 252,
+  "Paladin": 230,
+  "Shadow Knight": 230,
+  "Monk": 230,
+  "Bard": 230,
+  "Rogue": 230,
+  "Ranger": 200,
+  "Cleric": 200,
+  "Druid": 200,
+  "Shaman": 200,
+  "Necromancer": 145,
+  "Wizard": 145,
+  "Magician": 145,
+  "Enchanter": 145,
+};
+
+function getDefenseSkill(className: string, level: number): number {
+  const cap60 = CLASS_DEFENSE_CAP_60[className] || 200;
+  return Math.min(cap60, Math.floor(level * cap60 / 60));
+}
+
+function getAgiAC(agi: number): number {
+  if (agi <= 74) return 0;
+  if (agi <= 137) return Math.floor((agi - 74) / 3);
+  if (agi <= 200) return 21 + Math.floor((agi - 137) / 4);
+  return 36 + Math.floor((agi - 200) / 6);
+}
+
+/**
+ * Estimated displayed AC (unbuffed).
+ * Display AC ≈ floor(defense_skill / 3) + AGI_bonus + item_AC
+ * Defense skill assumes max for class/level.
+ */
+export function calculateDisplayAC(
+  className: string,
+  level: number,
+  totalAgi: number,
+  itemAC: number,
+): { total: number; defense: number; agi: number; items: number } {
+  const defenseSkill = getDefenseSkill(className, level);
+  const defense = Math.floor(defenseSkill / 3);
+  const agi = getAgiAC(totalAgi);
+  const total = defense + agi + itemAC;
+  return { total, defense, agi, items: itemAC };
+}
+
 export type { StatBlock };
