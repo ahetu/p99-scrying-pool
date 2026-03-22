@@ -50,8 +50,11 @@ export function parseStatsBlock(raw: string): ParsedStats {
   const svMagic = extractNumber(text, /SV MAGIC:\s*([+-]?\d+)/i);
   const svPoison = extractNumber(text, /SV POISON:\s*([+-]?\d+)/i);
 
-  const effectMatch = text.match(/Effect:\s*(.+?)(?:\s*\(([^)]+)\))?$/im);
-  const effect = effectMatch ? effectMatch[1].trim() : null;
+  const haste = extractNumber(text, /Haste:\s*\+?(\d+)%/i);
+
+  const effectMatch = text.match(/Effect:\s*(.+?)(?:\s*\(([^)]+)\))?\s*(?:at Level \d+)?$/im);
+  let effect = effectMatch ? effectMatch[1].trim() : null;
+  if (effect) effect = effect.replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, "$1");
   const effectType = effectMatch && effectMatch[2] ? effectMatch[2].trim() : null;
 
   const weight = extractNumber(text, /WT:\s*([\d.]+)/i);
@@ -74,7 +77,7 @@ export function parseStatsBlock(raw: string): ParsedStats {
     ac, hp, mana,
     str, sta, dex, agi, wis, int, cha,
     svFire, svCold, svDisease, svMagic, svPoison,
-    effect, effectType,
+    haste, effect, effectType,
     weight, size, classes, races,
   };
 }

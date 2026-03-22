@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Character } from "@/lib/types";
 import { parseInventoryFile } from "@/lib/parseInventory";
-import { fetchMultipleItems } from "@/lib/wikiItemLookup";
 import { saveCharacter, generateSlug } from "@/lib/storage";
 
 export async function POST(request: NextRequest) {
@@ -17,12 +16,6 @@ export async function POST(request: NextRequest) {
     }
 
     const equipment = parseInventoryFile(inventoryText);
-
-    const itemNames = Object.values(equipment)
-      .filter((item): item is NonNullable<typeof item> => item !== null)
-      .map((item) => item.name);
-
-    await fetchMultipleItems(itemNames);
 
     const id = generateSlug(name);
     const now = new Date().toISOString();

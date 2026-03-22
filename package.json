@@ -7,9 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "scrape": "tsx scripts/scrape-all-items.ts"
+    "scrape": "tsx scripts/scrape-all-items.ts",
+    "enrich": "tsx scripts/enrich-dropsfrom.ts"
   },
   "dependencies": {
+    "@tanstack/react-virtual": "^3.13.23",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",

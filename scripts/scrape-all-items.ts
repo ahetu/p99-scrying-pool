@@ -135,6 +135,7 @@ async function getAllCategoryMembers(categoryName: string): Promise<string[]> {
 function extractFromWikitext(wikitext: string): {
   lucyImgId: number | null;
   statsBlock: string;
+  dropsfrom: string | null;
 } {
   const imgMatch = wikitext.match(/lucy_img_ID\s*=\s*(\d+)/);
   const lucyImgId = imgMatch ? parseInt(imgMatch[1], 10) : null;
@@ -144,7 +145,14 @@ function extractFromWikitext(wikitext: string): {
     wikitext.match(/statsblock\s*=\s*([\s\S]*)/);
   const statsBlock = statsMatch ? statsMatch[1].trim() : "";
 
-  return { lucyImgId, statsBlock };
+  const dropsMatch = wikitext.match(/\|\s*dropsfrom\s*=\s*([^\n|]+)/);
+  let dropsfrom: string | null = null;
+  if (dropsMatch) {
+    dropsfrom = dropsMatch[1].trim().replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, "$1");
+    if (!dropsfrom) dropsfrom = null;
+  }
+
+  return { lucyImgId, statsBlock, dropsfrom };
 }
 
 function isRedirect(wikitext: string): string | null {
@@ -281,7 +289,7 @@ async function fetchAndParseItem(itemName: string): Promise<ItemData | null> {
     const redirectText = await fetchWithRetry(redirectUrl);
     if (!redirectText || isRedirect(redirectText)) return null;
 
-    const { lucyImgId, statsBlock } = extractFromWikitext(redirectText);
+    const { lucyImgId, statsBlock, dropsfrom } = extractFromWikitext(redirectText);
     if (!statsBlock) return null;
 
     const stats = parseStatsBlock(statsBlock);
@@ -291,13 +299,14 @@ async function fetchAndParseItem(itemName: string): Promise<ItemData | null> {
       name: redirectTarget,
       lucyImgId,
       statsBlock,
+      dropsfrom,
       stats,
       wikiUrl: `${WIKI_BASE}/${redirectTitle}`,
       fetchedAt: new Date().toISOString(),
     };
   }
 
-  const { lucyImgId, statsBlock } = extractFromWikitext(wikitext);
+  const { lucyImgId, statsBlock, dropsfrom } = extractFromWikitext(wikitext);
   if (!statsBlock) return null;
 
   const stats = parseStatsBlock(statsBlock);
@@ -307,6 +316,7 @@ async function fetchAndParseItem(itemName: string): Promise<ItemData | null> {
     name: itemName,
     lucyImgId,
     statsBlock,
+    dropsfrom,
     stats,
     wikiUrl: `${WIKI_BASE}/${pageTitle}`,
     fetchedAt: new Date().toISOString(),

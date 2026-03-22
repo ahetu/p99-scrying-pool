@@ -62,12 +62,20 @@ export async function fetchItemFromWiki(itemName: string): Promise<ItemData | nu
 
     const { lucyImgId, statsBlock } = extractFromWikitext(wikitext);
 
+    const dropsMatch = wikitext.match(/\|\s*dropsfrom\s*=\s*([^\n|]+)/);
+    let dropsfrom: string | null = null;
+    if (dropsMatch) {
+      dropsfrom = dropsMatch[1].trim().replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, "$1");
+      if (!dropsfrom) dropsfrom = null;
+    }
+
     const stats = statsBlock ? parseStatsBlock(statsBlock) : null;
 
     const itemData: ItemData = {
       name: itemName,
       lucyImgId,
       statsBlock,
+      dropsfrom,
       stats,
       wikiUrl: `${WIKI_BASE}/${pageTitle}`,
       fetchedAt: new Date().toISOString(),

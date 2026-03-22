@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCharacter, updateCharacter } from "@/lib/storage";
-import { fetchItemFromWiki } from "@/lib/wikiItemLookup";
+import { getItemByNameWithFallback } from "@/lib/itemDatabase";
 import { ItemData, BonusPointAllocation } from "@/lib/types";
 
 export async function GET(
@@ -17,7 +17,7 @@ export async function GET(
   const items: Record<string, ItemData | null> = {};
   for (const [, equippedItem] of Object.entries(character.equipment)) {
     if (equippedItem && !items[equippedItem.name]) {
-      items[equippedItem.name] = await fetchItemFromWiki(equippedItem.name);
+      items[equippedItem.name] = await getItemByNameWithFallback(equippedItem.name);
     }
   }
 

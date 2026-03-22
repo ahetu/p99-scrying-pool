@@ -1,5 +1,5 @@
 import { getCharacter } from "@/lib/storage";
-import { fetchMultipleItems } from "@/lib/wikiItemLookup";
+import { getItemByNameWithFallback } from "@/lib/itemDatabase";
 import { ItemData } from "@/lib/types";
 import { notFound } from "next/navigation";
 import CharacterHeader from "@/components/CharacterHeader";
@@ -20,11 +20,20 @@ export default async function CharacterPage({ params }: PageProps) {
     notFound();
   }
 
-  const itemNames = Object.values(character.equipment)
-    .filter((item): item is NonNullable<typeof item> => item !== null)
-    .map((item) => item.name);
+  const itemNames = [
+    ...new Set(
+      Object.values(character.equipment)
+        .filter((item): item is NonNullable<typeof item> => item !== null)
+        .map((item) => item.name)
+    ),
+  ];
 
-  const items: Record<string, ItemData | null> = await fetchMultipleItems(itemNames);
+  const items: Record<string, ItemData | null> = {};
+  await Promise.all(
+    itemNames.map(async (name) => {
+      items[name] = await getItemByNameWithFallback(name);
+    })
+  );
 
   return (
     <div className="min-h-screen">
