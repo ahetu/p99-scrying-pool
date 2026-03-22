@@ -53,3 +53,4 @@ next-env.d.ts
 /data/scrape-stats.json
 /data/scrape-manifest.json
 /data/enrich-progress.json
+/data/enrich-quests-progress.json

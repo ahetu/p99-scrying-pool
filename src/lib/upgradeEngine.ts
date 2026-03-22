@@ -353,6 +353,7 @@ export function getUpgradesForSlot(
       lucyImgId: candidate.lucyImgId,
       wikiUrl: candidate.wikiUrl,
       dropsfrom: candidate.dropsfrom,
+      relatedquests: candidate.relatedquests ?? null,
       score: candidateScore,
       keyStats: extractKeyStats(candidate.stats),
       statDiffs: computeStatDiffs(candidate.stats, currentItem?.stats ?? null),

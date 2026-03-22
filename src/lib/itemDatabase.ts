@@ -10,6 +10,23 @@ const SLOT_NORMALIZE: Record<string, string> = {
   SECONDAY: "SECONDARY",
 };
 
+const CLASS_NORMALIZE: Record<string, string> = {
+  MKN: "MNK",
+};
+
+function canUse(list: string[], abbrev: string): boolean {
+  if (list.length === 0) return true;
+
+  const exceptIdx = list.indexOf("except");
+  if (list.includes("ALL")) {
+    if (exceptIdx === -1) return true;
+    const excluded = list.slice(exceptIdx + 1);
+    return !excluded.includes(abbrev);
+  }
+
+  return list.includes(abbrev);
+}
+
 let nameIndex: Map<string, ItemData> | null = null;
 let slotIndex: Map<string, ItemData[]> | null = null;
 let dbAvailable = false;
@@ -27,6 +44,11 @@ function ensureLoaded(): void {
     for (const item of items) {
       nameIndex.set(item.name.toLowerCase(), item);
       if (!item.stats) continue;
+
+      item.stats.classes = item.stats.classes.map(
+        (c) => CLASS_NORMALIZE[c] ?? c
+      );
+
       for (const slot of item.stats.slots) {
         const upper = SLOT_NORMALIZE[slot.toUpperCase()] ?? slot.toUpperCase();
         if (!slotIndex.has(upper)) slotIndex.set(upper, []);
@@ -77,17 +99,9 @@ export function getFilteredItemsForSlot(
 
     const { classes, races } = item.stats;
 
-    const classOk =
-      classes.length === 0 ||
-      classes.includes("ALL") ||
-      classes.includes(classAbbrev);
-
-    const raceOk =
-      races.length === 0 ||
-      races.includes("ALL") ||
-      races.includes(raceAbbrev);
-
-    return classOk && raceOk;
+    if (!canUse(classes, classAbbrev)) return false;
+    if (!canUse(races, raceAbbrev)) return false;
+    return true;
   });
 }
 

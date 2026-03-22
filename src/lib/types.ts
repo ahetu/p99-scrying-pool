@@ -32,6 +32,7 @@ export interface ItemData {
   lucyImgId: number | null;
   statsBlock: string;
   dropsfrom: string | null;
+  relatedquests: string[] | null;
   stats: ParsedStats | null;
   wikiUrl: string;
   fetchedAt: string;
@@ -42,6 +43,7 @@ export interface UpgradeItem {
   lucyImgId: number | null;
   wikiUrl: string;
   dropsfrom: string | null;
+  relatedquests: string[] | null;
   score: number;
   keyStats: Record<string, number>;
   statDiffs: Record<string, number>;

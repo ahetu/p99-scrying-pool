@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { Character, ItemData, UpgradeItem } from "@/lib/types";
 import { getItemIconUrl } from "@/lib/itemUtils";
 import ItemTooltip from "./ItemTooltip";
@@ -20,6 +20,61 @@ interface SlotUpgradeData {
 
 const ROLE_TOGGLE_CLASSES = new Set(["Warrior", "Paladin", "Shadow Knight"]);
 
+const RAID_ZONES = new Set([
+  "Temple of Veeshan",
+  "Plane of Hate",
+  "Plane of Fear",
+  "Plane of Sky",
+  "Plane of Growth",
+  "Plane of Mischief",
+  "Veeshan's Peak",
+  "Sleeper's Tomb",
+  "Western Wastes",
+  "Dragon Necropolis",
+  "Icewell Keep",
+  "Nagafen's Lair",
+  "Permafrost",
+]);
+
+const RAID_QUEST_KEYWORDS = [
+  "epic",
+  "plane of sky",
+  "plane of fear",
+  "plane of hate",
+  "plane of growth",
+  "temple of veeshan",
+  "veeshan's peak",
+  "sleeper",
+  "coldain ring #8",
+  "coldain ring #9",
+  "coldain ring #10",
+  "tormax",
+  "yelinak",
+];
+
+function normalizeZone(raw: string): string {
+  return raw
+    .replace(/^\[\[/, "")
+    .replace(/<br\s*\/?>$/i, "")
+    .replace(/^\*\s*/, "")
+    .replace(/\}\}$/, "")
+    .trim();
+}
+
+function isRaidItem(upgrade: UpgradeItem): boolean {
+  if (upgrade.dropsfrom) {
+    const zone = normalizeZone(upgrade.dropsfrom);
+    if (RAID_ZONES.has(zone)) return true;
+  }
+  if (upgrade.relatedquests) {
+    for (const quest of upgrade.relatedquests) {
+      const lower = quest.toLowerCase();
+      if (RAID_QUEST_KEYWORDS.some((kw) => lower.includes(kw))) return true;
+    }
+  }
+  return false;
+}
+
 function getStoredRole(className: string): "tank" | "dps" {
   if (typeof window === "undefined") return "tank";
   try {
@@ -27,6 +82,15 @@ function getStoredRole(className: string): "tank" | "dps" {
     return v === "dps" ? "dps" : "tank";
   } catch {
     return "tank";
+  }
+}
+
+function getStoredRaidFilter(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    return localStorage.getItem("armory-show-raid") !== "false";
+  } catch {
+    return true;
   }
 }
 
@@ -276,6 +340,27 @@ function UpgradePanel({
   currentScore: number;
 }) {
   const [search, setSearch] = useState("");
+  const [showRaid, setShowRaid] = useState(getStoredRaidFilter);
+
+  const handleRaidToggle = useCallback(() => {
+    setShowRaid((prev) => {
+      const next = !prev;
+      try { localStorage.setItem("armory-show-raid", String(next)); } catch { /* noop */ }
+      return next;
+    });
+  }, []);
+
+  const filtered = useMemo(() => {
+    let list = slotData?.upgrades ?? [];
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter((u) => u.name.toLowerCase().includes(q));
+    }
+    if (!showRaid) {
+      list = list.filter((u) => !isRaidItem(u));
+    }
+    return list;
+  }, [slotData?.upgrades, search, showRaid]);
 
   if (isLoading) {
     return (
@@ -298,15 +383,9 @@ function UpgradePanel({
     );
   }
 
-  const filtered = search
-    ? slotData.upgrades.filter((u) =>
-        u.name.toLowerCase().includes(search.toLowerCase())
-      )
-    : slotData.upgrades;
-
   return (
     <div className="bg-zinc-950/40 border-t border-zinc-800/30">
-      {/* Search bar */}
+      {/* Search bar + raid toggle */}
       <div className="px-5 pt-3 pb-2 flex items-center gap-3">
         <input
           type="text"
@@ -316,6 +395,17 @@ function UpgradePanel({
           onClick={(e) => e.stopPropagation()}
           className="flex-1 bg-zinc-900/80 border border-zinc-800/50 rounded-md px-3 py-1.5 text-xs text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-amber-800/50 transition-colors"
         />
+        <button
+          onClick={(e) => { e.stopPropagation(); handleRaidToggle(); }}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-medium transition-colors border whitespace-nowrap ${
+            showRaid
+              ? "bg-zinc-900/60 border-zinc-700/50 text-zinc-400 hover:text-zinc-300"
+              : "bg-amber-900/30 border-amber-700/40 text-amber-400"
+          }`}
+        >
+          <span className={`w-1.5 h-1.5 rounded-full ${showRaid ? "bg-zinc-600" : "bg-amber-400"}`} />
+          {showRaid ? "Raid: On" : "Raid: Off"}
+        </button>
         <span className="text-[10px] text-zinc-600 tabular-nums whitespace-nowrap">
           {filtered.length} item{filtered.length !== 1 ? "s" : ""}
         </span>
@@ -342,7 +432,7 @@ function UpgradePanel({
       {filtered.length === 0 ? (
         <div className="px-8 pb-4">
           <p className="text-zinc-600 text-xs italic">
-            {search ? "No items match your search." : "No upgrades found for this slot."}
+            {search ? "No items match your search." : !showRaid ? "No non-raid items found. Try enabling raid loot." : "No upgrades found for this slot."}
           </p>
         </div>
       ) : (
@@ -415,20 +505,29 @@ function UpgradeRow({
   const [showTooltip, setShowTooltip] = useState(false);
   const scoreDiff = upgrade.score - currentScore;
   const isUpgrade = scoreDiff > 0;
+  const raid = isRaidItem(upgrade);
 
   const topDiffs = Object.entries(upgrade.statDiffs)
     .filter(([, v]) => v !== 0)
     .sort(([, a], [, b]) => Math.abs(b) - Math.abs(a))
     .slice(0, 4);
 
+  const sourceLines: string[] = [];
+  if (upgrade.dropsfrom) sourceLines.push(`Drops: ${normalizeZone(upgrade.dropsfrom)}`);
+  if (upgrade.relatedquests?.length) sourceLines.push(`Quest: ${upgrade.relatedquests[0]}`);
+
   return (
     <div
-      className="relative flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-zinc-800/40 transition-colors group mx-1"
+      className={`relative flex items-center gap-2.5 px-3 py-2 rounded-md transition-colors group mx-1 ${
+        isUpgrade ? "hover:bg-zinc-800/40" : "hover:bg-zinc-800/20 opacity-[0.35]"
+      }`}
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
       {/* Rank */}
-      <span className="text-zinc-700 text-[10px] w-6 text-right tabular-nums flex-shrink-0">
+      <span className={`text-[10px] w-6 text-right tabular-nums flex-shrink-0 ${
+        isUpgrade ? "text-zinc-700" : "text-zinc-800"
+      }`}>
         #{rank}
       </span>
 
@@ -445,44 +544,61 @@ function UpgradeRow({
         <div className="w-5 h-5 rounded bg-zinc-800 flex-shrink-0" />
       )}
 
-      {/* Name + drop source */}
+      {/* Name + source */}
       <div className="flex-1 min-w-0">
-        <a
-          href={upgrade.wikiUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-amber-200/80 text-xs hover:text-amber-100 transition-colors truncate block"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {upgrade.name}
-        </a>
-        {upgrade.dropsfrom && (
-          <span className="text-zinc-600 text-[10px] truncate block">
-            Drops in: {upgrade.dropsfrom}
+        <div className="flex items-center gap-1.5">
+          <a
+            href={upgrade.wikiUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`text-xs transition-colors truncate block ${
+              isUpgrade
+                ? "text-amber-200/80 hover:text-amber-100"
+                : "text-zinc-600 hover:text-zinc-500"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {upgrade.name}
+          </a>
+          {raid && (
+            <span className="text-[8px] text-red-400/60 uppercase tracking-wider flex-shrink-0">
+              raid
+            </span>
+          )}
+        </div>
+        {sourceLines.length > 0 && (
+          <span className={`text-[10px] truncate block ${
+            isUpgrade ? "text-zinc-600" : "text-zinc-700"
+          }`}>
+            {sourceLines.join(" · ")}
           </span>
         )}
       </div>
 
-      {/* Stat pills */}
-      <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
-        {topDiffs.map(([stat, diff]) => (
-          <span
-            key={stat}
-            className={`text-[10px] px-1 py-0.5 rounded tabular-nums ${
-              diff > 0
-                ? "bg-emerald-900/30 text-emerald-400/80"
-                : "bg-red-900/20 text-red-400/60"
-            }`}
-          >
-            {diff > 0 ? "+" : ""}
-            {diff} {formatStatLabel(stat)}
-          </span>
-        ))}
-      </div>
+      {/* Stat pills -- only for upgrades */}
+      {isUpgrade && (
+        <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
+          {topDiffs.map(([stat, diff]) => (
+            <span
+              key={stat}
+              className={`text-[10px] px-1 py-0.5 rounded tabular-nums ${
+                diff > 0
+                  ? "bg-emerald-900/30 text-emerald-400/80"
+                  : "bg-red-900/20 text-red-400/60"
+              }`}
+            >
+              {diff > 0 ? "+" : ""}
+              {diff} {formatStatLabel(stat)}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Flags */}
       {upgrade.flags.includes("NO DROP") && (
-        <span className="text-[9px] text-zinc-600 uppercase tracking-wider flex-shrink-0">
+        <span className={`text-[9px] uppercase tracking-wider flex-shrink-0 ${
+          isUpgrade ? "text-zinc-600" : "text-zinc-700"
+        }`}>
           ND
         </span>
       )}
@@ -490,7 +606,7 @@ function UpgradeRow({
       {/* Score */}
       <span
         className={`text-[11px] font-semibold tabular-nums flex-shrink-0 min-w-[50px] text-right ${
-          isUpgrade ? "text-emerald-400" : "text-zinc-500"
+          isUpgrade ? "text-emerald-400" : "text-zinc-700"
         }`}
       >
         {isUpgrade ? "+" : ""}
@@ -524,6 +640,12 @@ function UpgradeTooltipCompact({ upgrade }: { upgrade: UpgradeItem }) {
     .filter(([, v]) => v !== 0)
     .sort(([, a], [, b]) => Math.abs(b) - Math.abs(a));
 
+  const sourceLines: string[] = [];
+  if (upgrade.dropsfrom) sourceLines.push(`Drops: ${normalizeZone(upgrade.dropsfrom)}`);
+  if (upgrade.relatedquests?.length) {
+    upgrade.relatedquests.forEach((q) => sourceLines.push(`Quest: ${q}`));
+  }
+
   return (
     <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 border border-amber-500/50 rounded-lg shadow-2xl shadow-black/80 p-3 min-w-[220px] max-w-[300px] text-[12px] glow-amber">
       <div className="flex items-start gap-2 mb-2 pb-2 border-b border-amber-900/30">
@@ -540,11 +662,11 @@ function UpgradeTooltipCompact({ upgrade }: { upgrade: UpgradeItem }) {
           <span className="bg-gradient-to-r from-amber-300 to-yellow-200 bg-clip-text text-transparent font-bold text-xs leading-tight block">
             {upgrade.name}
           </span>
-          {upgrade.dropsfrom && (
-            <span className="text-zinc-500 text-[10px] block mt-0.5">
-              Drops in: {upgrade.dropsfrom}
+          {sourceLines.map((line, i) => (
+            <span key={i} className="text-zinc-500 text-[10px] block mt-0.5">
+              {line}
             </span>
-          )}
+          ))}
         </div>
       </div>
 

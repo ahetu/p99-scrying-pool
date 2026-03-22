@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "scrape": "tsx scripts/scrape-all-items.ts",
-    "enrich": "tsx scripts/enrich-dropsfrom.ts"
+    "enrich": "tsx scripts/enrich-dropsfrom.ts",
+    "enrich-quests": "tsx scripts/enrich-quests.ts"
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.13.23",
