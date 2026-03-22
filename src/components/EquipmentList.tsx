@@ -518,100 +518,103 @@ function UpgradeRow({
 
   return (
     <div
-      className={`relative flex items-center gap-2.5 px-3 py-2 rounded-md transition-colors group mx-1 ${
-        isUpgrade ? "hover:bg-zinc-800/40" : "hover:bg-zinc-800/20 opacity-[0.35]"
-      }`}
+      className="relative flex items-center gap-2.5 px-3 py-2 rounded-md transition-colors group mx-1 hover:bg-zinc-800/40"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      {/* Rank */}
-      <span className={`text-[10px] w-6 text-right tabular-nums flex-shrink-0 ${
-        isUpgrade ? "text-zinc-700" : "text-zinc-800"
+      {/* Row content wrapper -- dims for downgrades without affecting the tooltip */}
+      <div className={`flex items-center gap-2.5 flex-1 min-w-0 ${
+        isUpgrade ? "" : "opacity-[0.38]"
       }`}>
-        #{rank}
-      </span>
+        {/* Rank */}
+        <span className={`text-[10px] w-6 text-right tabular-nums flex-shrink-0 ${
+          isUpgrade ? "text-zinc-700" : "text-zinc-700"
+        }`}>
+          #{rank}
+        </span>
 
-      {/* Icon */}
-      {upgrade.lucyImgId ? (
-        <img
-          src={getItemIconUrl(upgrade.lucyImgId)}
-          alt=""
-          width={20}
-          height={20}
-          className="rounded flex-shrink-0"
-        />
-      ) : (
-        <div className="w-5 h-5 rounded bg-zinc-800 flex-shrink-0" />
-      )}
+        {/* Icon */}
+        {upgrade.lucyImgId ? (
+          <img
+            src={getItemIconUrl(upgrade.lucyImgId)}
+            alt=""
+            width={20}
+            height={20}
+            className="rounded flex-shrink-0"
+          />
+        ) : (
+          <div className="w-5 h-5 rounded bg-zinc-800 flex-shrink-0" />
+        )}
 
-      {/* Name + source */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <a
-            href={upgrade.wikiUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`text-xs transition-colors truncate block ${
-              isUpgrade
-                ? "text-amber-200/80 hover:text-amber-100"
-                : "text-zinc-600 hover:text-zinc-500"
-            }`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {upgrade.name}
-          </a>
-          {raid && (
-            <span className="text-[8px] text-red-400/60 uppercase tracking-wider flex-shrink-0">
-              raid
+        {/* Name + source */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <a
+              href={upgrade.wikiUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`text-xs transition-colors truncate block ${
+                isUpgrade
+                  ? "text-amber-200/80 hover:text-amber-100"
+                  : "text-zinc-500 hover:text-zinc-400"
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {upgrade.name}
+            </a>
+            {raid && (
+              <span className="text-[8px] text-red-400/60 uppercase tracking-wider flex-shrink-0">
+                raid
+              </span>
+            )}
+          </div>
+          {sourceLines.length > 0 && (
+            <span className={`text-[10px] truncate block ${
+              isUpgrade ? "text-zinc-600" : "text-zinc-600"
+            }`}>
+              {sourceLines.join(" · ")}
             </span>
           )}
         </div>
-        {sourceLines.length > 0 && (
-          <span className={`text-[10px] truncate block ${
-            isUpgrade ? "text-zinc-600" : "text-zinc-700"
+
+        {/* Stat pills -- only for upgrades */}
+        {isUpgrade && (
+          <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
+            {topDiffs.map(([stat, diff]) => (
+              <span
+                key={stat}
+                className={`text-[10px] px-1 py-0.5 rounded tabular-nums ${
+                  diff > 0
+                    ? "bg-emerald-900/30 text-emerald-400/80"
+                    : "bg-red-900/20 text-red-400/60"
+                }`}
+              >
+                {diff > 0 ? "+" : ""}
+                {diff} {formatStatLabel(stat)}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Flags */}
+        {upgrade.flags.includes("NO DROP") && (
+          <span className={`text-[9px] uppercase tracking-wider flex-shrink-0 ${
+            isUpgrade ? "text-zinc-600" : "text-zinc-600"
           }`}>
-            {sourceLines.join(" · ")}
+            ND
           </span>
         )}
-      </div>
 
-      {/* Stat pills -- only for upgrades */}
-      {isUpgrade && (
-        <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
-          {topDiffs.map(([stat, diff]) => (
-            <span
-              key={stat}
-              className={`text-[10px] px-1 py-0.5 rounded tabular-nums ${
-                diff > 0
-                  ? "bg-emerald-900/30 text-emerald-400/80"
-                  : "bg-red-900/20 text-red-400/60"
-              }`}
-            >
-              {diff > 0 ? "+" : ""}
-              {diff} {formatStatLabel(stat)}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Flags */}
-      {upgrade.flags.includes("NO DROP") && (
-        <span className={`text-[9px] uppercase tracking-wider flex-shrink-0 ${
-          isUpgrade ? "text-zinc-600" : "text-zinc-700"
-        }`}>
-          ND
+        {/* Score */}
+        <span
+          className={`text-[11px] font-semibold tabular-nums flex-shrink-0 min-w-[50px] text-right ${
+            isUpgrade ? "text-emerald-400" : "text-zinc-600"
+          }`}
+        >
+          {isUpgrade ? "+" : ""}
+          {scoreDiff.toFixed(1)}
         </span>
-      )}
-
-      {/* Score */}
-      <span
-        className={`text-[11px] font-semibold tabular-nums flex-shrink-0 min-w-[50px] text-right ${
-          isUpgrade ? "text-emerald-400" : "text-zinc-700"
-        }`}
-      >
-        {isUpgrade ? "+" : ""}
-        {scoreDiff.toFixed(1)}
-      </span>
+      </div>
 
       {showTooltip && (
         <div className="absolute right-0 bottom-full mb-2 z-50 pointer-events-none">
