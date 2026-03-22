@@ -44,6 +44,7 @@ export interface UpgradeItem {
   wikiUrl: string;
   dropsfrom: string | null;
   relatedquests: string[] | null;
+  isRaid: boolean;
   score: number;
   keyStats: Record<string, number>;
   statDiffs: Record<string, number>;

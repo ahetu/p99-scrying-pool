@@ -54,3 +54,4 @@ next-env.d.ts
 /data/scrape-manifest.json
 /data/enrich-progress.json
 /data/enrich-quests-progress.json
+/data/classify-raid-progress.json

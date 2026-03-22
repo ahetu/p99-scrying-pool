@@ -1,0 +1,229 @@
+/**
+ * Classifies quests as raid or non-raid by fetching their wiki pages
+ * and checking Related Zones fields + zone mentions against RAID_ZONES.
+ *
+ * For quest pages that are 404/stubs (e.g. individual Plane of Sky sub-tests),
+ * attempts to resolve a parent page and classify based on that.
+ *
+ * Output: data/raid-quests.json (array of quest names classified as raid)
+ */
+
+import type { ItemData } from "../src/lib/types";
+import fs from "fs";
+import path from "path";
+
+const WIKI_BASE = "https://p99wiki.eqgeeks.org";
+const UA = "NaberialsScryingPool/1.0";
+const CONCURRENCY = 8;
+const BATCH_DELAY_MS = 150;
+const FETCH_TIMEOUT_MS = 10000;
+const MAX_RETRIES = 3;
+
+const DATA_DIR = path.join(process.cwd(), "data");
+const DB_PATH = path.join(DATA_DIR, "item-database.json");
+const OUTPUT_PATH = path.join(DATA_DIR, "raid-quests.json");
+const PROGRESS_PATH = path.join(DATA_DIR, "classify-raid-progress.json");
+
+const RAID_ZONES = new Set([
+  "Temple of Veeshan",
+  "Plane of Hate",
+  "Plane of Fear",
+  "Plane of Sky",
+  "Plane of Growth",
+  "Plane of Mischief",
+  "Veeshan's Peak",
+  "Sleeper's Tomb",
+  "Western Wastes",
+  "Dragon Necropolis",
+  "Icewell Keep",
+  "Nagafen's Lair",
+  "Permafrost",
+  "Kerafyrm's Lair",
+]);
+
+const EQ_CLASSES = [
+  "Bard", "Cleric", "Druid", "Enchanter", "Magician", "Monk",
+  "Necromancer", "Paladin", "Ranger", "Rogue", "Shadow Knight",
+  "Shadowknight", "Shaman", "Warrior", "Wizard",
+];
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function fetchPage(title: string): Promise<string | null> {
+  const url = `${WIKI_BASE}/index.php?title=${encodeURIComponent(title.replace(/ /g, "_"))}&action=raw`;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const resp = await fetch(url, {
+        headers: { "User-Agent": UA },
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      });
+      if (resp.status === 404) return null;
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      return await resp.text();
+    } catch {
+      if (attempt === MAX_RETRIES) return null;
+      await sleep(1000 * Math.pow(2, attempt - 1));
+    }
+  }
+  return null;
+}
+
+function extractRelatedZones(wikitext: string): string[] {
+  const match = wikitext.match(/Related Zones.*?\n\|(.*)/);
+  if (!match) return [];
+  const raw = match[1];
+  const zones: string[] = [];
+  const re = /\[\[([^\]|]+)/g;
+  let m;
+  while ((m = re.exec(raw)) !== null) {
+    zones.push(m[1].trim());
+  }
+  return zones;
+}
+
+function mentionsRaidZone(wikitext: string): boolean {
+  for (const zone of RAID_ZONES) {
+    if (wikitext.includes(zone)) return true;
+  }
+  return false;
+}
+
+function classifyFromPage(wikitext: string): boolean {
+  const relatedZones = extractRelatedZones(wikitext);
+  for (const zone of relatedZones) {
+    if (RAID_ZONES.has(zone)) return true;
+  }
+  if (mentionsRaidZone(wikitext)) return true;
+  return false;
+}
+
+function getParentPageName(questName: string): string | null {
+  for (const cls of EQ_CLASSES) {
+    if (questName.startsWith(`${cls} Test of `)) {
+      return `${cls} Plane of Sky Tests`;
+    }
+  }
+  if (questName.startsWith("Crusader's Test of ")) {
+    return "Paladin Plane of Sky Tests";
+  }
+  const coldainMatch = questName.match(/^Coldain Ring #(\d+)/);
+  if (coldainMatch) {
+    const ring = parseInt(coldainMatch[1], 10);
+    if (ring >= 8) return null; // known raid, handle separately
+  }
+  return null;
+}
+
+interface ProgressData {
+  classified: Record<string, boolean>;
+}
+
+async function main() {
+  console.log("===========================================");
+  console.log("  Classifying quests as raid / non-raid");
+  console.log("===========================================\n");
+
+  const items: ItemData[] = JSON.parse(fs.readFileSync(DB_PATH, "utf-8"));
+  const allQuests = new Set<string>();
+  for (const item of items) {
+    if (item.relatedquests) {
+      for (const q of item.relatedquests) allQuests.add(q);
+    }
+  }
+  console.log(`  Unique quest names: ${allQuests.size}\n`);
+
+  let progress: ProgressData = { classified: {} };
+  try {
+    progress = JSON.parse(fs.readFileSync(PROGRESS_PATH, "utf-8"));
+    console.log(`  Resuming: ${Object.keys(progress.classified).length} already done\n`);
+  } catch { /* fresh start */ }
+
+  const toProcess = [...allQuests].filter((q) => !(q in progress.classified));
+  console.log(`  Need to fetch: ${toProcess.length} quest pages\n`);
+
+  const parentPageCache = new Map<string, string | null>();
+  const startTime = Date.now();
+  let processed = 0;
+  let raidCount = 0;
+
+  for (let i = 0; i < toProcess.length; i += CONCURRENCY) {
+    const batch = toProcess.slice(i, i + CONCURRENCY);
+
+    const results = await Promise.all(
+      batch.map(async (questName) => {
+        const wikitext = await fetchPage(questName);
+        return { questName, wikitext };
+      })
+    );
+
+    for (const { questName, wikitext } of results) {
+      processed++;
+      let isRaid = false;
+
+      if (wikitext && wikitext.length > 100) {
+        isRaid = classifyFromPage(wikitext);
+      } else {
+        const parentName = getParentPageName(questName);
+        if (parentName) {
+          if (!parentPageCache.has(parentName)) {
+            const parentText = await fetchPage(parentName);
+            parentPageCache.set(parentName, parentText);
+          }
+          const parentText = parentPageCache.get(parentName);
+          if (parentText && parentText.length > 100) {
+            isRaid = classifyFromPage(parentText);
+          }
+        }
+
+        const coldainMatch = questName.match(/^Coldain Ring #(\d+)/);
+        if (coldainMatch && parseInt(coldainMatch[1], 10) >= 8) {
+          isRaid = true;
+        }
+      }
+
+      progress.classified[questName] = isRaid;
+      if (isRaid) raidCount++;
+    }
+
+    if (processed % 50 === 0 || i + CONCURRENCY >= toProcess.length) {
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      const pct = ((processed / toProcess.length) * 100).toFixed(1);
+      const rate = Math.max(0.1, processed / ((Date.now() - startTime) / 1000));
+      const eta = ((toProcess.length - processed) / rate).toFixed(0);
+      console.log(
+        `  [${pct}%] ${processed}/${toProcess.length} | ${raidCount} raid quests | ${elapsed}s elapsed ~${eta}s left`
+      );
+    }
+
+    if (processed % 200 === 0) {
+      fs.writeFileSync(PROGRESS_PATH, JSON.stringify(progress));
+    }
+
+    if (i + CONCURRENCY < toProcess.length) await sleep(BATCH_DELAY_MS);
+  }
+
+  const raidQuests = Object.entries(progress.classified)
+    .filter(([, isRaid]) => isRaid)
+    .map(([name]) => name)
+    .sort();
+
+  fs.writeFileSync(OUTPUT_PATH, JSON.stringify(raidQuests, null, 2));
+  try { fs.unlinkSync(PROGRESS_PATH); } catch { /* ok */ }
+
+  const totalClassified = Object.keys(progress.classified).length;
+  console.log("\n===========================================");
+  console.log("  Classification Complete!");
+  console.log("===========================================");
+  console.log(`  Total quests classified: ${totalClassified}`);
+  console.log(`  Raid quests:            ${raidQuests.length}`);
+  console.log(`  Non-raid quests:        ${totalClassified - raidQuests.length}`);
+  console.log(`  Output: ${OUTPUT_PATH}`);
+  console.log(`  Time elapsed:           ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
+}
+
+main().catch((err) => {
+  console.error("Fatal error:", err);
+  process.exit(1);
+});

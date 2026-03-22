@@ -20,60 +20,13 @@ interface SlotUpgradeData {
 
 const ROLE_TOGGLE_CLASSES = new Set(["Warrior", "Paladin", "Shadow Knight"]);
 
-const RAID_ZONES = new Set([
-  "Temple of Veeshan",
-  "Plane of Hate",
-  "Plane of Fear",
-  "Plane of Sky",
-  "Plane of Growth",
-  "Plane of Mischief",
-  "Veeshan's Peak",
-  "Sleeper's Tomb",
-  "Western Wastes",
-  "Dragon Necropolis",
-  "Icewell Keep",
-  "Nagafen's Lair",
-  "Permafrost",
-]);
-
-const RAID_QUEST_KEYWORDS = [
-  "epic",
-  "plane of sky",
-  "plane of fear",
-  "plane of hate",
-  "plane of growth",
-  "temple of veeshan",
-  "veeshan's peak",
-  "sleeper",
-  "coldain ring #8",
-  "coldain ring #9",
-  "coldain ring #10",
-  "tormax",
-  "yelinak",
-  "test of",
-];
-
-function normalizeZone(raw: string): string {
+function cleanZoneName(raw: string): string {
   return raw
     .replace(/^\[\[/, "")
     .replace(/<br\s*\/?>$/i, "")
     .replace(/^\*\s*/, "")
     .replace(/\}\}$/, "")
     .trim();
-}
-
-function isRaidItem(upgrade: UpgradeItem): boolean {
-  if (upgrade.dropsfrom) {
-    const zone = normalizeZone(upgrade.dropsfrom);
-    if (RAID_ZONES.has(zone)) return true;
-  }
-  if (upgrade.relatedquests) {
-    for (const quest of upgrade.relatedquests) {
-      const lower = quest.toLowerCase();
-      if (RAID_QUEST_KEYWORDS.some((kw) => lower.includes(kw))) return true;
-    }
-  }
-  return false;
 }
 
 function getStoredRole(className: string): "tank" | "dps" {
@@ -358,7 +311,7 @@ function UpgradePanel({
       list = list.filter((u) => u.name.toLowerCase().includes(q));
     }
     if (!showRaid) {
-      list = list.filter((u) => !isRaidItem(u));
+      list = list.filter((u) => !u.isRaid);
     }
     return list;
   }, [slotData?.upgrades, search, showRaid]);
@@ -506,7 +459,7 @@ function UpgradeRow({
   const [showTooltip, setShowTooltip] = useState(false);
   const scoreDiff = upgrade.score - currentScore;
   const isUpgrade = scoreDiff > 0;
-  const raid = isRaidItem(upgrade);
+  const raid = upgrade.isRaid;
 
   const topDiffs = Object.entries(upgrade.statDiffs)
     .filter(([, v]) => v !== 0)
@@ -514,7 +467,7 @@ function UpgradeRow({
     .slice(0, 4);
 
   const sourceLines: string[] = [];
-  if (upgrade.dropsfrom) sourceLines.push(`Drops: ${normalizeZone(upgrade.dropsfrom)}`);
+  if (upgrade.dropsfrom) sourceLines.push(`Drops: ${cleanZoneName(upgrade.dropsfrom)}`);
   if (upgrade.relatedquests?.length) sourceLines.push(`Quest: ${upgrade.relatedquests[0]}`);
 
   return (
@@ -645,7 +598,7 @@ function UpgradeTooltipCompact({ upgrade }: { upgrade: UpgradeItem }) {
     .sort(([, a], [, b]) => Math.abs(b) - Math.abs(a));
 
   const sourceLines: string[] = [];
-  if (upgrade.dropsfrom) sourceLines.push(`Drops: ${normalizeZone(upgrade.dropsfrom)}`);
+  if (upgrade.dropsfrom) sourceLines.push(`Drops: ${cleanZoneName(upgrade.dropsfrom)}`);
   if (upgrade.relatedquests?.length) {
     upgrade.relatedquests.forEach((q) => sourceLines.push(`Quest: ${q}`));
   }

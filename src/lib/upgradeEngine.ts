@@ -1,6 +1,7 @@
 import { ItemData, ParsedStats, UpgradeItem } from "./types";
 import { getClassWeights, isMeleeClass, isCasterClass, isHealerClass, ClassWeights, ROLE_TOGGLE_CLASSES } from "./classStatWeights";
 import { getFilteredItemsForSlot } from "./itemDatabase";
+import { isRaidItem } from "./raidClassifier";
 
 const WEAPON_SLOTS = new Set(["primary", "secondary", "range"]);
 
@@ -354,6 +355,7 @@ export function getUpgradesForSlot(
       wikiUrl: candidate.wikiUrl,
       dropsfrom: candidate.dropsfrom,
       relatedquests: candidate.relatedquests ?? null,
+      isRaid: isRaidItem(candidate.dropsfrom, candidate.relatedquests ?? null),
       score: candidateScore,
       keyStats: extractKeyStats(candidate.stats),
       statDiffs: computeStatDiffs(candidate.stats, currentItem?.stats ?? null),
