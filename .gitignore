@@ -46,3 +46,9 @@ next-env.d.ts
 # character data (user-generated, not committed)
 /data/characters/*.json
 /data/items/*.json
+
+# scraper working files (not committed)
+/data/scrape-progress.json
+/data/scrape-errors.json
+/data/scrape-stats.json
+/data/scrape-manifest.json
