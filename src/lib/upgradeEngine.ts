@@ -1,11 +1,14 @@
 import { ItemData, ParsedStats, UpgradeItem } from "./types";
-import { getClassWeights, isMeleeClass, isCasterClass, isHealerClass, ClassWeights } from "./classStatWeights";
+import { getClassWeights, isMeleeClass, isCasterClass, isHealerClass, ClassWeights, ROLE_TOGGLE_CLASSES } from "./classStatWeights";
 import { getFilteredItemsForSlot } from "./itemDatabase";
 
 const WEAPON_SLOTS = new Set(["primary", "secondary", "range"]);
 
 const ROGUE_BACKSTAB_WEIGHT = 22;
 const ROGUE_NON_PIERCING_PENALTY = 0.15;
+
+const DUAL_WIELD_NON_WEAPON_PENALTY = 0.12;
+const DUAL_WIELD_CLASSES = new Set(["Rogue", "Ranger", "Monk"]);
 
 const BARD_LOW_DELAY_BONUS = 2.0;
 const BARD_DELAY_BASELINE = 30;
@@ -179,9 +182,10 @@ export function scoreItem(
   stats: ParsedStats,
   className: string,
   slotId: string,
-  currentEquippedHaste: number = 0
+  currentEquippedHaste: number = 0,
+  role?: string
 ): number {
-  const weights = getClassWeights(className);
+  const weights = getClassWeights(className, role);
   let score = 0;
 
   score += (stats.hp ?? 0) * weights.hp;
@@ -201,7 +205,12 @@ export function scoreItem(
   score += (stats.svMagic ?? 0) * weights.svMagic;
   score += (stats.svPoison ?? 0) * weights.svPoison;
 
-  let isRogueNonPiercing = false;
+  let finalMultiplier = 1.0;
+  const isActualWeapon = stats.damage !== null && stats.delay !== null;
+
+  const shouldDualWield =
+    DUAL_WIELD_CLASSES.has(className) ||
+    (className === "Warrior" && role === "dps");
 
   if (isWeaponSlot(slotId)) {
     if (isMeleeClass(className)) {
@@ -209,16 +218,26 @@ export function scoreItem(
         const isPiercing = stats.skill?.toLowerCase() === "piercing";
         if (isPiercing) {
           score += (stats.damage ?? 0) * ROGUE_BACKSTAB_WEIGHT;
+        } else if (isActualWeapon) {
+          finalMultiplier = ROGUE_NON_PIERCING_PENALTY;
         } else {
-          isRogueNonPiercing = true;
+          finalMultiplier = DUAL_WIELD_NON_WEAPON_PENALTY;
         }
       } else if (className === "Bard") {
-        if (stats.ratio) score += stats.ratio * weights.weaponRatio;
-        const delay = stats.delay ?? 30;
-        score += Math.max(0, BARD_DELAY_BASELINE - delay) * BARD_LOW_DELAY_BONUS;
+        if (isActualWeapon) {
+          if (stats.ratio) score += stats.ratio * weights.weaponRatio;
+          const delay = stats.delay ?? 30;
+          score += Math.max(0, BARD_DELAY_BASELINE - delay) * BARD_LOW_DELAY_BONUS;
+        }
       } else {
-        if (stats.ratio) score += stats.ratio * weights.weaponRatio;
+        if (isActualWeapon) {
+          if (stats.ratio) score += stats.ratio * weights.weaponRatio;
+        }
       }
+    }
+
+    if (slotId === "secondary" && shouldDualWield && !isActualWeapon) {
+      finalMultiplier = DUAL_WIELD_NON_WEAPON_PENALTY;
     }
   }
 
@@ -229,9 +248,7 @@ export function scoreItem(
   score += getHasteBonus(stats, weights, currentEquippedHaste);
   score += getEffectBonus(stats, className, weights);
 
-  if (isRogueNonPiercing) {
-    score *= ROGUE_NON_PIERCING_PENALTY;
-  }
+  score *= finalMultiplier;
 
   return Math.round(score * 100) / 100;
 }
@@ -302,7 +319,8 @@ export function getUpgradesForSlot(
   race: string,
   currentItem: ItemData | null,
   equippedLoreItems: Set<string>,
-  currentEquippedHaste: number = 0
+  currentEquippedHaste: number = 0,
+  role?: string
 ): { upgrades: UpgradeItem[]; currentScore: number } {
   const candidates = getFilteredItemsForSlot(slotId, className, race);
 
@@ -312,7 +330,7 @@ export function getUpgradesForSlot(
   const hasteForScoring = isCurrentSlotHasteSource ? 0 : currentEquippedHaste;
 
   const currentScore = currentItem?.stats
-    ? scoreItem(currentItem.stats, className, slotId, hasteForScoring)
+    ? scoreItem(currentItem.stats, className, slotId, hasteForScoring, role)
     : 0;
 
   const upgrades: UpgradeItem[] = [];
@@ -328,7 +346,7 @@ export function getUpgradesForSlot(
       continue;
     }
 
-    const candidateScore = scoreItem(candidate.stats, className, slotId, hasteForScoring);
+    const candidateScore = scoreItem(candidate.stats, className, slotId, hasteForScoring, role);
 
     upgrades.push({
       name: candidate.name,

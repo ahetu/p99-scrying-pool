@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
   const currentItemName = searchParams.get("currentItem");
   const loreItemsParam = searchParams.get("loreItems");
   const currentHasteParam = searchParams.get("currentHaste");
+  const role = searchParams.get("role") ?? undefined;
 
   if (!slot || !className || !race) {
     return NextResponse.json(
@@ -42,7 +43,8 @@ export async function GET(request: NextRequest) {
     race,
     currentItem,
     equippedLoreItems,
-    currentEquippedHaste
+    currentEquippedHaste,
+    role
   );
 
   return NextResponse.json({

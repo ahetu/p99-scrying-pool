@@ -5,6 +5,11 @@ import path from "path";
 
 const DB_PATH = path.join(process.cwd(), "data", "item-database.json");
 
+const SLOT_NORMALIZE: Record<string, string> = {
+  FINGER: "FINGERS",
+  SECONDAY: "SECONDARY",
+};
+
 let nameIndex: Map<string, ItemData> | null = null;
 let slotIndex: Map<string, ItemData[]> | null = null;
 let dbAvailable = false;
@@ -23,7 +28,7 @@ function ensureLoaded(): void {
       nameIndex.set(item.name.toLowerCase(), item);
       if (!item.stats) continue;
       for (const slot of item.stats.slots) {
-        const upper = slot.toUpperCase();
+        const upper = SLOT_NORMALIZE[slot.toUpperCase()] ?? slot.toUpperCase();
         if (!slotIndex.has(upper)) slotIndex.set(upper, []);
         slotIndex.get(upper)!.push(item);
       }

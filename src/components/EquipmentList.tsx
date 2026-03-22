@@ -18,14 +18,40 @@ interface SlotUpgradeData {
   dbAvailable: boolean;
 }
 
+const ROLE_TOGGLE_CLASSES = new Set(["Warrior", "Paladin", "Shadow Knight"]);
+
+function getStoredRole(className: string): "tank" | "dps" {
+  if (typeof window === "undefined") return "tank";
+  try {
+    const v = localStorage.getItem(`armory-role-${className}`);
+    return v === "dps" ? "dps" : "tank";
+  } catch {
+    return "tank";
+  }
+}
+
 export default function EquipmentList({ character, items }: EquipmentListProps) {
   const entries = Object.entries(character.equipment).filter(
     ([, item]) => item !== null
   );
 
+  const hasRoleToggle = ROLE_TOGGLE_CLASSES.has(character.className);
+  const [role, setRole] = useState<"tank" | "dps">(() => getStoredRole(character.className));
   const [expandedSlot, setExpandedSlot] = useState<string | null>(null);
   const [upgradeCache, setUpgradeCache] = useState<Record<string, SlotUpgradeData>>({});
   const [loadingSlots, setLoadingSlots] = useState<Set<string>>(new Set());
+
+  const handleRoleChange = useCallback(
+    (newRole: "tank" | "dps") => {
+      setRole(newRole);
+      try {
+        localStorage.setItem(`armory-role-${character.className}`, newRole);
+      } catch { /* noop */ }
+      setUpgradeCache({});
+      setExpandedSlot(null);
+    },
+    [character.className]
+  );
 
   const loreItems = entries
     .filter(([, item]) => {
@@ -57,6 +83,7 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
       if (equippedItem) params.set("currentItem", equippedItem.name);
       if (loreItems.length > 0) params.set("loreItems", loreItems.join("|"));
       if (currentMaxHaste > 0) params.set("currentHaste", String(currentMaxHaste));
+      if (hasRoleToggle) params.set("role", role);
 
       try {
         const resp = await fetch(`/api/upgrades?${params}`);
@@ -75,7 +102,7 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
         });
       }
     },
-    [character, items, loreItems, upgradeCache]
+    [character, items, loreItems, upgradeCache, role, hasRoleToggle, currentMaxHaste]
   );
 
   const toggleSlot = useCallback(
@@ -92,6 +119,34 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
 
   return (
     <div className="card-fantasy rounded-xl">
+      {hasRoleToggle && (
+        <div className="flex items-center gap-3 px-5 py-2.5 border-b border-zinc-800/30">
+          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Gear Role</span>
+          <div className="flex rounded-md overflow-hidden border border-zinc-700/50">
+            <button
+              onClick={() => handleRoleChange("tank")}
+              className={`px-3 py-1 text-[11px] font-medium transition-colors ${
+                role === "tank"
+                  ? "bg-amber-900/40 text-amber-300 border-r border-zinc-700/50"
+                  : "bg-zinc-900/60 text-zinc-500 hover:text-zinc-300 border-r border-zinc-700/50"
+              }`}
+            >
+              Tank
+            </button>
+            <button
+              onClick={() => handleRoleChange("dps")}
+              className={`px-3 py-1 text-[11px] font-medium transition-colors ${
+                role === "dps"
+                  ? "bg-amber-900/40 text-amber-300"
+                  : "bg-zinc-900/60 text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              DPS
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="divide-y divide-zinc-800/30">
         {entries.map(([slotId, item]) => {
           const itemData = item ? items[item.name] : null;
@@ -264,6 +319,24 @@ function UpgradePanel({
         <span className="text-[10px] text-zinc-600 tabular-nums whitespace-nowrap">
           {filtered.length} item{filtered.length !== 1 ? "s" : ""}
         </span>
+      </div>
+
+      {/* Score explanation */}
+      <div className="px-5 pb-2">
+        <p className="text-[10px] text-zinc-600 leading-relaxed">
+          Ranked by a <span className="text-zinc-500">weighted score</span> based on your class&apos;s stat priorities.{" "}
+          <span className="text-emerald-500/70">Green</span> = upgrade over equipped,{" "}
+          <span className="text-zinc-500">gray</span> = downgrade.
+        </p>
+      </div>
+
+      {/* Column legend */}
+      <div className="px-5 pb-1 flex items-center text-[9px] text-zinc-600 uppercase tracking-wider">
+        <span className="w-6 mr-2.5" />
+        <span className="w-5 mr-2.5" />
+        <span className="flex-1">Item</span>
+        <span className="hidden sm:block mr-1">Stat changes vs. equipped</span>
+        <span className="min-w-[50px] text-right">Score</span>
       </div>
 
       {filtered.length === 0 ? (

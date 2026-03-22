@@ -31,6 +31,8 @@ export interface ClassWeights {
   hasteMultiplier: number;
 }
 
+export const ROLE_TOGGLE_CLASSES = new Set(["Warrior", "Paladin", "Shadow Knight"]);
+
 const PROFILES: Record<string, ClassWeights> = {
   Warrior: {
     hp: 1.5, mana: 0.01, ac: 1.2,
@@ -39,6 +41,13 @@ const PROFILES: Record<string, ClassWeights> = {
     svFire: 0.2, svCold: 0.15, svDisease: 0.1, svMagic: 0.25, svPoison: 0.1,
     weaponRatio: 25, hasteMultiplier: 30,
   },
+  "Warrior:dps": {
+    hp: 1.0, mana: 0.01, ac: 0.5,
+    str: 2.2, sta: 0.8, dex: 1.8, agi: 1.0,
+    wis: 0.02, int: 0.02, cha: 0.02,
+    svFire: 0.12, svCold: 0.1, svDisease: 0.06, svMagic: 0.15, svPoison: 0.06,
+    weaponRatio: 30, hasteMultiplier: 35,
+  },
   Paladin: {
     hp: 1.3, mana: 0.6, ac: 1.0,
     str: 1.0, sta: 1.5, dex: 0.4, agi: 0.8,
@@ -46,12 +55,26 @@ const PROFILES: Record<string, ClassWeights> = {
     svFire: 0.2, svCold: 0.15, svDisease: 0.1, svMagic: 0.25, svPoison: 0.1,
     weaponRatio: 18, hasteMultiplier: 25,
   },
+  "Paladin:dps": {
+    hp: 1.0, mana: 0.5, ac: 0.6,
+    str: 2.0, sta: 1.0, dex: 1.0, agi: 0.8,
+    wis: 2.5, int: 0.02, cha: 0.1,
+    svFire: 0.15, svCold: 0.1, svDisease: 0.08, svMagic: 0.18, svPoison: 0.08,
+    weaponRatio: 22, hasteMultiplier: 28,
+  },
   "Shadow Knight": {
     hp: 1.3, mana: 0.6, ac: 1.0,
     str: 1.2, sta: 1.5, dex: 0.4, agi: 0.8,
     wis: 0.02, int: 2.5, cha: 0.2,
     svFire: 0.2, svCold: 0.15, svDisease: 0.1, svMagic: 0.25, svPoison: 0.1,
     weaponRatio: 18, hasteMultiplier: 25,
+  },
+  "Shadow Knight:dps": {
+    hp: 1.0, mana: 0.5, ac: 0.6,
+    str: 2.2, sta: 1.0, dex: 1.0, agi: 0.8,
+    wis: 0.02, int: 2.5, cha: 0.1,
+    svFire: 0.15, svCold: 0.1, svDisease: 0.08, svMagic: 0.18, svPoison: 0.08,
+    weaponRatio: 22, hasteMultiplier: 28,
   },
   Monk: {
     hp: 1.2, mana: 0.01, ac: 0.6,
@@ -132,7 +155,10 @@ const PROFILES: Record<string, ClassWeights> = {
   },
 };
 
-export function getClassWeights(className: string): ClassWeights {
+export function getClassWeights(className: string, role?: string): ClassWeights {
+  if (role === "dps" && ROLE_TOGGLE_CLASSES.has(className)) {
+    return PROFILES[`${className}:dps`] ?? PROFILES[className] ?? PROFILES["Warrior"];
+  }
   return PROFILES[className] ?? PROFILES["Warrior"];
 }
 
