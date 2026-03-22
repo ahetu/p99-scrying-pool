@@ -50,6 +50,7 @@ const RAID_QUEST_KEYWORDS = [
   "coldain ring #10",
   "tormax",
   "yelinak",
+  "test of",
 ];
 
 function normalizeZone(raw: string): string {
