@@ -3,12 +3,16 @@
  *
  * Each weight is a multiplier applied to the raw stat value. HP/Mana weights
  * are proportionally lower because item values are 5-10x larger (e.g., +100 HP
- * vs +10 WIS). Tuned so that +10 of a primary stat scores comparably to ~50 HP.
+ * vs +10 WIS).
+ *
+ * Key tuning principle: for casters/healers, +1 of their primary casting stat
+ * (WIS/INT) yields ~10 mana. Their primary stat weight should dominate HP/AC
+ * so that a +5 WIS item always beats a +25 HP item with random tiebreaker stats.
+ * Melee classes keep higher HP/AC weights since survivability IS their job.
  *
  * Stats that are "useless" for a class still get small positive tiebreaker
  * values (0.02-0.05) so that items with bonus stats are correctly preferred
- * over items without, all else being equal. STR always has a small value
- * for carry weight capacity.
+ * over items without, all else being equal.
  */
 
 export interface ClassWeights {
@@ -105,51 +109,51 @@ const PROFILES: Record<string, ClassWeights> = {
     weaponRatio: 8, hasteMultiplier: 15,
   },
   Cleric: {
-    hp: 1.0, mana: 0.8, ac: 0.6,
-    str: 0.05, sta: 0.8, dex: 0.03, agi: 0.2,
-    wis: 4.0, int: 0.02, cha: 0.05,
+    hp: 0.5, mana: 0.8, ac: 0.3,
+    str: 0.05, sta: 0.4, dex: 0.03, agi: 0.15,
+    wis: 5.0, int: 0.02, cha: 0.05,
     svFire: 0.15, svCold: 0.12, svDisease: 0.08, svMagic: 0.2, svPoison: 0.08,
     weaponRatio: 0, hasteMultiplier: 0,
   },
   Druid: {
-    hp: 0.8, mana: 0.8, ac: 0.4,
-    str: 0.05, sta: 0.6, dex: 0.03, agi: 0.2,
-    wis: 4.0, int: 0.02, cha: 0.05,
+    hp: 0.4, mana: 0.8, ac: 0.2,
+    str: 0.05, sta: 0.3, dex: 0.03, agi: 0.15,
+    wis: 5.0, int: 0.02, cha: 0.05,
     svFire: 0.15, svCold: 0.12, svDisease: 0.08, svMagic: 0.2, svPoison: 0.08,
     weaponRatio: 0, hasteMultiplier: 0,
   },
   Shaman: {
-    hp: 1.0, mana: 0.8, ac: 0.5,
-    str: 0.15, sta: 1.0, dex: 0.05, agi: 0.2,
-    wis: 3.5, int: 0.02, cha: 0.1,
+    hp: 0.6, mana: 0.8, ac: 0.35,
+    str: 0.1, sta: 0.5, dex: 0.05, agi: 0.15,
+    wis: 4.5, int: 0.02, cha: 0.1,
     svFire: 0.15, svCold: 0.12, svDisease: 0.08, svMagic: 0.2, svPoison: 0.08,
     weaponRatio: 0, hasteMultiplier: 8,
   },
   Enchanter: {
-    hp: 0.8, mana: 0.9, ac: 0.3,
-    str: 0.03, sta: 0.4, dex: 0.02, agi: 0.15,
-    wis: 0.02, int: 4.0, cha: 3.0,
+    hp: 0.4, mana: 0.9, ac: 0.15,
+    str: 0.03, sta: 0.2, dex: 0.02, agi: 0.1,
+    wis: 0.02, int: 5.0, cha: 3.5,
     svFire: 0.15, svCold: 0.12, svDisease: 0.08, svMagic: 0.2, svPoison: 0.08,
     weaponRatio: 0, hasteMultiplier: 0,
   },
   Magician: {
-    hp: 0.7, mana: 0.9, ac: 0.3,
-    str: 0.03, sta: 0.4, dex: 0.02, agi: 0.15,
-    wis: 0.02, int: 4.0, cha: 0.03,
+    hp: 0.35, mana: 0.9, ac: 0.15,
+    str: 0.03, sta: 0.2, dex: 0.02, agi: 0.1,
+    wis: 0.02, int: 5.0, cha: 0.03,
     svFire: 0.15, svCold: 0.12, svDisease: 0.08, svMagic: 0.2, svPoison: 0.08,
     weaponRatio: 0, hasteMultiplier: 0,
   },
   Necromancer: {
-    hp: 0.7, mana: 0.9, ac: 0.3,
-    str: 0.03, sta: 0.4, dex: 0.02, agi: 0.15,
-    wis: 0.02, int: 4.0, cha: 0.03,
+    hp: 0.35, mana: 0.9, ac: 0.15,
+    str: 0.03, sta: 0.2, dex: 0.02, agi: 0.1,
+    wis: 0.02, int: 5.0, cha: 0.03,
     svFire: 0.15, svCold: 0.12, svDisease: 0.08, svMagic: 0.2, svPoison: 0.08,
     weaponRatio: 0, hasteMultiplier: 0,
   },
   Wizard: {
-    hp: 0.7, mana: 1.0, ac: 0.3,
-    str: 0.03, sta: 0.4, dex: 0.02, agi: 0.15,
-    wis: 0.02, int: 4.0, cha: 0.03,
+    hp: 0.35, mana: 1.0, ac: 0.15,
+    str: 0.03, sta: 0.2, dex: 0.02, agi: 0.1,
+    wis: 0.02, int: 5.0, cha: 0.03,
     svFire: 0.15, svCold: 0.12, svDisease: 0.08, svMagic: 0.2, svPoison: 0.08,
     weaponRatio: 0, hasteMultiplier: 0,
   },
