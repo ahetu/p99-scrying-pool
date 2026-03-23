@@ -41,6 +41,18 @@ const RAID_ZONES = new Set([
   "Kerafyrm's Lair",
 ]);
 
+const RAID_NPCS = new Set([
+  "Lodizal", "Severilous", "Talendor", "Faydedar", "Gorenaire",
+  "Trakanon", "Venril Sathir", "Lord Doljonijiarnimorinar",
+  "King Tormax", "Statue of Rallos Zek", "Yelinak",
+  "Cazic Thule", "Innoruuk", "Thought Destroyer",
+  "Phinigel Autropos", "The Ishva Mal", "Drusella Sathir",
+  "Overking Bathezid", "The Fabled Lodizal",
+  "Dozekar the Cursed", "Lord Kreizenn", "Klandicar",
+  "Zlandicar", "Sontalak", "Druushk",
+  "Lord Nagafen", "Lady Vox",
+]);
+
 const EQ_CLASSES = [
   "Bard", "Cleric", "Druid", "Enchanter", "Magician", "Monk",
   "Necromancer", "Paladin", "Ranger", "Rogue", "Shadow Knight",
@@ -83,6 +95,19 @@ function extractRelatedZones(wikitext: string): string[] {
   return zones;
 }
 
+function extractRelatedNpcs(wikitext: string): string[] {
+  const match = wikitext.match(/Related NPCs[^\n]*\n\|(.*)/);
+  if (!match) return [];
+  const raw = match[1];
+  const npcs: string[] = [];
+  const re = /\[\[([^\]|]+)/g;
+  let m;
+  while ((m = re.exec(raw)) !== null) {
+    npcs.push(m[1].trim());
+  }
+  return npcs;
+}
+
 function mentionsRaidZone(wikitext: string): boolean {
   for (const zone of RAID_ZONES) {
     if (wikitext.includes(zone)) return true;
@@ -94,6 +119,10 @@ function classifyFromPage(wikitext: string): boolean {
   const relatedZones = extractRelatedZones(wikitext);
   for (const zone of relatedZones) {
     if (RAID_ZONES.has(zone)) return true;
+  }
+  const relatedNpcs = extractRelatedNpcs(wikitext);
+  for (const npc of relatedNpcs) {
+    if (RAID_NPCS.has(npc)) return true;
   }
   if (mentionsRaidZone(wikitext)) return true;
   return false;
