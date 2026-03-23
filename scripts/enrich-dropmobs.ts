@@ -22,12 +22,11 @@ const DB_PATH = path.join(DATA_DIR, "item-database.json");
 
 const MIXED_ZONES = new Set([
   "Skyshrine",
-  "Kael Drakkal",
+  "Kael Drakkel",
   "Old Sebilis",
   "Howling Stones",
   "Chardok",
   "The Hole",
-  "Sebilis",
   "Karnor's Castle",
   "City of Mist",
   "Kedge Keep",
@@ -35,15 +34,14 @@ const MIXED_ZONES = new Set([
   "Siren's Grotto",
   "Tower of Frozen Shadow",
   "Velketor's Labyrinth",
-  "Cazic-Thule",
-  "The Temple of Cazic-Thule",
-  "Lost Temple of Cazic-Thule",
+  "Cazic Thule",
   "Iceclad Ocean",
   "Emerald Jungle",
   "Timorous Deep",
   "Skyfire Mountains",
   "Dreadlands",
-  "Ruins of Sebilis",
+  "Cobalt Scar",
+  "Lower Guk",
 ]);
 
 function sleep(ms: number): Promise<void> {
@@ -93,7 +91,7 @@ async function main() {
   );
 
   const toProcess = items.filter(
-    (i) => i.dropsfrom && MIXED_ZONES.has(i.dropsfrom)
+    (i) => i.dropsfrom && MIXED_ZONES.has(i.dropsfrom) && !i.dropmobs
   );
   console.log(`  Items from mixed zones: ${toProcess.length}\n`);
 
