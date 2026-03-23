@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useCallback, useMemo, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Character, ItemData, UpgradeItem } from "@/lib/types";
 import { getItemIconUrl } from "@/lib/itemUtils";
 import { getClassWeights } from "@/lib/classStatWeights";
@@ -466,6 +467,8 @@ function UpgradeRow({
   className: string;
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number } | null>(null);
   const scoreDiff = upgrade.score - currentScore;
   const isUpgrade = scoreDiff > 0;
   const raid = upgrade.isRaid;
@@ -484,8 +487,16 @@ function UpgradeRow({
   if (upgrade.dropsfrom) sourceLines.push(`Drops: ${cleanZoneName(upgrade.dropsfrom)}`);
   if (upgrade.relatedquests?.length) sourceLines.push(`Quest: ${upgrade.relatedquests[0]}`);
 
+  useEffect(() => {
+    if (showTooltip && rowRef.current) {
+      const rect = rowRef.current.getBoundingClientRect();
+      setTooltipPos({ top: rect.top - 8, left: rect.right });
+    }
+  }, [showTooltip]);
+
   return (
     <div
+      ref={rowRef}
       className="relative flex items-center gap-2.5 px-3 py-2 rounded-md transition-colors group mx-1 hover:bg-zinc-800/40"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
@@ -584,10 +595,14 @@ function UpgradeRow({
         </span>
       </div>
 
-      {showTooltip && (
-        <div className="absolute right-0 bottom-full mb-2 z-50 pointer-events-none">
+      {showTooltip && tooltipPos && createPortal(
+        <div
+          className="fixed z-[9999] pointer-events-none"
+          style={{ top: tooltipPos.top, left: tooltipPos.left, transform: "translate(-100%, -100%)" }}
+        >
           <UpgradeTooltipCompact upgrade={upgrade} />
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
