@@ -44,13 +44,18 @@ const RAID_ZONES = new Set([
 const RAID_NPCS = new Set([
   "Lodizal", "Severilous", "Talendor", "Faydedar", "Gorenaire",
   "Trakanon", "Venril Sathir", "Lord Doljonijiarnimorinar",
-  "King Tormax", "Statue of Rallos Zek", "Yelinak",
+  "King Tormax", "Statue of Rallos Zek", "Yelinak", "Lord Yelinak",
   "Cazic Thule", "Innoruuk", "Thought Destroyer",
   "Phinigel Autropos", "The Ishva Mal", "Drusella Sathir",
-  "Overking Bathezid", "The Fabled Lodizal",
-  "Dozekar the Cursed", "Lord Kreizenn", "Klandicar",
-  "Zlandicar", "Sontalak", "Druushk",
+  "Overking Bathezid", "Dozekar the Cursed", "Lord Kreizenn",
+  "Klandicar", "Zlandicar", "Sontalak", "Druushk",
   "Lord Nagafen", "Lady Vox",
+  "Kelorek`Dar", "Silverwing", "Xygoz",
+  "Velketor the Sorcerer", "Dain Frostreaver IV",
+  "The Final Arbiter", "Master Yael",
+  "Nortlav the Scalekeeper", "Dagarn the Destroyer",
+  "Derakor the Vindicator", "The Avatar of War",
+  "Tunare", "Bristlebane", "Rallos Zek",
 ]);
 
 const EQ_CLASSES = [
