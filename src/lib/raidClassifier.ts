@@ -20,6 +20,23 @@ const RAID_ZONES = new Set([
   "Kerafyrm's Lair",
 ]);
 
+const RAID_NPCS = new Set([
+  "Lodizal", "Severilous", "Talendor", "Faydedar", "Gorenaire",
+  "Trakanon", "Venril Sathir", "Lord Doljonijiarnimorinar",
+  "King Tormax", "Statue of Rallos Zek", "Yelinak", "Lord Yelinak",
+  "Cazic Thule", "Innoruuk", "Thought Destroyer",
+  "Phinigel Autropos", "The Ishva Mal", "Drusella Sathir",
+  "Overking Bathezid", "Dozekar the Cursed", "Lord Kreizenn",
+  "Klandicar", "Zlandicar", "Sontalak", "Druushk",
+  "Lord Nagafen", "Lady Vox",
+  "Kelorek`Dar", "Silverwing", "Xygoz",
+  "Velketor the Sorcerer", "Dain Frostreaver IV",
+  "The Final Arbiter", "Master Yael",
+  "Nortlav the Scalekeeper", "Dagarn the Destroyer",
+  "Derakor the Vindicator", "The Avatar of War",
+  "Tunare", "Bristlebane", "Rallos Zek",
+]);
+
 let raidQuestSet: Set<string> | null = null;
 
 function ensureLoaded(): void {
@@ -44,11 +61,18 @@ function normalizeZone(raw: string): string {
 
 export function isRaidItem(
   dropsfrom: string | null,
+  dropmobs: string[] | null,
   relatedquests: string[] | null
 ): boolean {
   if (dropsfrom) {
     const zone = normalizeZone(dropsfrom);
     if (RAID_ZONES.has(zone)) return true;
+  }
+
+  if (dropmobs) {
+    for (const mob of dropmobs) {
+      if (RAID_NPCS.has(mob)) return true;
+    }
   }
 
   if (relatedquests) {

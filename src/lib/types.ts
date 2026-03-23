@@ -32,6 +32,7 @@ export interface ItemData {
   lucyImgId: number | null;
   statsBlock: string;
   dropsfrom: string | null;
+  dropmobs: string[] | null;
   relatedquests: string[] | null;
   stats: ParsedStats | null;
   wikiUrl: string;

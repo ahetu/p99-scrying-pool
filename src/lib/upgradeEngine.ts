@@ -355,7 +355,7 @@ export function getUpgradesForSlot(
       wikiUrl: candidate.wikiUrl,
       dropsfrom: candidate.dropsfrom,
       relatedquests: candidate.relatedquests ?? null,
-      isRaid: isRaidItem(candidate.dropsfrom, candidate.relatedquests ?? null),
+      isRaid: isRaidItem(candidate.dropsfrom, candidate.dropmobs ?? null, candidate.relatedquests ?? null),
       score: candidateScore,
       keyStats: extractKeyStats(candidate.stats),
       statDiffs: computeStatDiffs(candidate.stats, currentItem?.stats ?? null),

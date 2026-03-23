@@ -76,6 +76,7 @@ export async function fetchItemFromWiki(itemName: string): Promise<ItemData | nu
       lucyImgId,
       statsBlock,
       dropsfrom,
+      dropmobs: null,
       relatedquests: null,
       stats,
       wikiUrl: `${WIKI_BASE}/${pageTitle}`,
