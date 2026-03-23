@@ -1,0 +1,30 @@
+---
+description: Testing and regression prevention rules for p99-armory
+globs: src/**/*.ts, src/**/*.tsx
+alwaysApply: true
+---
+
+# Testing Requirements
+
+## When modifying business logic
+
+Any change to these files MUST have corresponding test coverage:
+
+- `src/lib/raidClassifier.ts` — raid classification logic
+- `src/lib/upgradeEngine.ts` — upgrade filtering and scoring
+- `src/lib/parseStatsBlock.ts` — item stat parsing
+
+If a bug fix touches these files, add a regression test that would FAIL without the fix before applying it.
+
+Tests live in `src/lib/__tests__/` and use vitest.
+
+## Before committing
+
+Always run `npm test` and verify all tests pass before creating any git commit. If tests fail, fix the issue before committing.
+
+## Test patterns
+
+- Test specific items/scenarios that caused bugs (e.g., "Hammer of Battle" mob name normalization)
+- Test boundary conditions (empty arrays vs null, mixed raid/non-raid quest lists)
+- Test that hybrid zones (Nagafen's Lair, Permafrost, Western Wastes, Dragon Necropolis, Icewell Keep) are NOT in RAID_ZONES
+- Test that the upgrade count only counts items scoring above the current equipped item

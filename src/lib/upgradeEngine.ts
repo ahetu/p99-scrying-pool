@@ -339,6 +339,13 @@ export function getUpgradesForSlot(
   for (const candidate of candidates) {
     if (!candidate.stats) continue;
 
+    if (candidate.stats.noRent || /NO RENT|TEMPORARY/i.test(candidate.statsBlock)) continue;
+
+    const hasSource = candidate.dropsfrom
+      || (candidate.dropmobs && candidate.dropmobs.length > 0)
+      || (candidate.relatedquests && candidate.relatedquests.length > 0);
+    if (!hasSource) continue;
+
     if (currentItem && candidate.name.toLowerCase() === currentItem.name.toLowerCase()) {
       continue;
     }

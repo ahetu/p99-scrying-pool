@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     upgrades,
     currentScore,
-    total: upgrades.length,
+    total: upgrades.filter(u => u.score > currentScore).length,
     dbAvailable: true,
   });
 }

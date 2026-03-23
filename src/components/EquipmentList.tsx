@@ -51,8 +51,9 @@ function getStoredRaidFilter(): boolean {
 }
 
 export default function EquipmentList({ character, items }: EquipmentListProps) {
-  const entries = Object.entries(character.equipment).filter(
-    ([, item]) => item !== null
+  const entries = useMemo(
+    () => Object.entries(character.equipment).filter(([, item]) => item !== null),
+    [character.equipment]
   );
 
   const hasRoleToggle = ROLE_TOGGLE_CLASSES.has(character.className);
@@ -60,6 +61,9 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
   const [expandedSlot, setExpandedSlot] = useState<string | null>(null);
   const [upgradeCache, setUpgradeCache] = useState<Record<string, SlotUpgradeData>>({});
   const [loadingSlots, setLoadingSlots] = useState<Set<string>>(new Set());
+  const [showRaid, setShowRaid] = useState(getStoredRaidFilter);
+  const inFlightRef = useRef(new Set<string>());
+  const prefetchStartedRef = useRef(false);
 
   const handleRoleChange = useCallback(
     (newRole: "tank" | "dps") => {
@@ -69,9 +73,19 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
       } catch { /* noop */ }
       setUpgradeCache({});
       setExpandedSlot(null);
+      inFlightRef.current.clear();
+      prefetchStartedRef.current = false;
     },
     [character.className]
   );
+
+  const handleRaidToggle = useCallback(() => {
+    setShowRaid((prev) => {
+      const next = !prev;
+      try { localStorage.setItem("armory-show-raid", String(next)); } catch { /* noop */ }
+      return next;
+    });
+  }, []);
 
   const loreItems = entries
     .filter(([, item]) => {
@@ -90,7 +104,8 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
 
   const fetchUpgrades = useCallback(
     async (slotId: string) => {
-      if (upgradeCache[slotId]) return;
+      if (upgradeCache[slotId] || inFlightRef.current.has(slotId)) return;
+      inFlightRef.current.add(slotId);
 
       setLoadingSlots((prev) => new Set(prev).add(slotId));
 
@@ -115,6 +130,7 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
           [slotId]: { upgrades: [], currentScore: 0, total: 0, dbAvailable: false },
         }));
       } finally {
+        inFlightRef.current.delete(slotId);
         setLoadingSlots((prev) => {
           const next = new Set(prev);
           next.delete(slotId);
@@ -136,6 +152,12 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
     },
     [expandedSlot, fetchUpgrades]
   );
+
+  useEffect(() => {
+    if (prefetchStartedRef.current) return;
+    prefetchStartedRef.current = true;
+    entries.forEach(([slotId]) => fetchUpgrades(slotId));
+  }, [entries, fetchUpgrades]);
 
   return (
     <div className="card-fantasy rounded-xl">
@@ -173,6 +195,11 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
           const isExpanded = expandedSlot === slotId;
           const isLoading = loadingSlots.has(slotId);
           const slotData = upgradeCache[slotId];
+          const filteredCount = slotData
+            ? slotData.upgrades.filter(
+                (u) => u.score > slotData.currentScore && (showRaid || !u.isRaid)
+              ).length
+            : undefined;
 
           return (
             <div key={slotId}>
@@ -181,7 +208,7 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
                 itemName={item?.name || ""}
                 itemData={itemData}
                 isExpanded={isExpanded}
-                upgradeCount={slotData?.total}
+                upgradeCount={filteredCount}
                 onToggle={() => toggleSlot(slotId)}
               />
               {isExpanded && (
@@ -190,6 +217,8 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
                   isLoading={isLoading}
                   currentScore={slotData?.currentScore ?? 0}
                   className={character.className}
+                  showRaid={showRaid}
+                  onRaidToggle={handleRaidToggle}
                 />
               )}
             </div>
@@ -292,22 +321,17 @@ function UpgradePanel({
   isLoading,
   currentScore,
   className,
+  showRaid,
+  onRaidToggle,
 }: {
   slotData?: SlotUpgradeData;
   isLoading: boolean;
   currentScore: number;
   className: string;
+  showRaid: boolean;
+  onRaidToggle: () => void;
 }) {
   const [search, setSearch] = useState("");
-  const [showRaid, setShowRaid] = useState(getStoredRaidFilter);
-
-  const handleRaidToggle = useCallback(() => {
-    setShowRaid((prev) => {
-      const next = !prev;
-      try { localStorage.setItem("armory-show-raid", String(next)); } catch { /* noop */ }
-      return next;
-    });
-  }, []);
 
   const filtered = useMemo(() => {
     let list = slotData?.upgrades ?? [];
@@ -355,7 +379,7 @@ function UpgradePanel({
           className="flex-1 bg-zinc-900/80 border border-zinc-800/50 rounded-md px-3 py-1.5 text-xs text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-amber-800/50 transition-colors"
         />
         <button
-          onClick={(e) => { e.stopPropagation(); handleRaidToggle(); }}
+          onClick={(e) => { e.stopPropagation(); onRaidToggle(); }}
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-medium transition-colors border whitespace-nowrap ${
             showRaid
               ? "bg-zinc-900/60 border-zinc-700/50 text-zinc-400 hover:text-zinc-300"

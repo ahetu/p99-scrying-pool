@@ -1,9 +1,14 @@
 /**
- * Classifies quests as raid or non-raid by fetching their wiki pages
- * and checking Related Zones fields + zone mentions against RAID_ZONES.
+ * Classifies quests as raid or non-raid by fetching their wiki pages.
  *
- * For quest pages that are 404/stubs (e.g. individual Plane of Sky sub-tests),
- * attempts to resolve a parent page and classify based on that.
+ * Classification signals (in priority order):
+ *  1. Quest name matches "<Class> Epic Quest" → raid
+ *  2. Quest name contains a RAID_ZONE name → raid
+ *  3. Quest name matches a RAID_NPC name → raid
+ *  4. Wiki page structured fields: Start Zone, Related Zones, Related NPCs
+ *  5. Wiki page contains [[link]] to a RAID_ZONE
+ *  6. Stub/404 pages: parent page resolution (e.g. PoSky class tests)
+ *  7. Coldain Ring #8+ → raid
  *
  * Output: data/raid-quests.json (array of quest names classified as raid)
  */
@@ -24,6 +29,9 @@ const DB_PATH = path.join(DATA_DIR, "item-database.json");
 const OUTPUT_PATH = path.join(DATA_DIR, "raid-quests.json");
 const PROGRESS_PATH = path.join(DATA_DIR, "classify-raid-progress.json");
 
+// Zones where ALL content is raid-level. Mixed zones (Nagafen's Lair,
+// Permafrost, Western Wastes, Dragon Necropolis, Icewell Keep) are excluded;
+// raid mobs there are caught by RAID_NPCS instead.
 const RAID_ZONES = new Set([
   "Temple of Veeshan",
   "Plane of Hate",
@@ -33,11 +41,6 @@ const RAID_ZONES = new Set([
   "Plane of Mischief",
   "Veeshan's Peak",
   "Sleeper's Tomb",
-  "Western Wastes",
-  "Dragon Necropolis",
-  "Icewell Keep",
-  "Nagafen's Lair",
-  "Permafrost",
   "Kerafyrm's Lair",
 ]);
 
@@ -113,23 +116,48 @@ function extractRelatedNpcs(wikitext: string): string[] {
   return npcs;
 }
 
-function mentionsRaidZone(wikitext: string): boolean {
-  for (const zone of RAID_ZONES) {
-    if (wikitext.includes(zone)) return true;
+function normalizeMobName(name: string): string {
+  return name
+    .replace(/^(the|a|an)\s+/i, "")
+    .replace(/\s*\([^)]*\)\s*$/, "")
+    .trim();
+}
+
+const normalizedRaidNpcs = new Set(
+  [...RAID_NPCS].map(normalizeMobName)
+);
+
+function extractStartZone(wikitext: string): string | null {
+  const match = wikitext.match(/Start Zone[^\n]*\n\|[^\S\n]*\[\[([^\]|]+)/);
+  if (!match) return null;
+  return match[1].trim();
+}
+
+function wikiLinksToRaidZone(wikitext: string): boolean {
+  const re = /\[\[([^\]|]+)/g;
+  let m;
+  while ((m = re.exec(wikitext)) !== null) {
+    if (RAID_ZONES.has(m[1].trim())) return true;
   }
   return false;
 }
 
 function classifyFromPage(wikitext: string): boolean {
+  const startZone = extractStartZone(wikitext);
+  if (startZone && RAID_ZONES.has(startZone)) return true;
+
   const relatedZones = extractRelatedZones(wikitext);
   for (const zone of relatedZones) {
     if (RAID_ZONES.has(zone)) return true;
   }
+
   const relatedNpcs = extractRelatedNpcs(wikitext);
   for (const npc of relatedNpcs) {
-    if (RAID_NPCS.has(npc)) return true;
+    if (normalizedRaidNpcs.has(normalizeMobName(npc))) return true;
   }
-  if (mentionsRaidZone(wikitext)) return true;
+
+  if (wikiLinksToRaidZone(wikitext)) return true;
+
   return false;
 }
 
@@ -196,18 +224,28 @@ async function main() {
       processed++;
       let isRaid = false;
 
-      if (wikitext && wikitext.length > 100) {
+      if (/^.+ Epic Quest$/.test(questName)) {
+        isRaid = true;
+      } else if ([...RAID_ZONES].some((z) => questName.includes(z))) {
+        isRaid = true;
+      } else if (normalizedRaidNpcs.has(normalizeMobName(questName))) {
+        isRaid = true;
+      } else if (wikitext && wikitext.length > 100) {
         isRaid = classifyFromPage(wikitext);
       } else {
         const parentName = getParentPageName(questName);
         if (parentName) {
-          if (!parentPageCache.has(parentName)) {
-            const parentText = await fetchPage(parentName);
-            parentPageCache.set(parentName, parentText);
-          }
-          const parentText = parentPageCache.get(parentName);
-          if (parentText && parentText.length > 100) {
-            isRaid = classifyFromPage(parentText);
+          if ([...RAID_ZONES].some((z) => parentName.includes(z))) {
+            isRaid = true;
+          } else {
+            if (!parentPageCache.has(parentName)) {
+              const parentText = await fetchPage(parentName);
+              parentPageCache.set(parentName, parentText);
+            }
+            const parentText = parentPageCache.get(parentName);
+            if (parentText && parentText.length > 100) {
+              isRaid = classifyFromPage(parentText);
+            }
           }
         }
 

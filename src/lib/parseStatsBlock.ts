@@ -16,7 +16,7 @@ export function parseStatsBlock(raw: string): ParsedStats {
   const magic = /MAGIC ITEM/i.test(text);
   const lore = /LORE ITEM/i.test(text);
   const noDrop = /NO DROP/i.test(text);
-  const noRent = /NO RENT/i.test(text);
+  const noRent = /NO RENT|TEMPORARY/i.test(text);
   const expendable = /EXPENDABLE/i.test(text);
   const quest = /QUEST ITEM/i.test(text);
 

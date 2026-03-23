@@ -10,7 +10,9 @@
     "scrape": "tsx scripts/scrape-all-items.ts",
     "enrich": "tsx scripts/enrich-dropsfrom.ts",
     "enrich-quests": "tsx scripts/enrich-quests.ts",
-    "classify-raids": "tsx scripts/classify-raid-quests.ts"
+    "classify-raids": "tsx scripts/classify-raid-quests.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.13.23",
@@ -29,6 +31,7 @@
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.1"
   }
 }

@@ -3,6 +3,10 @@ import path from "path";
 
 const RAID_QUESTS_PATH = path.join(process.cwd(), "data", "raid-quests.json");
 
+// Zones where ALL content is raid-level (entering requires a raid).
+// Mixed zones (Nagafen's Lair, Permafrost, Western Wastes, Dragon
+// Necropolis, Icewell Keep) are excluded — raid mobs there are caught
+// by RAID_NPCS while group-content drops stay non-raid.
 const RAID_ZONES = new Set([
   "Temple of Veeshan",
   "Plane of Hate",
@@ -12,11 +16,6 @@ const RAID_ZONES = new Set([
   "Plane of Mischief",
   "Veeshan's Peak",
   "Sleeper's Tomb",
-  "Western Wastes",
-  "Dragon Necropolis",
-  "Icewell Keep",
-  "Nagafen's Lair",
-  "Permafrost",
   "Kerafyrm's Lair",
 ]);
 
@@ -59,6 +58,17 @@ function normalizeZone(raw: string): string {
     .trim();
 }
 
+function normalizeMobName(name: string): string {
+  return name
+    .replace(/^(the|a|an)\s+/i, "")
+    .replace(/\s*\([^)]*\)\s*$/, "")
+    .trim();
+}
+
+const normalizedRaidNpcs = new Set(
+  [...RAID_NPCS].map(normalizeMobName)
+);
+
 export function isRaidItem(
   dropsfrom: string | null,
   dropmobs: string[] | null,
@@ -71,15 +81,14 @@ export function isRaidItem(
 
   if (dropmobs) {
     for (const mob of dropmobs) {
-      if (RAID_NPCS.has(mob)) return true;
+      if (normalizedRaidNpcs.has(normalizeMobName(mob))) return true;
     }
   }
 
-  if (relatedquests) {
+  if (relatedquests && relatedquests.length > 0) {
     ensureLoaded();
-    for (const quest of relatedquests) {
-      if (raidQuestSet!.has(quest)) return true;
-    }
+    const allRaid = relatedquests.every((quest) => raidQuestSet!.has(quest));
+    if (allRaid) return true;
   }
 
   return false;
