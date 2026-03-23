@@ -8,7 +8,7 @@
  *  4. Wiki page structured fields: Start Zone, Related Zones, Related NPCs
  *  5. Wiki page contains [[link]] to a RAID_ZONE
  *  6. Stub/404 pages: parent page resolution (e.g. PoSky class tests)
- *  7. Coldain Ring #8+ → raid
+ *  7. Coldain Ring #10 → raid (the actual Ring War; #1-9 are group content)
  *
  * Output: data/raid-quests.json (array of quest names classified as raid)
  */
@@ -173,7 +173,7 @@ function getParentPageName(questName: string): string | null {
   const coldainMatch = questName.match(/^Coldain Ring #(\d+)/);
   if (coldainMatch) {
     const ring = parseInt(coldainMatch[1], 10);
-    if (ring >= 8) return null; // known raid, handle separately
+    if (ring >= 10) return null; // Ring 10 is the actual Ring War raid
   }
   return null;
 }
@@ -250,7 +250,7 @@ async function main() {
         }
 
         const coldainMatch = questName.match(/^Coldain Ring #(\d+)/);
-        if (coldainMatch && parseInt(coldainMatch[1], 10) >= 8) {
+        if (coldainMatch && parseInt(coldainMatch[1], 10) >= 10) {
           isRaid = true;
         }
       }

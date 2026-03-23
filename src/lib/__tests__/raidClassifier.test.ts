@@ -112,6 +112,39 @@ describe("raidClassifier", () => {
   });
 
   // -------------------------------------------------------
+  // Coldain Ring quest chain: only Ring #10 (the Ring War)
+  // is raid. Rings 1-9 are group content.
+  // -------------------------------------------------------
+  describe("Coldain Ring quest chain classification", () => {
+    it("Copper Coldain Insignia Ring (#1) is NOT raid", () => {
+      expect(isRaidItem(null, null, [
+        "Coldain Ring #2: Silver Coldain Insignia Ring",
+        "Coldain Ring #1: Copper Coldain Insignia Ring",
+      ])).toBe(false);
+    });
+
+    it("Velium Coldain Insignia Ring (#8) is NOT raid", () => {
+      expect(isRaidItem(null, null, [
+        "Coldain Ring #9: Coldain Hero's Insignia Ring",
+        "Coldain Ring #8: Velium Coldain Insignia Ring",
+      ])).toBe(false);
+    });
+
+    it("Coldain Hero's Insignia Ring (#9) is NOT raid (mixed with #10)", () => {
+      expect(isRaidItem(null, null, [
+        "Coldain Ring #10: Ring of Dain Frostreaver IV",
+        "Coldain Ring #9: Coldain Hero's Insignia Ring",
+      ])).toBe(false);
+    });
+
+    it("Ring of Dain Frostreaver IV (#10) IS raid", () => {
+      expect(isRaidItem(null, null, [
+        "Coldain Ring #10: Ring of Dain Frostreaver IV",
+      ])).toBe(true);
+    });
+  });
+
+  // -------------------------------------------------------
   // Zone string normalization (handles wiki markup).
   // -------------------------------------------------------
   describe("zone string normalization", () => {
