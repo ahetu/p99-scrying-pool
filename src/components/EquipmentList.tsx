@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useMemo } from "react";
 import { Character, ItemData, UpgradeItem } from "@/lib/types";
 import { getItemIconUrl } from "@/lib/itemUtils";
+import { getClassWeights } from "@/lib/classStatWeights";
 import ItemTooltip from "./ItemTooltip";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
@@ -187,6 +188,7 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
                   slotData={slotData}
                   isLoading={isLoading}
                   currentScore={slotData?.currentScore ?? 0}
+                  className={character.className}
                 />
               )}
             </div>
@@ -288,10 +290,12 @@ function UpgradePanel({
   slotData,
   isLoading,
   currentScore,
+  className,
 }: {
   slotData?: SlotUpgradeData;
   isLoading: boolean;
   currentScore: number;
+  className: string;
 }) {
   const [search, setSearch] = useState("");
   const [showRaid, setShowRaid] = useState(getStoredRaidFilter);
@@ -390,7 +394,7 @@ function UpgradePanel({
           </p>
         </div>
       ) : (
-        <VirtualUpgradeList upgrades={filtered} currentScore={currentScore} />
+        <VirtualUpgradeList upgrades={filtered} currentScore={currentScore} className={className} />
       )}
     </div>
   );
@@ -399,9 +403,11 @@ function UpgradePanel({
 function VirtualUpgradeList({
   upgrades,
   currentScore,
+  className,
 }: {
   upgrades: UpgradeItem[];
   currentScore: number;
+  className: string;
 }) {
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -438,6 +444,7 @@ function VirtualUpgradeList({
                 upgrade={upgrade}
                 currentScore={currentScore}
                 rank={virtualRow.index + 1}
+                className={className}
               />
             </div>
           );
@@ -451,19 +458,26 @@ function UpgradeRow({
   upgrade,
   currentScore,
   rank,
+  className,
 }: {
   upgrade: UpgradeItem;
   currentScore: number;
   rank: number;
+  className: string;
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const scoreDiff = upgrade.score - currentScore;
   const isUpgrade = scoreDiff > 0;
   const raid = upgrade.isRaid;
 
+  const weights = getClassWeights(className);
   const topDiffs = Object.entries(upgrade.statDiffs)
     .filter(([, v]) => v !== 0)
-    .sort(([, a], [, b]) => Math.abs(b) - Math.abs(a))
+    .sort(([a, av], [b, bv]) => {
+      const wa = (weights[a as keyof typeof weights] as number) ?? 0;
+      const wb = (weights[b as keyof typeof weights] as number) ?? 0;
+      return Math.abs(bv) * wb - Math.abs(av) * wa;
+    })
     .slice(0, 4);
 
   const sourceLines: string[] = [];
