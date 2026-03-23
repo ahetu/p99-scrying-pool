@@ -209,6 +209,7 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
                 itemData={itemData}
                 isExpanded={isExpanded}
                 upgradeCount={filteredCount}
+                isLoadingUpgrades={!slotData}
                 onToggle={() => toggleSlot(slotId)}
               />
               {isExpanded && (
@@ -235,6 +236,7 @@ function EquipmentRow({
   itemData,
   isExpanded,
   upgradeCount,
+  isLoadingUpgrades,
   onToggle,
 }: {
   slotId: string;
@@ -242,6 +244,7 @@ function EquipmentRow({
   itemData: ItemData | null;
   isExpanded: boolean;
   upgradeCount?: number;
+  isLoadingUpgrades?: boolean;
   onToggle: () => void;
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
@@ -289,11 +292,13 @@ function EquipmentRow({
       </span>
 
       <div className="ml-auto flex items-center gap-2">
-        {upgradeCount !== undefined && upgradeCount > 0 && (
+        {isLoadingUpgrades ? (
+          <div className="w-3 h-3 border border-zinc-700 border-t-amber-500/50 rounded-full animate-spin" />
+        ) : upgradeCount !== undefined && upgradeCount > 0 ? (
           <span className="text-[10px] bg-amber-900/30 text-amber-400/70 px-1.5 py-0.5 rounded-full tabular-nums">
             {upgradeCount} upgrade{upgradeCount !== 1 ? "s" : ""}
           </span>
-        )}
+        ) : null}
         {itemData?.wikiUrl && (
           <a
             href={itemData.wikiUrl}
