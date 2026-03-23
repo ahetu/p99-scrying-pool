@@ -20,29 +20,7 @@ const MAX_RETRIES = 3;
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_PATH = path.join(DATA_DIR, "item-database.json");
 
-const MIXED_ZONES = new Set([
-  "Skyshrine",
-  "Kael Drakkel",
-  "Old Sebilis",
-  "Howling Stones",
-  "Chardok",
-  "The Hole",
-  "Karnor's Castle",
-  "City of Mist",
-  "Kedge Keep",
-  "Crystal Caverns",
-  "Siren's Grotto",
-  "Tower of Frozen Shadow",
-  "Velketor's Labyrinth",
-  "Cazic Thule",
-  "Iceclad Ocean",
-  "Emerald Jungle",
-  "Timorous Deep",
-  "Skyfire Mountains",
-  "Dreadlands",
-  "Cobalt Scar",
-  "Lower Guk",
-]);
+// No zone filter -- enrich ALL items with dropsfrom to get mob names
 
 function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
@@ -91,7 +69,7 @@ async function main() {
   );
 
   const toProcess = items.filter(
-    (i) => i.dropsfrom && MIXED_ZONES.has(i.dropsfrom) && !i.dropmobs
+    (i) => i.dropsfrom && !i.dropmobs
   );
   console.log(`  Items from mixed zones: ${toProcess.length}\n`);
 
