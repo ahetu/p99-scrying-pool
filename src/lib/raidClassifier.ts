@@ -34,6 +34,7 @@ const RAID_NPCS = new Set([
   "Nortlav the Scalekeeper", "Dagarn the Destroyer",
   "Derakor the Vindicator", "The Avatar of War",
   "Tunare", "Bristlebane", "Rallos Zek",
+  "Garzicor",
 ]);
 
 let raidQuestSet: Set<string> | null = null;

@@ -76,6 +76,10 @@ describe("raidClassifier", () => {
       expect(isRaidItem(null, ["a gnoll guard"], null)).toBe(false);
     });
 
+    it("catches Garzicor as a raid NPC (Spirit of Garzicor quest)", () => {
+      expect(isRaidItem(null, null, ["The Spirit of Garzicor"])).toBe(true);
+    });
+
     it("catches Dain Frostreaver IV from Icewell Keep", () => {
       expect(isRaidItem("Icewell Keep", ["Dain Frostreaver IV"], null)).toBe(true);
     });
