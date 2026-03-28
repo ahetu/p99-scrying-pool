@@ -3,6 +3,8 @@ import { getCharacter, updateCharacter } from "@/lib/storage";
 import { getItemByNameWithFallback } from "@/lib/itemDatabase";
 import { ItemData, BonusPointAllocation } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

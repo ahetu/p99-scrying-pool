@@ -8,6 +8,8 @@ import StatsSummary from "@/components/StatsSummary";
 import EquipmentList from "@/components/EquipmentList";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
