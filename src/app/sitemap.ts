@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { listCharacters } from "@/lib/storage";
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://p99-scrying-pool.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://p99scryingpool.vercel.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const characters = await listCharacters();
