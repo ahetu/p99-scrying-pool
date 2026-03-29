@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getCharacter } from "@/lib/storage";
 import { getItemByNameWithFallback } from "@/lib/itemDatabase";
 import { ItemData } from "@/lib/types";
@@ -12,6 +13,33 @@ export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const character = await getCharacter(id);
+
+  if (!character) {
+    return { title: "Character Not Found" };
+  }
+
+  const title = `${character.name} (${character.level} ${character.className})`;
+  const description = `Level ${character.level} ${character.race} ${character.className} on Project 1999. View equipment, stats, and upgrade recommendations.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: `${title} | Naberial's Scrying Pool`,
+      description,
+      type: "profile",
+    },
+    twitter: {
+      card: "summary",
+      title: `${title} | Naberial's Scrying Pool`,
+      description,
+    },
+  };
 }
 
 export default async function CharacterPage({ params }: PageProps) {

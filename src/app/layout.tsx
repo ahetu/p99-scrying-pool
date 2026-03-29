@@ -13,10 +13,36 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://p99-scrying-pool.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Naberial's Scrying Pool - P99 EverQuest Character Viewer",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Naberial's Scrying Pool - P99 EverQuest Character Viewer",
+    template: "%s | Naberial's Scrying Pool",
+  },
   description:
-    "View and share your Project 1999 EverQuest character equipment, stats, and item details. Upload your inventory and get a shareable profile.",
+    "View and share your Project 1999 EverQuest character equipment, stats, and upgrade recommendations. Upload your inventory file and get a shareable profile with gear scoring.",
+  keywords: [
+    "p99", "project 1999", "everquest", "classic eq", "p99 gear",
+    "p99 character", "p99 equipment", "p99 upgrades", "p99 items",
+    "everquest character viewer", "p99 item comparison", "velious",
+  ],
+  openGraph: {
+    title: "Naberial's Scrying Pool - P99 EverQuest Character Viewer",
+    description:
+      "Upload your Project 1999 inventory file to view equipment, stats, and upgrade recommendations. Share your character with the community.",
+    siteName: "Naberial's Scrying Pool",
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary",
+    title: "Naberial's Scrying Pool - P99 Character Viewer",
+    description:
+      "Upload your P99 inventory file to view equipment, stats, and upgrade recommendations.",
+  },
 };
 
 export default function RootLayout({
