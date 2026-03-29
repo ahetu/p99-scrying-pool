@@ -88,8 +88,8 @@ const PROFILES: Record<string, ClassWeights> = {
     weaponRatio: 20, hasteMultiplier: 30,
   },
   Rogue: {
-    hp: 0.8, mana: 0.01, ac: 0.1,
-    str: 2.5, sta: 0.8, dex: 1.0, agi: 0.4,
+    hp: 0.5, mana: 0.01, ac: 0.1,
+    str: 2.5, sta: 0.5, dex: 1.0, agi: 0.4,
     wis: 0.02, int: 0.02, cha: 0.02,
     svFire: 0.12, svCold: 0.08, svDisease: 0.06, svMagic: 0.15, svPoison: 0.06,
     weaponRatio: 22, hasteMultiplier: 28,
