@@ -28,3 +28,21 @@ Always run `npm test` and verify all tests pass before creating any git commit. 
 - Test boundary conditions (empty arrays vs null, mixed raid/non-raid quest lists)
 - Test that hybrid zones (Nagafen's Lair, Permafrost, Western Wastes, Dragon Necropolis, Icewell Keep) are NOT in RAID_ZONES
 - Test that the upgrade count only counts items scoring above the current equipped item
+
+## Raid classifier golden set (MANDATORY)
+
+`src/lib/__tests__/raidClassifier.golden.test.ts` contains a curated set of real items from `item-database.json` with their exact data fields and expected raid/non-raid classification.
+
+**When fixing a raid classification bug:**
+
+1. Find the misclassified item in `item-database.json` (grep for its exact name)
+2. Copy its `dropsfrom`, `dropmobs`, `relatedquests`, and `statsBlock` fields
+3. Add the item to `MUST_BE_RAID` or `MUST_NOT_BE_RAID` in the golden set test file
+4. Verify the new test FAILS before applying the fix (proves the test catches the bug)
+5. Apply the fix and verify all golden set tests pass
+
+**When modifying `raidClassifier.ts` for any reason:**
+
+- Run `npm test` — the golden set will catch any regressions across all detection paths (zone, NPC, quest, relatedquests NPC scan, stat-twin)
+- If a golden set test fails, the classifier change broke an existing classification — fix it before committing
+- NEVER remove a golden set item to make tests pass; instead fix the classifier logic
