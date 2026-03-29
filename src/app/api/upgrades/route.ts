@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getItemByName, isDatabaseLoaded } from "@/lib/itemDatabase";
 import { getUpgradesForSlot } from "@/lib/upgradeEngine";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
@@ -50,7 +52,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     upgrades,
     currentScore,
-    total: upgrades.filter(u => u.score > currentScore).length,
+    total: upgrades.length,
     dbAvailable: true,
   });
 }
