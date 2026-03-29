@@ -39,14 +39,14 @@ export const ROLE_TOGGLE_CLASSES = new Set(["Warrior", "Paladin", "Shadow Knight
 
 const PROFILES: Record<string, ClassWeights> = {
   Warrior: {
-    hp: 1.5, mana: 0.01, ac: 1.2,
+    hp: 1.5, mana: 0, ac: 1.2,
     str: 1.5, sta: 1.8, dex: 0.8, agi: 0.36,
     wis: 0.02, int: 0.02, cha: 0.02,
     svFire: 0.2, svCold: 0.15, svDisease: 0.1, svMagic: 0.25, svPoison: 0.1,
     weaponRatio: 25, hasteMultiplier: 30,
   },
   "Warrior:dps": {
-    hp: 1.0, mana: 0.01, ac: 0.5,
+    hp: 1.0, mana: 0, ac: 0.5,
     str: 2.2, sta: 0.8, dex: 1.8, agi: 0.15,
     wis: 0.02, int: 0.02, cha: 0.02,
     svFire: 0.12, svCold: 0.1, svDisease: 0.06, svMagic: 0.15, svPoison: 0.06,
@@ -81,14 +81,14 @@ const PROFILES: Record<string, ClassWeights> = {
     weaponRatio: 22, hasteMultiplier: 28,
   },
   Monk: {
-    hp: 1.2, mana: 0.01, ac: 0.6,
+    hp: 1.2, mana: 0, ac: 0.6,
     str: 2.2, sta: 1.2, dex: 1.2, agi: 0.18,
     wis: 0.02, int: 0.02, cha: 0.02,
     svFire: 0.15, svCold: 0.1, svDisease: 0.08, svMagic: 0.18, svPoison: 0.08,
     weaponRatio: 20, hasteMultiplier: 30,
   },
   Rogue: {
-    hp: 0.5, mana: 0.01, ac: 0.1,
+    hp: 0.5, mana: 0, ac: 0.1,
     str: 2.5, sta: 0.5, dex: 1.0, agi: 0.03,
     wis: 0.02, int: 0.02, cha: 0.02,
     svFire: 0.12, svCold: 0.08, svDisease: 0.06, svMagic: 0.15, svPoison: 0.06,
