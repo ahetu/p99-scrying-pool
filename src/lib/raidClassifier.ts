@@ -1,7 +1,10 @@
 import fs from "fs";
 import path from "path";
+import type { ItemData } from "./types";
 
-const RAID_QUESTS_PATH = path.join(process.cwd(), "data", "raid-quests.json");
+const DATA_DIR = path.join(process.cwd(), "data");
+const RAID_QUESTS_PATH = path.join(DATA_DIR, "raid-quests.json");
+const ITEM_DB_PATH = path.join(DATA_DIR, "item-database.json");
 
 // Zones where ALL content is raid-level (entering requires a raid).
 // Mixed zones (Nagafen's Lair, Permafrost, Western Wastes, Dragon
@@ -38,6 +41,7 @@ const RAID_NPCS = new Set([
 ]);
 
 let raidQuestSet: Set<string> | null = null;
+let raidStatsSet: Set<string> | null = null;
 
 function ensureLoaded(): void {
   if (raidQuestSet) return;
@@ -47,6 +51,21 @@ function ensureLoaded(): void {
     raidQuestSet = new Set(quests);
   } catch {
     raidQuestSet = new Set();
+  }
+}
+
+function ensureTwinIndex(): void {
+  if (raidStatsSet) return;
+  raidStatsSet = new Set();
+  try {
+    const items: ItemData[] = JSON.parse(fs.readFileSync(ITEM_DB_PATH, "utf-8"));
+    for (const item of items) {
+      if (isRaidItem(item.dropsfrom, item.dropmobs ?? null, item.relatedquests ?? null)) {
+        raidStatsSet.add(item.statsBlock);
+      }
+    }
+  } catch {
+    // leave empty on failure
   }
 }
 
@@ -73,7 +92,8 @@ const normalizedRaidNpcs = new Set(
 export function isRaidItem(
   dropsfrom: string | null,
   dropmobs: string[] | null,
-  relatedquests: string[] | null
+  relatedquests: string[] | null,
+  statsBlock?: string | null,
 ): boolean {
   if (dropsfrom) {
     const zone = normalizeZone(dropsfrom);
@@ -90,6 +110,11 @@ export function isRaidItem(
     ensureLoaded();
     const allRaid = relatedquests.every((quest) => raidQuestSet!.has(quest));
     if (allRaid) return true;
+  }
+
+  if (statsBlock) {
+    ensureTwinIndex();
+    if (raidStatsSet!.has(statsBlock)) return true;
   }
 
   return false;

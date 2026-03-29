@@ -160,4 +160,37 @@ describe("raidClassifier", () => {
       expect(isRaidItem("Plane of Hate<br>", null, null)).toBe(true);
     });
   });
+
+  // -------------------------------------------------------
+  // Stat-twin detection: cosmetic variants of raid items
+  // that share identical statsBlocks should be flagged.
+  // -------------------------------------------------------
+  describe("stat-twin raid detection", () => {
+    const CROWN_STATS_BLOCK =
+      "MAGIC ITEM  LORE ITEM  NO DROP<br>\nSlot: HEAD<br>\nAC: 35<br>\n" +
+      "STR: +10  WIS: +10  INT: +10  HP: +100<br>\n" +
+      "SV FIRE: +10  SV DISEASE: +10  SV COLD: +10  SV MAGIC: +25  SV POISON: +10<br>\n" +
+      "Effect: [[Truesight]] (Worn)<br>\nWT: 1.0  Size: TINY<br>\n" +
+      "Class: ALL<br>\nRace: ALL<br>";
+
+    it("Custom Crown of the Kromzek Kings is flagged as raid via stat twin", () => {
+      expect(isRaidItem(null, null, null, CROWN_STATS_BLOCK)).toBe(true);
+    });
+
+    it("item with a unique statsBlock is NOT falsely flagged", () => {
+      const uniqueStats =
+        "MAGIC ITEM<br>\nSlot: FINGERS<br>\nAC: 1<br>\n" +
+        "STR: +1<br>\nWT: 0.1  Size: TINY<br>\n" +
+        "Class: ALL<br>\nRace: ALL<br>";
+      expect(isRaidItem(null, null, null, uniqueStats)).toBe(false);
+    });
+
+    it("null statsBlock does not trigger twin check", () => {
+      expect(isRaidItem(null, null, null, null)).toBe(false);
+    });
+
+    it("undefined statsBlock does not trigger twin check", () => {
+      expect(isRaidItem(null, null, null)).toBe(false);
+    });
+  });
 });
