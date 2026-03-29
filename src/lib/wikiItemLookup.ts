@@ -78,6 +78,8 @@ export async function fetchItemFromWiki(itemName: string): Promise<ItemData | nu
       dropsfrom,
       dropmobs: null,
       relatedquests: null,
+      soldby: false,
+      crafted: false,
       stats,
       wikiUrl: `${WIKI_BASE}/${pageTitle}`,
       fetchedAt: new Date().toISOString(),
