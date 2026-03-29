@@ -510,7 +510,7 @@ function UpgradeRow({
       const wb = (weights[b as keyof typeof weights] as number) ?? 0;
       return Math.abs(bv) * wb - Math.abs(av) * wa;
     })
-    .slice(0, 4);
+;
 
   const sourceLines: string[] = [];
   if (upgrade.dropsfrom) sourceLines.push(`Drops: ${cleanZoneName(upgrade.dropsfrom)}`);
