@@ -503,8 +503,13 @@ function UpgradeRow({
   const raid = upgrade.isRaid;
 
   const weights = getClassWeights(className);
+  const TIEBREAKER_THRESHOLD = 0.05;
   const allDiffs = Object.entries(upgrade.statDiffs)
-    .filter(([, v]) => v !== 0)
+    .filter(([stat, v]) => {
+      if (v === 0) return false;
+      const w = (weights[stat as keyof typeof weights] as number) ?? 0;
+      return w > TIEBREAKER_THRESHOLD;
+    })
     .sort(([a, av], [b, bv]) => {
       const wa = (weights[a as keyof typeof weights] as number) ?? 0;
       const wb = (weights[b as keyof typeof weights] as number) ?? 0;
