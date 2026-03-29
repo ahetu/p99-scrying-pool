@@ -193,4 +193,20 @@ describe("raidClassifier", () => {
       expect(isRaidItem(null, null, null)).toBe(false);
     });
   });
+
+  describe("raid NPC names in relatedquests", () => {
+    it("Mask of the Silver Eyes is flagged via Dozekar the Cursed in relatedquests", () => {
+      const quests = [
+        "Request of the Arcane", "Black Tear", "Dozekar the Cursed",
+        "White Tear", "Dozekar the Cursed", "Runed Tear",
+        "Dozekar the Cursed", "Glowing Drake Orb", "HOT Named)",
+      ];
+      expect(isRaidItem(null, null, quests)).toBe(true);
+    });
+
+    it("relatedquests with no raid NPC names and unknown quests is not flagged", () => {
+      const quests = ["Some Random Quest", "Normal Item", "Town NPC"];
+      expect(isRaidItem(null, null, quests)).toBe(false);
+    });
+  });
 });

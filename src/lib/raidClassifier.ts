@@ -110,6 +110,10 @@ export function isRaidItem(
     ensureLoaded();
     const allRaid = relatedquests.every((quest) => raidQuestSet!.has(quest));
     if (allRaid) return true;
+
+    for (const entry of relatedquests) {
+      if (normalizedRaidNpcs.has(normalizeMobName(entry))) return true;
+    }
   }
 
   if (statsBlock) {
