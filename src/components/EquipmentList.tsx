@@ -503,14 +503,16 @@ function UpgradeRow({
   const raid = upgrade.isRaid;
 
   const weights = getClassWeights(className);
-  const topDiffs = Object.entries(upgrade.statDiffs)
+  const allDiffs = Object.entries(upgrade.statDiffs)
     .filter(([, v]) => v !== 0)
     .sort(([a, av], [b, bv]) => {
       const wa = (weights[a as keyof typeof weights] as number) ?? 0;
       const wb = (weights[b as keyof typeof weights] as number) ?? 0;
       return Math.abs(bv) * wb - Math.abs(av) * wa;
-    })
-;
+    });
+  const VISIBLE_CAP = 8;
+  const topDiffs = allDiffs.slice(0, VISIBLE_CAP);
+  const hiddenCount = allDiffs.length - topDiffs.length;
 
   const sourceLines: string[] = [];
   if (upgrade.dropsfrom) sourceLines.push(`Drops: ${cleanZoneName(upgrade.dropsfrom)}`);
@@ -601,6 +603,11 @@ function UpgradeRow({
                 {diff} {formatStatLabel(stat)}
               </span>
             ))}
+            {hiddenCount > 0 && (
+              <span className="text-[10px] px-1 py-0.5 text-zinc-500">
+                +{hiddenCount} more
+              </span>
+            )}
           </div>
         )}
 
