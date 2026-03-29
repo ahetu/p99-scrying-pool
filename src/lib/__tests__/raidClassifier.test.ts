@@ -192,6 +192,14 @@ describe("raidClassifier", () => {
     it("undefined statsBlock does not trigger twin check", () => {
       expect(isRaidItem(null, null, null)).toBe(false);
     });
+
+    it("stat-twin is SKIPPED when item has a known drop source (prevents false positives)", () => {
+      expect(isRaidItem("Kael Drakkel", ["a guardian of Zek"], null, CROWN_STATS_BLOCK)).toBe(false);
+    });
+
+    it("stat-twin is SKIPPED when item has dropmobs even without dropsfrom", () => {
+      expect(isRaidItem(null, ["a random mob"], null, CROWN_STATS_BLOCK)).toBe(false);
+    });
   });
 
   describe("raid NPC names in relatedquests", () => {

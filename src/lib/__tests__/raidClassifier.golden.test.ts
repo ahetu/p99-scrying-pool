@@ -196,6 +196,37 @@ const MUST_NOT_BE_RAID: GoldenItem[] = [
     relatedquests: null,
     statsBlock: "LORE ITEM<br>\nSlot: NECK<br>\nSV FIRE: +1  SV COLD: +1  SV MAGIC: +2<br>\nEffect:  [[Eye of Zomm]] (Any Slot, Casting Time: 4.0)<br>\nWT: 0.2  Size: SMALL<br>\nClass: ALL<br>\nClass: NEC WIZ MAG ENC<br>",
   },
+  {
+    name: "Corroded Breastplate",
+    reason: "Kael group drop — zero-stat quest turn-in, shares statsBlock with ToV items but is NOT raid",
+    dropsfrom: "Kael Drakkel",
+    dropmobs: ["a guardian of Zek", "Adjutant Brunkin", "Trooper Coldstone"],
+    relatedquests: [
+      "Bard Thurgadin Breastplate", "Cleric Thurgadin Breastplate",
+      "Paladin Thurgadin Breastplate", "Shadowknight Thurgadin Breastplate",
+      "Warrior Thurgadin Breastplate",
+    ],
+    statsBlock: "MAGIC ITEM  LORE ITEM  NO DROP<br>\nSlot: CHEST<br>\nWT: 15.0  Size: TINY<br>\nClass: WAR CLR PAL SHD BRD<br>\nRace: ALL<br>",
+  },
+  {
+    name: "Torn Enchanted Silk Robe",
+    reason: "Kael group drop — zero-stat quest turn-in, must not be caught by stat-twin",
+    dropsfrom: "Kael Drakkel",
+    dropmobs: ["a guardian of Zek", "Adjutant Brunkin", "Trooper Coldstone"],
+    relatedquests: [
+      "Enchanter Thurgadin Armor Quests", "Wizard Thurgadin Armor Quests",
+      "Magician Thurgadin Armor Quests", "Necromancer Thurgadin Armor Quests",
+    ],
+    statsBlock: "MAGIC ITEM  LORE ITEM  NO DROP<br>\nSlot: CHEST<br>\nWT: 5.0  Size: TINY<br>\nClass: NEC WIZ MAG ENC<br>\nRace: ALL<br>",
+  },
+  {
+    name: "Silver Earring",
+    reason: "Blackburrow group drop — generic jewelry must not match raid twin index",
+    dropsfrom: "Blackburrow",
+    dropmobs: ["a gnoll shaman", "Sergeant Slate"],
+    relatedquests: ["A Job for Nanrum"],
+    statsBlock: "Slot: EAR<br>\nWT: 0.1  Size: TINY<br>\nClass: ALL<br>\nRace: ALL<br>",
+  },
 ];
 
 // -------------------------------------------------------------------

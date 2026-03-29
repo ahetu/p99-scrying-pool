@@ -54,12 +54,21 @@ function ensureLoaded(): void {
   }
 }
 
+function hasMeaningfulStats(item: ItemData): boolean {
+  const s = item.stats;
+  if (!s) return false;
+  return !!(s.ac || s.hp || s.mana || s.str || s.sta || s.dex || s.agi || s.wis ||
+    s.int || s.cha || s.svFire || s.svCold || s.svDisease || s.svMagic || s.svPoison ||
+    s.haste || s.damage);
+}
+
 function ensureTwinIndex(): void {
   if (raidStatsSet) return;
   raidStatsSet = new Set();
   try {
     const items: ItemData[] = JSON.parse(fs.readFileSync(ITEM_DB_PATH, "utf-8"));
     for (const item of items) {
+      if (!hasMeaningfulStats(item)) continue;
       if (isRaidItem(item.dropsfrom, item.dropmobs ?? null, item.relatedquests ?? null)) {
         raidStatsSet.add(item.statsBlock);
       }
@@ -116,7 +125,8 @@ export function isRaidItem(
     }
   }
 
-  if (statsBlock) {
+  const hasKnownSource = dropsfrom || (dropmobs && dropmobs.length > 0);
+  if (statsBlock && !hasKnownSource) {
     ensureTwinIndex();
     if (raidStatsSet!.has(statsBlock)) return true;
   }
