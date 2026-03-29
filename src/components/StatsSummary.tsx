@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Character, ItemData, BonusPointAllocation } from "@/lib/types";
-import { getBaseStats, getBonusPointsForClass, calculateMaxMana, calculateMaxHp, getManaStat, calculateDisplayAC } from "@/lib/baseStats";
+import { getBaseStats, getBonusPointsForClass, calculateMaxMana, calculateMaxHp, getManaStat, calculateDisplayAC, getBaseResists, getClassResistBonuses } from "@/lib/baseStats";
 
 interface StatsSummaryProps {
   character: Character;
@@ -112,6 +112,17 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
     total("int"),
     gear.mana,
   );
+
+  const racialResists = getBaseResists(character.race);
+  const classResists = getClassResistBonuses(character.className, character.level);
+
+  const resists = {
+    fire:    { racial: racialResists.fr, classBonus: classResists.fr, gear: gear.svFire },
+    cold:    { racial: racialResists.cr, classBonus: classResists.cr, gear: gear.svCold },
+    disease: { racial: racialResists.dr, classBonus: classResists.dr, gear: gear.svDisease },
+    magic:   { racial: racialResists.mr, classBonus: classResists.mr, gear: gear.svMagic },
+    poison:  { racial: racialResists.pr, classBonus: classResists.pr, gear: gear.svPoison },
+  };
 
   const remainingBonus = maxBonus - usedBonus;
 
@@ -245,11 +256,28 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
             Resistances
           </div>
           <div className="space-y-2">
-            <StatBar label="Fire" value={gear.svFire} max={100} color="from-red-500 to-orange-400" gearOnly />
-            <StatBar label="Cold" value={gear.svCold} max={100} color="from-sky-500 to-cyan-400" gearOnly />
-            <StatBar label="Disease" value={gear.svDisease} max={100} color="from-green-500 to-lime-400" gearOnly />
-            <StatBar label="Magic" value={gear.svMagic} max={100} color="from-purple-500 to-violet-400" gearOnly />
-            <StatBar label="Poison" value={gear.svPoison} max={100} color="from-lime-500 to-emerald-400" gearOnly />
+            {([
+              { label: "Magic",   r: resists.magic,   color: "from-purple-500 to-violet-400" },
+              { label: "Fire",    r: resists.fire,     color: "from-red-500 to-orange-400" },
+              { label: "Cold",    r: resists.cold,     color: "from-sky-500 to-cyan-400" },
+              { label: "Poison",  r: resists.poison,   color: "from-lime-500 to-emerald-400" },
+              { label: "Disease", r: resists.disease,   color: "from-green-500 to-lime-400" },
+            ] as const).map(({ label, r, color }) => {
+              const total = r.racial + r.classBonus + r.gear;
+              const parts = [`${r.racial}`];
+              if (r.classBonus > 0) parts.push(`+${r.classBonus} class`);
+              if (r.gear !== 0) parts.push(`${r.gear > 0 ? "+" : ""}${r.gear} gear`);
+              return (
+                <StatBar
+                  key={label}
+                  label={label}
+                  value={total}
+                  max={200}
+                  color={color}
+                  sub={parts.join(" ")}
+                />
+              );
+            })}
           </div>
         </div>
       </div>

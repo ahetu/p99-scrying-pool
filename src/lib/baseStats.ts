@@ -278,4 +278,75 @@ function getClassACBonus(className: string, level: number, agi: number): number 
   return 0;
 }
 
-export type { StatBlock };
+interface ResistBlock {
+  mr: number;
+  fr: number;
+  cr: number;
+  dr: number;
+  pr: number;
+}
+
+const RACE_BASE_RESISTS: Record<string, ResistBlock> = {
+  "Barbarian":  { mr: 25, fr: 25, cr: 35, dr: 15, pr: 15 },
+  "Dark Elf":   { mr: 25, fr: 25, cr: 25, dr: 15, pr: 15 },
+  "Dwarf":      { mr: 30, fr: 25, cr: 25, dr: 15, pr: 20 },
+  "Erudite":    { mr: 30, fr: 25, cr: 25, dr: 10, pr: 15 },
+  "Gnome":      { mr: 25, fr: 25, cr: 25, dr: 15, pr: 15 },
+  "Half Elf":   { mr: 25, fr: 25, cr: 25, dr: 15, pr: 15 },
+  "Halfling":   { mr: 25, fr: 25, cr: 25, dr: 20, pr: 20 },
+  "High Elf":   { mr: 25, fr: 25, cr: 25, dr: 15, pr: 15 },
+  "Human":      { mr: 25, fr: 25, cr: 25, dr: 15, pr: 15 },
+  "Iksar":      { mr: 25, fr: 30, cr: 15, dr: 15, pr: 15 },
+  "Ogre":       { mr: 25, fr: 25, cr: 25, dr: 15, pr: 15 },
+  "Troll":      { mr: 25, fr:  5, cr: 25, dr: 15, pr: 15 },
+  "Wood Elf":   { mr: 25, fr: 25, cr: 25, dr: 15, pr: 15 },
+};
+
+/**
+ * Innate class resist bonuses per the EQEmu client decompiles.
+ * Source: https://github.com/EQEmu/Server/blob/master/zone/client_mods.cpp
+ *
+ * Warriors: MR = level/2
+ * Rogues:   PR = 8 + max(0, level-49)
+ * SKs:      PR = 4 + max(0, level-49), DR = 4 + max(0, level-49)
+ * Paladins: DR = 8 + max(0, level-49)
+ * Rangers:  FR = 4 + max(0, level-49), CR = 4 + max(0, level-49)
+ * Monks:    FR = 8 + max(0, level-49), DR = max(0, level-50), PR = max(0, level-50)
+ */
+export function getClassResistBonuses(className: string, level: number): ResistBlock {
+  const base: ResistBlock = { mr: 0, fr: 0, cr: 0, dr: 0, pr: 0 };
+  const over49 = Math.max(0, level - 49);
+  const over50 = Math.max(0, level - 50);
+
+  switch (className) {
+    case "Warrior":
+      base.mr = Math.floor(level / 2);
+      break;
+    case "Rogue":
+      base.pr = 8 + over49;
+      break;
+    case "Shadow Knight":
+      base.pr = 4 + over49;
+      base.dr = 4 + over49;
+      break;
+    case "Paladin":
+      base.dr = 8 + over49;
+      break;
+    case "Ranger":
+      base.fr = 4 + over49;
+      base.cr = 4 + over49;
+      break;
+    case "Monk":
+      base.fr = 8 + over49;
+      base.dr = over50;
+      base.pr = over50;
+      break;
+  }
+  return base;
+}
+
+export function getBaseResists(race: string): ResistBlock {
+  return RACE_BASE_RESISTS[race] || { mr: 25, fr: 25, cr: 25, dr: 15, pr: 15 };
+}
+
+export type { StatBlock, ResistBlock };
