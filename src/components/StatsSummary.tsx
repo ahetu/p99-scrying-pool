@@ -16,6 +16,7 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
   const [saving, setSaving] = useState(false);
   const [liveBp, setLiveBp] = useState<BonusPointAllocation>(character.bonusPoints || EMPTY_BP);
   const [editBp, setEditBp] = useState<BonusPointAllocation>(liveBp);
+  const [editRaw, setEditRaw] = useState<Record<string, string>>({});
 
   const base = getBaseStats(character.race, character.className);
   const bp = editing ? editBp : liveBp;
@@ -25,6 +26,7 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
 
   function startEditing() {
     setEditBp({ ...liveBp });
+    setEditRaw({});
     setEditing(true);
   }
 
@@ -153,19 +155,37 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
             </p>
           </div>
           <div className="grid grid-cols-7 gap-2 mb-3">
-            {(["str", "sta", "agi", "dex", "wis", "int", "cha"] as const).map((stat) => (
-              <div key={stat} className="text-center">
-                <label className="text-zinc-500 text-[9px] uppercase tracking-wide block mb-1">{stat}</label>
-                <input
-                  type="number"
-                  min="0"
-                  max={maxBonus}
-                  value={editBp[stat]}
-                  onChange={(e) => updateEditPoint(stat, parseInt(e.target.value) || 0)}
-                  className="w-full bg-zinc-900 border border-zinc-700/50 rounded px-1 py-1.5 text-amber-200 text-center text-xs focus:outline-none focus:ring-1 focus:ring-amber-500/50"
-                />
-              </div>
-            ))}
+            {(["str", "sta", "agi", "dex", "wis", "int", "cha"] as const).map((stat) => {
+              const display = stat in editRaw ? editRaw[stat] : String(editBp[stat]);
+              return (
+                <div key={stat} className="text-center">
+                  <label className="text-zinc-500 text-[9px] uppercase tracking-wide block mb-1">{stat}</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={display}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^0-9]/g, "");
+                      setEditRaw((prev) => ({ ...prev, [stat]: raw }));
+                      if (raw !== "") {
+                        updateEditPoint(stat, parseInt(raw, 10));
+                      }
+                    }}
+                    onBlur={() => {
+                      if (editRaw[stat] === "") {
+                        updateEditPoint(stat, 0);
+                      }
+                      setEditRaw((prev) => {
+                        const next = { ...prev };
+                        delete next[stat];
+                        return next;
+                      });
+                    }}
+                    className="w-full bg-zinc-900 border border-zinc-700/50 rounded px-1 py-1.5 text-amber-200 text-center text-xs focus:outline-none focus:ring-1 focus:ring-amber-500/50 [appearance:textfield]"
+                  />
+                </div>
+              );
+            })}
           </div>
           <div className="flex justify-end gap-2">
             <button
