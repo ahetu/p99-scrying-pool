@@ -358,6 +358,9 @@ export function getUpgradesForSlot(
 
     const candidateScore = scoreItem(candidate.stats, className, slotId, hasteForScoring, role);
 
+    const MIN_UPGRADE_DELTA = 1.0;
+    if (candidateScore - currentScore < MIN_UPGRADE_DELTA) continue;
+
     upgrades.push({
       name: candidate.name,
       lucyImgId: candidate.lucyImgId,

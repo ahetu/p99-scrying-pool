@@ -207,28 +207,26 @@ describe("upgradeEngine filters", () => {
   // score higher than the currently equipped item.
   // -------------------------------------------------------
   describe("upgrade count accuracy", () => {
-    it("only counts items scoring above current as upgrades", () => {
+    it("only includes items scoring at least 1.0 above current", () => {
       const betterItem = makeItem("Better Ring", {
         stats: makeStats({ hp: 100, ac: 20 }),
       });
-      const worseItem = makeItem("Worse Ring", {
-        stats: makeStats({ hp: 1 }),
+      const sidegrade = makeItem("Sidegrade Ring", {
+        stats: makeStats({ hp: 15, ac: 5, dex: 1 }),
       });
 
       const currentItem = makeItem("Equipped Ring", {
         stats: makeStats({ hp: 15, ac: 5 }),
       });
 
-      mockGetFiltered.mockReturnValue([betterItem, worseItem]);
+      mockGetFiltered.mockReturnValue([betterItem, sidegrade]);
 
-      const { upgrades, currentScore } = getUpgradesForSlot(
+      const { upgrades } = getUpgradesForSlot(
         "finger1", "Warrior", "Human", currentItem, new Set(), 0
       );
 
-      const actualUpgradeCount = upgrades.filter(u => u.score > currentScore).length;
-
-      expect(upgrades).toHaveLength(2);
-      expect(actualUpgradeCount).toBe(1);
+      expect(upgrades).toHaveLength(1);
+      expect(upgrades[0].name).toBe("Better Ring");
     });
   });
 });
