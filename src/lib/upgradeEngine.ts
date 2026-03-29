@@ -119,7 +119,7 @@ function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWei
     }
 
     if (effectLower.includes("enduring breath")) {
-      return 3;
+      return 1;
     }
 
     if (effectLower.includes("endure magic")) {

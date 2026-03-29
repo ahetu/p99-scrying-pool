@@ -212,7 +212,7 @@ describe("upgradeEngine filters", () => {
         stats: makeStats({ hp: 100, ac: 20 }),
       });
       const sidegrade = makeItem("Sidegrade Ring", {
-        stats: makeStats({ hp: 15, ac: 5, dex: 1 }),
+        stats: makeStats({ hp: 15, ac: 5, cha: 1 }),
       });
 
       const currentItem = makeItem("Equipped Ring", {
@@ -228,6 +228,67 @@ describe("upgradeEngine filters", () => {
       expect(upgrades).toHaveLength(1);
       expect(upgrades[0].name).toBe("Better Ring");
     });
+  });
+});
+
+describe("stat weight balance", () => {
+  it("Rogue: -5 STR is NOT worth +35 HP", () => {
+    const candidateStats = makeStats({ hp: 35, ac: 2, str: -5, svMagic: -5 });
+    const currentStats = makeStats({});
+
+    const candidateScore = scoreItem(candidateStats, "Rogue", "shoulders");
+    const currentScore = scoreItem(currentStats, "Rogue", "shoulders");
+
+    expect(candidateScore - currentScore).toBeLessThan(0);
+  });
+
+  it("Rogue: STR strongly outweighs HP for pure DPS class", () => {
+    const hpItem = makeStats({ hp: 50 });
+    const strItem = makeStats({ str: 5 });
+
+    const hpScore = scoreItem(hpItem, "Rogue", "shoulders");
+    const strScore = scoreItem(strItem, "Rogue", "shoulders");
+
+    expect(strScore).toBeGreaterThanOrEqual(hpScore);
+  });
+
+  it("Monk: -5 STR should not be a large upgrade even with +35 HP", () => {
+    const candidateStats = makeStats({ hp: 35, ac: 2, str: -5, svMagic: -5 });
+    const currentStats = makeStats({});
+
+    const candidateScore = scoreItem(candidateStats, "Monk", "shoulders");
+    const currentScore = scoreItem(currentStats, "Monk", "shoulders");
+
+    expect(candidateScore - currentScore).toBeLessThan(10);
+  });
+
+  it("Rogue: Dark Scale Sleeves (AC+resists) beats Kelpmaidens (Enduring Breath)", () => {
+    const darkScaleStats = makeStats({ ac: 14, str: 10, svFire: 2, svCold: 2, svDisease: 2, svMagic: 2, svPoison: 2 });
+    const kelpStats = makeStats({ ac: 3, str: 10, effect: "Enduring Breath", effectType: "Worn" });
+
+    const darkScore = scoreItem(darkScaleStats, "Rogue", "arms");
+    const kelpScore = scoreItem(kelpStats, "Rogue", "arms");
+
+    expect(darkScore).toBeGreaterThan(kelpScore);
+  });
+
+  it("Warrior (tank): values HP much more than Rogue", () => {
+    const hpItem = makeStats({ hp: 100 });
+    const tankScore = scoreItem(hpItem, "Warrior", "shoulders");
+    const rogueScore = scoreItem(hpItem, "Rogue", "shoulders");
+
+    expect(tankScore).toBeGreaterThan(rogueScore);
+  });
+
+  it("non-tank classes: 1 svMagic per-point > 1 AC per-point", () => {
+    const resistItem = makeStats({ svMagic: 1 });
+    const acItem = makeStats({ ac: 1 });
+
+    for (const cls of ["Rogue", "Monk", "Ranger", "Bard", "Cleric", "Druid", "Enchanter", "Wizard"]) {
+      const resistScore = scoreItem(resistItem, cls, "shoulders");
+      const acScore = scoreItem(acItem, cls, "shoulders");
+      expect(resistScore).toBeGreaterThan(acScore);
+    }
   });
 });
 
