@@ -522,7 +522,8 @@ function UpgradeRow({
   const sourceLines: string[] = [];
   if (upgrade.dropsfrom) sourceLines.push(`Drops: ${cleanZoneName(upgrade.dropsfrom)}`);
   if (upgrade.relatedquests?.length) sourceLines.push(`Quest: ${upgrade.relatedquests[0]}`);
-  if (!sourceLines.length) sourceLines.push("Crafted");
+  if (upgrade.crafted) sourceLines.push("Crafted");
+  if (upgrade.soldby) sourceLines.push("Sold by Merchants");
 
   useEffect(() => {
     if (showTooltip && rowRef.current) {

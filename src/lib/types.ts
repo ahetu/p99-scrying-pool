@@ -34,6 +34,8 @@ export interface ItemData {
   dropsfrom: string | null;
   dropmobs: string[] | null;
   relatedquests: string[] | null;
+  soldby: boolean;
+  crafted: boolean;
   stats: ParsedStats | null;
   wikiUrl: string;
   fetchedAt: string;
@@ -45,6 +47,8 @@ export interface UpgradeItem {
   wikiUrl: string;
   dropsfrom: string | null;
   relatedquests: string[] | null;
+  soldby: boolean;
+  crafted: boolean;
   isRaid: boolean;
   score: number;
   keyStats: Record<string, number>;

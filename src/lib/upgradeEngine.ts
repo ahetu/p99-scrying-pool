@@ -341,6 +341,13 @@ export function getUpgradesForSlot(
 
     if (candidate.stats.noRent || /NO RENT|TEMPORARY/i.test(candidate.statsBlock)) continue;
 
+    const hasSource = candidate.dropsfrom
+      || (candidate.dropmobs && candidate.dropmobs.length > 0)
+      || (candidate.relatedquests && candidate.relatedquests.length > 0)
+      || candidate.soldby
+      || candidate.crafted;
+    if (!hasSource) continue;
+
     if (currentItem && candidate.name.toLowerCase() === currentItem.name.toLowerCase()) {
       continue;
     }
@@ -357,6 +364,8 @@ export function getUpgradesForSlot(
       wikiUrl: candidate.wikiUrl,
       dropsfrom: candidate.dropsfrom,
       relatedquests: candidate.relatedquests ?? null,
+      soldby: candidate.soldby ?? false,
+      crafted: candidate.crafted ?? false,
       isRaid: isRaidItem(candidate.dropsfrom, candidate.dropmobs ?? null, candidate.relatedquests ?? null, candidate.statsBlock),
       score: candidateScore,
       keyStats: extractKeyStats(candidate.stats),

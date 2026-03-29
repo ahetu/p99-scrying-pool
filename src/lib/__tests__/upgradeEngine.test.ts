@@ -27,6 +27,8 @@ function makeItem(name: string, overrides: Partial<ItemData> = {}): ItemData {
     dropsfrom: "Some Zone",
     dropmobs: ["some mob"],
     relatedquests: null,
+    soldby: false,
+    crafted: false,
     stats: makeStats({ hp: 10 }),
     wikiUrl: `https://p99wiki.eqgeeks.org/${name.replace(/ /g, "_")}`,
     fetchedAt: new Date().toISOString(),
@@ -120,15 +122,17 @@ describe("upgradeEngine filters", () => {
   });
 
   // -------------------------------------------------------
-  // Crafted items (no drop/quest source) are included.
-  // These are obtainable via tradeskills and are valid upgrades.
+  // Source filtering: items must have at least one of
+  // dropsfrom, dropmobs, relatedquests, soldby, or crafted.
+  // Crafted/sold items pass; phantom items are excluded.
   // -------------------------------------------------------
-  describe("crafted items (no acquisition source) are included", () => {
-    it("includes items with null dropsfrom, dropmobs, and relatedquests", () => {
+  describe("source-based filtering", () => {
+    it("includes crafted items even with no drop/quest source", () => {
       const craftedItem = makeItem("Platinum Star Ruby Veil", {
         dropsfrom: null,
         dropmobs: null,
         relatedquests: null,
+        crafted: true,
         stats: makeStats({ dex: 9, cha: 9 }),
       });
 
@@ -140,17 +144,55 @@ describe("upgradeEngine filters", () => {
 
       expect(upgrades).toHaveLength(1);
       expect(upgrades[0].name).toBe("Platinum Star Ruby Veil");
+      expect(upgrades[0].crafted).toBe(true);
     });
 
-    it("includes items with empty dropmobs array and no other source", () => {
-      const craftedItem = makeItem("Crafted Ring", {
+    it("includes merchant-sold items even with no drop/quest source", () => {
+      const soldItem = makeItem("Vendor Ring", {
         dropsfrom: null,
-        dropmobs: [],
+        dropmobs: null,
+        relatedquests: null,
+        soldby: true,
+        stats: makeStats({ hp: 10 }),
+      });
+
+      mockGetFiltered.mockReturnValue([soldItem]);
+
+      const { upgrades } = getUpgradesForSlot(
+        "finger1", "Warrior", "Human", null, new Set(), 0
+      );
+
+      expect(upgrades).toHaveLength(1);
+    });
+
+    it("excludes phantom items with no source at all", () => {
+      const phantomItem = makeItem("Priceless Velium Knuckledusters", {
+        dropsfrom: null,
+        dropmobs: null,
+        relatedquests: null,
+        soldby: false,
+        crafted: false,
+        stats: makeStats({ hp: 25, str: 5, dex: 5 }),
+      });
+
+      mockGetFiltered.mockReturnValue([phantomItem]);
+
+      const { upgrades } = getUpgradesForSlot(
+        "primary", "Monk", "Human", null, new Set(), 0
+      );
+
+      expect(upgrades).toHaveLength(0);
+    });
+
+    it("keeps items with a drop zone", () => {
+      const droppableItem = makeItem("Droppable Ring", {
+        dropsfrom: "Nagafen's Lair",
+        dropmobs: null,
         relatedquests: null,
         stats: makeStats({ hp: 10 }),
       });
 
-      mockGetFiltered.mockReturnValue([craftedItem]);
+      mockGetFiltered.mockReturnValue([droppableItem]);
 
       const { upgrades } = getUpgradesForSlot(
         "finger1", "Warrior", "Human", null, new Set(), 0
