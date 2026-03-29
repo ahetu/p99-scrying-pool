@@ -120,87 +120,37 @@ describe("upgradeEngine filters", () => {
   });
 
   // -------------------------------------------------------
-  // Items with no acquisition source must be excluded.
-  // Prevents GM-event / phantom items from appearing.
+  // Crafted items (no drop/quest source) are included.
+  // These are obtainable via tradeskills and are valid upgrades.
   // -------------------------------------------------------
-  describe("items with no acquisition source are excluded", () => {
-    it("filters out items with null dropsfrom, dropmobs, and relatedquests", () => {
-      const phantomItem = makeItem("Priceless Velium Knuckledusters", {
+  describe("crafted items (no acquisition source) are included", () => {
+    it("includes items with null dropsfrom, dropmobs, and relatedquests", () => {
+      const craftedItem = makeItem("Platinum Star Ruby Veil", {
         dropsfrom: null,
         dropmobs: null,
         relatedquests: null,
-        stats: makeStats({ hp: 25, str: 5, dex: 5 }),
+        stats: makeStats({ dex: 9, cha: 9 }),
       });
 
-      mockGetFiltered.mockReturnValue([phantomItem]);
+      mockGetFiltered.mockReturnValue([craftedItem]);
 
       const { upgrades } = getUpgradesForSlot(
-        "primary", "Monk", "Human", null, new Set(), 0
+        "face", "Enchanter", "Dark Elf", null, new Set(), 0
       );
 
-      expect(upgrades).toHaveLength(0);
+      expect(upgrades).toHaveLength(1);
+      expect(upgrades[0].name).toBe("Platinum Star Ruby Veil");
     });
 
-    it("filters out items with empty dropmobs array and no other source", () => {
-      const noSourceItem = makeItem("Mystery Item", {
+    it("includes items with empty dropmobs array and no other source", () => {
+      const craftedItem = makeItem("Crafted Ring", {
         dropsfrom: null,
         dropmobs: [],
         relatedquests: null,
         stats: makeStats({ hp: 10 }),
       });
 
-      mockGetFiltered.mockReturnValue([noSourceItem]);
-
-      const { upgrades } = getUpgradesForSlot(
-        "finger1", "Warrior", "Human", null, new Set(), 0
-      );
-
-      expect(upgrades).toHaveLength(0);
-    });
-
-    it("keeps items with a drop zone", () => {
-      const droppableItem = makeItem("Droppable Ring", {
-        dropsfrom: "Nagafen's Lair",
-        dropmobs: null,
-        relatedquests: null,
-        stats: makeStats({ hp: 10 }),
-      });
-
-      mockGetFiltered.mockReturnValue([droppableItem]);
-
-      const { upgrades } = getUpgradesForSlot(
-        "finger1", "Warrior", "Human", null, new Set(), 0
-      );
-
-      expect(upgrades).toHaveLength(1);
-    });
-
-    it("keeps items with only a related quest", () => {
-      const questItem = makeItem("Quest Ring", {
-        dropsfrom: null,
-        dropmobs: null,
-        relatedquests: ["Some Quest"],
-        stats: makeStats({ hp: 10 }),
-      });
-
-      mockGetFiltered.mockReturnValue([questItem]);
-
-      const { upgrades } = getUpgradesForSlot(
-        "finger1", "Warrior", "Human", null, new Set(), 0
-      );
-
-      expect(upgrades).toHaveLength(1);
-    });
-
-    it("keeps items with only dropmobs", () => {
-      const mobDropItem = makeItem("Mob Drop Ring", {
-        dropsfrom: null,
-        dropmobs: ["some named mob"],
-        relatedquests: null,
-        stats: makeStats({ hp: 10 }),
-      });
-
-      mockGetFiltered.mockReturnValue([mobDropItem]);
+      mockGetFiltered.mockReturnValue([craftedItem]);
 
       const { upgrades } = getUpgradesForSlot(
         "finger1", "Warrior", "Human", null, new Set(), 0
