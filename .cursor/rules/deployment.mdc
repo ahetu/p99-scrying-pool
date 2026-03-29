@@ -1,0 +1,35 @@
+---
+description: Deployment verification rules for Vercel-hosted Next.js app
+globs: 
+alwaysApply: true
+---
+
+# Deployment — Vercel
+
+This project is deployed on **Vercel** at `https://p99scryingpool.vercel.app/`.
+The GitHub repo is `ahetu/p99-scrying-pool`.
+
+## Before committing
+
+Run `npm run build` locally and confirm it exits cleanly (exit code 0). TypeScript type errors will fail the Vercel build silently — the old deployment stays live and no error is surfaced to the user.
+
+## After pushing
+
+Check that the Vercel deployment succeeded:
+
+```
+gh api repos/ahetu/p99-scrying-pool/deployments --jq ".[0] | {sha: .sha[0:7], created: .created_at, env: .environment}"
+gh api repos/ahetu/p99-scrying-pool/deployments/<id>/statuses --jq ".[0] | {state, description}"
+```
+
+If `state` is `"failure"`, inspect the build logs:
+
+```
+npx vercel inspect <deployment_id> --logs
+```
+
+## Common pitfalls
+
+- **Type mismatches in scripts/**: The scraper and enrichment scripts under `scripts/` import `ItemData` from `src/lib/types.ts`. When new fields are added to `ItemData`, **every file that constructs an `ItemData` object must be updated** — including scraper scripts, enrichment scripts, and `src/lib/wikiItemLookup.ts`. The build will fail on the type check otherwise.
+- **Stale API responses**: API routes that return dynamic data must export `export const dynamic = "force-dynamic";` to prevent Vercel edge caching from serving stale results.
+- **Railway is defunct**: The project previously used Railway. Ignore Railway deployment statuses in the GitHub deployments API — they will always show `"failure"`.

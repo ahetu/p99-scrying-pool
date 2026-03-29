@@ -32,6 +32,7 @@ export default function UploadForm() {
   const [bonusPoints, setBonusPoints] = useState<Record<string, number>>({
     str: 0, sta: 0, agi: 0, dex: 0, wis: 0, int: 0, cha: 0,
   });
+  const [editRaw, setEditRaw] = useState<Record<string, string>>({});
 
   const fileUploaded = !!inventoryText;
   const maxBonus = className ? getBonusPointsForClass(className) : 30;
@@ -309,12 +310,27 @@ export default function UploadForm() {
                         {STAT_LABELS[stat]}
                       </label>
                       <input
-                        type="number"
-                        min="0"
-                        max={maxBonus}
-                        value={bonusPoints[stat]}
-                        onChange={(e) => updateBonusPoint(stat, parseInt(e.target.value) || 0)}
-                        className="w-full bg-zinc-900 border border-zinc-700/50 rounded px-2 py-1.5 text-amber-200 text-center text-xs focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                        type="text"
+                        inputMode="numeric"
+                        value={editRaw[stat] ?? String(bonusPoints[stat])}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/[^0-9]/g, "");
+                          setEditRaw((prev) => ({ ...prev, [stat]: raw }));
+                          if (raw !== "") {
+                            updateBonusPoint(stat, parseInt(raw, 10));
+                          }
+                        }}
+                        onBlur={() => {
+                          if (editRaw[stat] === "") {
+                            updateBonusPoint(stat, 0);
+                          }
+                          setEditRaw((prev) => {
+                            const next = { ...prev };
+                            delete next[stat];
+                            return next;
+                          });
+                        }}
+                        className="w-full bg-zinc-900 border border-zinc-700/50 rounded px-2 py-1.5 text-amber-200 text-center text-xs focus:outline-none focus:ring-1 focus:ring-amber-500/50 [appearance:textfield]"
                       />
                     </div>
                   ))}

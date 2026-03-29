@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Character, ItemData, UpgradeItem } from "@/lib/types";
 import { getItemIconUrl } from "@/lib/itemUtils";
-import { getClassWeights } from "@/lib/classStatWeights";
+import { getClassWeights, ROLE_TOGGLE_CLASSES } from "@/lib/classStatWeights";
 import ItemTooltip from "./ItemTooltip";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
@@ -20,7 +20,8 @@ interface SlotUpgradeData {
   dbAvailable: boolean;
 }
 
-const ROLE_TOGGLE_CLASSES = new Set(["Warrior", "Paladin", "Shadow Knight"]);
+const TIEBREAKER_THRESHOLD = 0.05;
+const VISIBLE_CAP = 8;
 
 function cleanZoneName(raw: string): string {
   return raw
@@ -31,25 +32,6 @@ function cleanZoneName(raw: string): string {
     .trim();
 }
 
-function getStoredRole(className: string): "tank" | "dps" {
-  if (typeof window === "undefined") return "tank";
-  try {
-    const v = localStorage.getItem(`armory-role-${className}`);
-    return v === "dps" ? "dps" : "tank";
-  } catch {
-    return "tank";
-  }
-}
-
-function getStoredRaidFilter(): boolean {
-  if (typeof window === "undefined") return true;
-  try {
-    return localStorage.getItem("armory-show-raid") !== "false";
-  } catch {
-    return true;
-  }
-}
-
 export default function EquipmentList({ character, items }: EquipmentListProps) {
   const entries = useMemo(
     () => Object.entries(character.equipment).filter(([, item]) => item !== null),
@@ -57,13 +39,22 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
   );
 
   const hasRoleToggle = ROLE_TOGGLE_CLASSES.has(character.className);
-  const [role, setRole] = useState<"tank" | "dps">(() => getStoredRole(character.className));
+  const [role, setRole] = useState<"tank" | "dps">("tank");
   const [expandedSlot, setExpandedSlot] = useState<string | null>(null);
   const [upgradeCache, setUpgradeCache] = useState<Record<string, SlotUpgradeData>>({});
   const [loadingSlots, setLoadingSlots] = useState<Set<string>>(new Set());
-  const [showRaid, setShowRaid] = useState(getStoredRaidFilter);
+  const [showRaid, setShowRaid] = useState(true);
   const inFlightRef = useRef(new Set<string>());
   const prefetchStartedRef = useRef(false);
+
+  useEffect(() => {
+    try {
+      const storedRole = localStorage.getItem(`armory-role-${character.className}`);
+      if (storedRole === "dps") setRole("dps");
+      const storedRaid = localStorage.getItem("armory-show-raid");
+      if (storedRaid === "false") setShowRaid(false);
+    } catch { /* noop */ }
+  }, [character.className]);
 
   const handleRoleChange = useCallback(
     (newRole: "tank" | "dps") => {
@@ -87,24 +78,33 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
     });
   }, []);
 
-  const loreItems = entries
-    .filter(([, item]) => {
-      if (!item) return false;
-      const data = items[item.name];
-      return data?.stats?.lore;
-    })
-    .map(([, item]) => item!.name);
+  const loreItems = useMemo(
+    () => entries
+      .filter(([, item]) => {
+        if (!item) return false;
+        const data = items[item.name];
+        return data?.stats?.lore;
+      })
+      .map(([, item]) => item!.name),
+    [entries, items]
+  );
 
-  const currentMaxHaste = entries.reduce((max, [, item]) => {
-    if (!item) return max;
-    const data = items[item.name];
-    const haste = data?.stats?.haste ?? 0;
-    return Math.max(max, haste);
-  }, 0);
+  const currentMaxHaste = useMemo(
+    () => entries.reduce((max, [, item]) => {
+      if (!item) return max;
+      const data = items[item.name];
+      const haste = data?.stats?.haste ?? 0;
+      return Math.max(max, haste);
+    }, 0),
+    [entries, items]
+  );
+
+  const upgradeCacheRef = useRef(upgradeCache);
+  upgradeCacheRef.current = upgradeCache;
 
   const fetchUpgrades = useCallback(
     async (slotId: string) => {
-      if (upgradeCache[slotId] || inFlightRef.current.has(slotId)) return;
+      if (upgradeCacheRef.current[slotId] || inFlightRef.current.has(slotId)) return;
       inFlightRef.current.add(slotId);
 
       setLoadingSlots((prev) => new Set(prev).add(slotId));
@@ -138,7 +138,7 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
         });
       }
     },
-    [character, items, loreItems, upgradeCache, role, hasRoleToggle, currentMaxHaste]
+    [character, loreItems, currentMaxHaste, role, hasRoleToggle]
   );
 
   const toggleSlot = useCallback(
@@ -197,7 +197,7 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
           const slotData = upgradeCache[slotId];
           const filteredCount = slotData
             ? slotData.upgrades.filter(
-                (u) => u.score > slotData.currentScore && (showRaid || !u.isRaid)
+                (u) => showRaid || !u.isRaid
               ).length
             : undefined;
 
@@ -503,7 +503,6 @@ function UpgradeRow({
   const raid = upgrade.isRaid;
 
   const weights = getClassWeights(className);
-  const TIEBREAKER_THRESHOLD = 0.05;
   const allDiffs = Object.entries(upgrade.statDiffs)
     .filter(([stat, v]) => {
       if (v === 0) return false;
@@ -515,7 +514,6 @@ function UpgradeRow({
       const wb = (weights[b as keyof typeof weights] as number) ?? 0;
       return Math.abs(bv) * wb - Math.abs(av) * wa;
     });
-  const VISIBLE_CAP = 8;
   const topDiffs = allDiffs.slice(0, VISIBLE_CAP);
   const hiddenCount = allDiffs.length - topDiffs.length;
 

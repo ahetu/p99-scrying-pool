@@ -37,8 +37,8 @@ export async function updateCharacter(id: string, updates: Partial<Character>): 
   return updated;
 }
 
-export async function listCharacters(): Promise<CharacterSummary[]> {
-  const ids = await redis.zrange<string[]>(CHAR_INDEX, 0, -1, { rev: true });
+export async function listCharacters(limit: number = 50): Promise<CharacterSummary[]> {
+  const ids = await redis.zrange<string[]>(CHAR_INDEX, 0, limit - 1, { rev: true });
   if (!ids.length) return [];
 
   const keys = ids.map((id) => CHAR_KEY(id));

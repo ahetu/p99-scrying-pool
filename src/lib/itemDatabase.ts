@@ -8,6 +8,7 @@ const DB_PATH = path.join(process.cwd(), "data", "item-database.json");
 const SLOT_NORMALIZE: Record<string, string> = {
   FINGER: "FINGERS",
   SECONDAY: "SECONDARY",
+  SHOULDER: "SHOULDERS",
 };
 
 const CLASS_NORMALIZE: Record<string, string> = {

@@ -61,14 +61,14 @@ export function parseStatsBlock(raw: string): ParsedStats {
   const sizeMatch = text.match(/Size:\s*(\w+)/i);
   const size = sizeMatch ? sizeMatch[1] : null;
 
-  const classMatch = text.match(/Class:\s*(.+)/i);
-  const classes = classMatch
-    ? classMatch[1].trim().split(/\s+/)
+  const classMatches = [...text.matchAll(/Class:\s*(.+)/gi)];
+  const classes = classMatches.length > 0
+    ? classMatches[classMatches.length - 1][1].trim().split(/\s+/)
     : [];
 
-  const raceMatch = text.match(/Race:\s*(.+)/i);
-  const races = raceMatch
-    ? raceMatch[1].trim().split(/\s+/)
+  const raceMatches = [...text.matchAll(/Race:\s*(.+)/gi)];
+  const races = raceMatches.length > 0
+    ? raceMatches[raceMatches.length - 1][1].trim().split(/\s+/)
     : [];
 
   return {

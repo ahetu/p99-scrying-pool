@@ -9,8 +9,12 @@
     "lint": "eslint",
     "scrape": "tsx scripts/scrape-all-items.ts",
     "enrich": "tsx scripts/enrich-dropsfrom.ts",
+    "enrich-dropmobs": "tsx scripts/enrich-dropmobs.ts",
     "enrich-quests": "tsx scripts/enrich-quests.ts",
+    "enrich-sources": "tsx scripts/enrich-sources.ts",
     "classify-raids": "tsx scripts/classify-raid-quests.ts",
+    "enrich:all": "tsx scripts/enrich-dropsfrom.ts && tsx scripts/enrich-dropmobs.ts && tsx scripts/enrich-quests.ts && tsx scripts/enrich-sources.ts && tsx scripts/classify-raid-quests.ts",
+    "pipeline": "tsx scripts/scrape-all-items.ts && tsx scripts/enrich-dropsfrom.ts && tsx scripts/enrich-dropmobs.ts && tsx scripts/enrich-quests.ts && tsx scripts/enrich-sources.ts && tsx scripts/classify-raid-quests.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

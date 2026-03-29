@@ -1,5 +1,5 @@
 import { ItemData, ParsedStats, UpgradeItem } from "./types";
-import { getClassWeights, isMeleeClass, isCasterClass, isHealerClass, ClassWeights, ROLE_TOGGLE_CLASSES } from "./classStatWeights";
+import { getClassWeights, isMeleeClass, isCasterClass, ClassWeights } from "./classStatWeights";
 import { getFilteredItemsForSlot } from "./itemDatabase";
 import { isRaidItem } from "./raidClassifier";
 

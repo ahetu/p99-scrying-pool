@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { getCharacter } from "@/lib/storage";
+import { cache } from "react";
+import { getCharacter as _getCharacter } from "@/lib/storage";
 import { getItemByNameWithFallback } from "@/lib/itemDatabase";
 import { ItemData } from "@/lib/types";
 import { notFound } from "next/navigation";
+
+const getCharacter = cache(_getCharacter);
 import CharacterHeader from "@/components/CharacterHeader";
 import PaperDoll from "@/components/PaperDoll";
 import StatsSummary from "@/components/StatsSummary";

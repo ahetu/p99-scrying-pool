@@ -81,6 +81,7 @@ function ensureTwinIndex(): void {
 function normalizeZone(raw: string): string {
   return raw
     .replace(/^\[\[/, "")
+    .replace(/\]\]$/, "")
     .replace(/<br\s*\/?>$/i, "")
     .replace(/^\*\s*/, "")
     .replace(/\}\}$/, "")
