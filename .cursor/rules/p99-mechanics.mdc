@@ -1,0 +1,47 @@
+---
+description: P99 EverQuest classic-era game mechanics that affect stat weights and item scoring
+alwaysApply: true
+---
+
+# P99 Classic-Era Mechanics
+
+This project targets **Project 1999** (P99), a classic EverQuest emulator locked to the **Velious expansion** (circa 1999–2001). Many mechanics differ from later expansions and live EQ. Always verify assumptions against https://wiki.project1999.com/ rather than general EQ knowledge.
+
+## Stat Mechanics (from P99 wiki Statistics page)
+
+### AGI — Nearly worthless above 75
+Above 75 AGI, each 10 points gives only ~3 AC. Below 75 causes a severe penalty (45 AC loss for 10 points). There is NO special Monk AGI formula. The Monk wiki says the impact is "generally agreed to be small." Treat AGI as a threshold stat (need 75), not a scaling stat.
+
+### DEX — Procs and class-specific crits only
+- **All melee**: weapon proc rate (the only universal benefit)
+- **Warriors ONLY**: small influence on melee weapon crit chance
+- **Rangers ONLY**: small influence on bow crit rate
+- **Rogues ONLY**: small influence on THROWN weapon crits (NOT backstab crits)
+- **Bards ONLY**: reduces song fizzle (missed notes)
+- DEX does NOT affect backstab crits, melee crits for non-Warriors, or hit rate in PvE
+
+### STR — Primary DPS stat for all melee
+Directly increases ATK which increases max and average melee damage including backstab and flying kick. Every melee class wiki recommends STR as the primary DPS stat allocation.
+
+### STA — Tanks benefit significantly, others less so
+The wiki states: "Only tanks gain significantly from this stat, Warriors, Shadowknights and Paladins." HP per STA scales with level and is much higher for tank classes.
+
+### WIS/INT — Soft cap at 200
+Below 200: ~11.3 mana per point at level 60. Above 200: ~5.6 mana per point (half value).
+
+### CHA — Enchanter/Bard only for combat
+Affects charm duration, mez resist rate, lull critical fail rate, memory blur success for ENC/BRD only. Does NOT affect Druid or Necromancer charm. Vendor price impact caps at 104-132 CHA.
+
+## Class Stat Priorities (from wiki allocation recommendations)
+
+- **Warrior**: STA (dump all), DEX is their unique crit stat
+- **Rogue**: STR 25 / STA 5 (grouping); STR is backstab damage, DEX is procs only
+- **Monk**: STR (DPS) or STA (pulling/raid); AGI and DEX are both minor
+- **Ranger**: STR (DPS) or STA (raid); WIS for mana; DEX is minor
+- **Bard**: STA 25; CHA for charm/lull/mez; DEX for song fizzle
+- **Paladin**: STA (dump all after 75 AGI); WIS for spells; DEX for proc weapons
+- **Shadow Knight**: STA or STR+INT split; INT for lifetaps/FD
+- **Enchanter**: CHA 25 (all modes); CHA is #1 recommended stat, INT secondary
+- **Shaman**: STA + WIS split; HP > mana due to Cannibalize
+- **Cleric/Druid**: WIS dominant
+- **Wizard/Mage/Necro**: INT dominant

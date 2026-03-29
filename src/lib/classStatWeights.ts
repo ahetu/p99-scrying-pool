@@ -82,21 +82,21 @@ const PROFILES: Record<string, ClassWeights> = {
   },
   Monk: {
     hp: 1.2, mana: 0.01, ac: 0.6,
-    str: 1.5, sta: 1.2, dex: 2.0, agi: 2.0,
+    str: 2.2, sta: 1.2, dex: 1.2, agi: 0.5,
     wis: 0.02, int: 0.02, cha: 0.02,
     svFire: 0.15, svCold: 0.1, svDisease: 0.08, svMagic: 0.18, svPoison: 0.08,
     weaponRatio: 20, hasteMultiplier: 30,
   },
   Rogue: {
     hp: 0.8, mana: 0.01, ac: 0.5,
-    str: 2.2, sta: 0.8, dex: 2.5, agi: 0.4,
+    str: 2.5, sta: 0.8, dex: 1.5, agi: 0.4,
     wis: 0.02, int: 0.02, cha: 0.02,
     svFire: 0.12, svCold: 0.08, svDisease: 0.06, svMagic: 0.15, svPoison: 0.06,
     weaponRatio: 22, hasteMultiplier: 28,
   },
   Ranger: {
     hp: 1.2, mana: 0.3, ac: 0.8,
-    str: 1.8, sta: 1.2, dex: 1.5, agi: 0.5,
+    str: 1.8, sta: 1.2, dex: 1.0, agi: 0.5,
     wis: 1.5, int: 0.02, cha: 0.03,
     svFire: 0.15, svCold: 0.1, svDisease: 0.08, svMagic: 0.18, svPoison: 0.08,
     weaponRatio: 22, hasteMultiplier: 28,
@@ -132,7 +132,7 @@ const PROFILES: Record<string, ClassWeights> = {
   Enchanter: {
     hp: 0.3, mana: 0.9, ac: 0.12,
     str: 0.03, sta: 0.15, dex: 0.02, agi: 0.08,
-    wis: 0.02, int: 6.0, cha: 3.5,
+    wis: 0.02, int: 6.0, cha: 4.0,
     svFire: 0.15, svCold: 0.12, svDisease: 0.08, svMagic: 0.2, svPoison: 0.08,
     weaponRatio: 0, hasteMultiplier: 0,
   },

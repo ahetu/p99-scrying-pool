@@ -1,0 +1,23 @@
+---
+description: Guidelines for modifying class stat weights in classStatWeights.ts
+globs: src/lib/classStatWeights.ts
+alwaysApply: false
+---
+
+# Stat Weight Guidelines
+
+Weights in `classStatWeights.ts` are multiplied against raw item stat values to produce a score. Because HP/mana appear in larger quantities on items (e.g. +100 HP vs +10 STR), their weights must be proportionally lower.
+
+## When changing weights
+
+1. Verify the mechanic on https://wiki.project1999.com/Statistics and the class page — P99 is classic-era and many assumed mechanics (e.g. DEX backstab crits) do not exist
+2. Check the wiki's "Spending Your Bonus Points" section for the class — it reflects community consensus on stat priority
+3. Use the wiki's exact language for impact assessment: "small influence" ≈ 0.4–1.0 weight; "generally agreed to be small" ≈ 0.3–0.5; "a little" ≈ 0.3–0.5
+4. Run `npm test` after changes — upgradeEngine tests may catch scoring regressions
+
+## Common pitfalls
+
+- AGI is nearly worthless above 75 for every class including Monks (no special formula)
+- DEX melee crits are Warriors-only; Rogues only get THROWN weapon crits from DEX
+- CHA only affects combat for Enchanters and Bards (charm/lull/mez)
+- STA gives significantly more HP to tank classes than non-tanks
