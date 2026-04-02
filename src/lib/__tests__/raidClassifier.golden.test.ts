@@ -102,6 +102,14 @@ const MUST_BE_RAID: GoldenItem[] = [
     statsBlock: "MAGIC ITEM<br>\nSlot: WAIST<br>\nAC: 5<br>\nSTR: +10  DEX: +10  STA: +10<br>\nHaste: +31%  <br>\nWT: 0.1  Size: SMALL<br>\nClass: ALL<br>\nRace: ALL<br>",
   },
   {
+    name: "Lodizal Shell Shield",
+    reason: "quest involves Lodizal (raid NPC) — relatedquests has scraping artifact 'File:Lodishield.jpg'",
+    dropsfrom: null,
+    dropmobs: null,
+    relatedquests: ["Lodizal Shell Shield Quest", "File:Lodishield.jpg"],
+    statsBlock: "MAGIC ITEM  LORE ITEM  <br>\nSlot: BACK SECONDARY<br>\nAC: 23<br>\nSTR: +10  CHA: +5  WIS: +10  AGI: -5<br>\nSV FIRE: +20  SV COLD: +20  SV MAGIC: +10<br>\nEffect:  [[Enduring Breath]] (Worn)<br>\nWT: 5.0  Size: LARGE<br>\nClass: ALL except MNK NEC WIZ MAG ENC<br>\nRace: ALL<br>",
+  },
+  {
     name: "Tobrin's Mystical Eyepatch",
     reason: "dropmobs include Lady Vox, Talendor (raid NPCs)",
     dropsfrom: "Permafrost",

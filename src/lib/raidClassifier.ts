@@ -118,10 +118,10 @@ export function isRaidItem(
 
   if (relatedquests && relatedquests.length > 0) {
     ensureLoaded();
-    const allRaid = relatedquests.every((quest) => raidQuestSet!.has(quest));
-    if (allRaid) return true;
+    const quests = relatedquests.filter(q => !q.startsWith("File:"));
+    if (quests.length > 0 && quests.every((quest) => raidQuestSet!.has(quest))) return true;
 
-    for (const entry of relatedquests) {
+    for (const entry of quests) {
       if (normalizedRaidNpcs.has(normalizeMobName(entry))) return true;
     }
   }
