@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Character } from "@/lib/types";
 import { parseInventoryFile } from "@/lib/parseInventory";
-import { saveCharacter, generateSlug } from "@/lib/storage";
+import { saveCharacter, getCharacter, generateSlug } from "@/lib/storage";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,6 +20,10 @@ export async function POST(request: NextRequest) {
     const id = generateSlug(name);
     const now = new Date().toISOString();
 
+    const existing = await getCharacter(id);
+
+    const resolvedBonusPoints = bonusPoints ?? existing?.bonusPoints;
+
     const character: Character = {
       id,
       name: name.trim(),
@@ -28,8 +32,8 @@ export async function POST(request: NextRequest) {
       race,
       server: server || "P1999 Green",
       equipment,
-      ...(bonusPoints ? { bonusPoints } : {}),
-      createdAt: now,
+      ...(resolvedBonusPoints ? { bonusPoints: resolvedBonusPoints } : {}),
+      createdAt: existing?.createdAt ?? now,
       updatedAt: now,
     };
 

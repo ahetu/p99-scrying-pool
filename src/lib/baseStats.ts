@@ -25,20 +25,20 @@ const RACE_BASE_STATS: Record<string, StatBlock> = {
 };
 
 const CLASS_STAT_BONUSES: Record<string, StatBlock> = {
-  "Bard":          { str: 5,  sta: 0,  agi: 0,  dex: 0,  wis: 0,  int: 0,  cha: 10 },
+  "Bard":          { str: 5,  sta: 0,  agi: 0,  dex: 10, wis: 0,  int: 0,  cha: 10 },
   "Cleric":        { str: 5,  sta: 5,  agi: 0,  dex: 0,  wis: 10, int: 0,  cha: 0 },
-  "Druid":         { str: 0,  sta: 0,  agi: 0,  dex: 0,  wis: 10, int: 0,  cha: 0 },
-  "Enchanter":     { str: 0,  sta: 0,  agi: 0,  dex: 0,  wis: 0,  int: 10, cha: 0 },
-  "Magician":      { str: 0,  sta: 0,  agi: 0,  dex: 0,  wis: 0,  int: 10, cha: 0 },
+  "Druid":         { str: 0,  sta: 10, agi: 0,  dex: 0,  wis: 10, int: 0,  cha: 0 },
+  "Enchanter":     { str: 0,  sta: 0,  agi: 0,  dex: 0,  wis: 0,  int: 10, cha: 10 },
+  "Magician":      { str: 0,  sta: 10, agi: 0,  dex: 0,  wis: 0,  int: 10, cha: 0 },
   "Monk":          { str: 5,  sta: 5,  agi: 10, dex: 10, wis: 0,  int: 0,  cha: 0 },
-  "Necromancer":   { str: 0,  sta: 0,  agi: 0,  dex: 10, wis: 0,  int: 0,  cha: 0 },
+  "Necromancer":   { str: 0,  sta: 0,  agi: 0,  dex: 10, wis: 0,  int: 10, cha: 0 },
   "Paladin":       { str: 10, sta: 5,  agi: 0,  dex: 0,  wis: 5,  int: 0,  cha: 10 },
-  "Ranger":        { str: 5,  sta: 10, agi: 0,  dex: 0,  wis: 5,  int: 0,  cha: 0 },
-  "Rogue":         { str: 0,  sta: 0,  agi: 0,  dex: 10, wis: 0,  int: 0,  cha: 0 },
+  "Ranger":        { str: 5,  sta: 10, agi: 10, dex: 0,  wis: 5,  int: 0,  cha: 0 },
+  "Rogue":         { str: 0,  sta: 0,  agi: 10, dex: 10, wis: 0,  int: 0,  cha: 0 },
   "Shadow Knight": { str: 10, sta: 5,  agi: 0,  dex: 0,  wis: 0,  int: 10, cha: 5 },
-  "Shaman":        { str: 0,  sta: 5,  agi: 0,  dex: 0,  wis: 10, int: 0,  cha: 0 },
+  "Shaman":        { str: 0,  sta: 5,  agi: 0,  dex: 0,  wis: 10, int: 0,  cha: 5 },
   "Warrior":       { str: 10, sta: 10, agi: 5,  dex: 0,  wis: 0,  int: 0,  cha: 0 },
-  "Wizard":        { str: 0,  sta: 0,  agi: 0,  dex: 0,  wis: 0,  int: 10, cha: 0 },
+  "Wizard":        { str: 0,  sta: 10, agi: 0,  dex: 0,  wis: 0,  int: 10, cha: 0 },
 };
 
 const CLASS_BONUS_POINTS: Record<string, number> = {
@@ -199,12 +199,27 @@ const CLASS_DEFENSE_CAP_60: Record<string, number> = {
   "Enchanter": 145,
 };
 
+const SILK_CLASSES = new Set(["Necromancer", "Wizard", "Magician", "Enchanter"]);
+
 function getDefenseSkill(className: string, level: number): number {
   const cap60 = CLASS_DEFENSE_CAP_60[className] || 200;
+
+  if (SILK_CLASSES.has(className)) {
+    // P99-verified caster defense caps: 5/lvl for 1-5, 4/lvl for 6-10, 3/lvl for 11+
+    // Source: https://www.project1999.com/forums/showthread.php?t=425583
+    let cap: number;
+    if (level <= 5) {
+      cap = level * 5;
+    } else if (level <= 10) {
+      cap = 25 + (level - 5) * 4;
+    } else {
+      cap = 45 + (level - 10) * 3;
+    }
+    return Math.min(cap, cap60);
+  }
+
   return Math.min(cap60, level * 5 + 5);
 }
-
-const SILK_CLASSES = new Set(["Necromancer", "Wizard", "Magician", "Enchanter"]);
 
 /**
  * Estimated displayed AC (unbuffed).
