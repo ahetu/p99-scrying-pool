@@ -210,7 +210,10 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
           onClick={() => setEditing(true)}
           className="w-full mb-4 py-2.5 px-4 rounded-lg border border-amber-600/30 bg-amber-900/15 hover:bg-amber-900/30 hover:border-amber-500/50 transition-all cursor-pointer text-center"
         >
-          <p className="text-amber-400/90 text-xs font-semibold">
+          <p className="text-amber-400/90 text-xs font-semibold flex items-center justify-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-amber-500/80 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
             Set Creation Bonus Points
           </p>
           <p className="text-zinc-500 text-[10px] mt-0.5">
