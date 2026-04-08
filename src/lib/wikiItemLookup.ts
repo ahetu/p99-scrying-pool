@@ -3,7 +3,7 @@ import { parseStatsBlock } from "./parseStatsBlock";
 import path from "path";
 import fs from "fs/promises";
 
-const WIKI_BASE = "https://p99wiki.eqgeeks.org";
+const WIKI_BASE = "https://wiki.project1999.com";
 const ITEMS_CACHE_DIR = path.join(process.cwd(), "data", "items");
 const FETCH_TIMEOUT_MS = 8000;
 

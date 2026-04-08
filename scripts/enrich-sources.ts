@@ -11,7 +11,7 @@ import type { ItemData } from "../src/lib/types";
 import fs from "fs";
 import path from "path";
 
-const WIKI_BASE = "https://p99wiki.eqgeeks.org";
+const WIKI_BASE = "https://wiki.project1999.com";
 const UA = "NaberialsScryingPool/1.0";
 const CONCURRENCY = 8;
 const BATCH_DELAY_MS = 150;

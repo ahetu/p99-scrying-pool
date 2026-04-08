@@ -30,7 +30,7 @@ function makeItem(name: string, overrides: Partial<ItemData> = {}): ItemData {
     soldby: false,
     crafted: false,
     stats: makeStats({ hp: 10 }),
-    wikiUrl: `https://p99wiki.eqgeeks.org/${name.replace(/ /g, "_")}`,
+    wikiUrl: `https://wiki.project1999.com/${name.replace(/ /g, "_")}`,
     fetchedAt: new Date().toISOString(),
     ...overrides,
   };
