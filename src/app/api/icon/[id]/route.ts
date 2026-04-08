@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const WIKI_ICON_BASE =
-  "https://wiki.project1999.com/index.php?title=Special:Redirect/file/Item_";
+const WIKI_ICON_BASE = "https://wiki.project1999.com/images/Item_";
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
 
