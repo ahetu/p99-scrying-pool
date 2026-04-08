@@ -33,6 +33,7 @@ export default function UploadForm() {
     str: 0, sta: 0, agi: 0, dex: 0, wis: 0, int: 0, cha: 0,
   });
   const [editRaw, setEditRaw] = useState<Record<string, string>>({});
+  const [nameFromFile, setNameFromFile] = useState(false);
 
   const fileUploaded = !!inventoryText;
   const maxBonus = className ? getBonusPointsForClass(className) : 30;
@@ -74,6 +75,9 @@ export default function UploadForm() {
     const detected = extractNameFromFilename(file.name);
     if (detected) {
       setName(detected);
+      setNameFromFile(true);
+    } else {
+      setNameFromFile(false);
     }
     setFileName(file.name);
     const reader = new FileReader();
@@ -98,6 +102,8 @@ export default function UploadForm() {
   function clearFile() {
     setInventoryText("");
     setFileName("");
+    setName("");
+    setNameFromFile(false);
   }
 
   function updateBonusPoint(stat: string, value: number) {
@@ -199,19 +205,28 @@ export default function UploadForm() {
               <label className="block text-amber-200/80 text-sm font-medium mb-1.5">
                 Character Name
               </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                minLength={4}
-                maxLength={15}
-                pattern="[A-Za-z]+"
-                placeholder="e.g. Naberial"
-                className={inputClasses}
-              />
-              {name && !nameValid && (
-                <p className="text-red-400/80 text-[10px] mt-1">4-15 letters, no numbers or spaces</p>
+              {nameFromFile ? (
+                <div className="flex items-center gap-2 bg-zinc-900/80 border border-amber-900/40 rounded-lg px-4 py-3">
+                  <span className="text-amber-100 flex-1">{name}</span>
+                  <span className="text-zinc-500 text-[10px]">from file</span>
+                </div>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    minLength={4}
+                    maxLength={15}
+                    pattern="[A-Za-z]+"
+                    placeholder="e.g. Naberial"
+                    className={inputClasses}
+                  />
+                  {name && !nameValid && (
+                    <p className="text-red-400/80 text-[10px] mt-1">4-15 letters, no numbers or spaces</p>
+                  )}
+                </>
               )}
             </div>
 
