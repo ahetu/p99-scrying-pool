@@ -34,11 +34,13 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
     setEditing(false);
   }
 
-  function updateEditPoint(stat: keyof BonusPointAllocation, value: number) {
+  function updateEditPoint(stat: keyof BonusPointAllocation, value: number): number {
     const clamped = Math.max(0, value);
     const otherUsed = usedBonus - editBp[stat];
     const maxForStat = maxBonus - otherUsed;
-    setEditBp((prev) => ({ ...prev, [stat]: Math.min(clamped, maxForStat) }));
+    const final = Math.min(clamped, maxForStat);
+    setEditBp((prev) => ({ ...prev, [stat]: final }));
+    return final;
   }
 
   async function saveEdits() {
@@ -166,9 +168,11 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
                     value={display}
                     onChange={(e) => {
                       const raw = e.target.value.replace(/[^0-9]/g, "");
-                      setEditRaw((prev) => ({ ...prev, [stat]: raw }));
-                      if (raw !== "") {
-                        updateEditPoint(stat, parseInt(raw, 10));
+                      if (raw === "") {
+                        setEditRaw((prev) => ({ ...prev, [stat]: raw }));
+                      } else {
+                        const actual = updateEditPoint(stat, parseInt(raw, 10));
+                        setEditRaw((prev) => ({ ...prev, [stat]: String(actual) }));
                       }
                     }}
                     onBlur={() => {

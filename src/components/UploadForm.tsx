@@ -106,14 +106,16 @@ export default function UploadForm() {
     setNameFromFile(false);
   }
 
-  function updateBonusPoint(stat: string, value: number) {
+  function updateBonusPoint(stat: string, value: number): number {
     const clamped = Math.max(0, value);
     const otherUsed = usedBonus - bonusPoints[stat];
     const maxForStat = maxBonus - otherUsed;
+    const final = Math.min(clamped, maxForStat);
     setBonusPoints((prev) => ({
       ...prev,
-      [stat]: Math.min(clamped, maxForStat),
+      [stat]: final,
     }));
+    return final;
   }
 
   const inputClasses =
@@ -337,9 +339,11 @@ export default function UploadForm() {
                         value={editRaw[stat] ?? String(bonusPoints[stat])}
                         onChange={(e) => {
                           const raw = e.target.value.replace(/[^0-9]/g, "");
-                          setEditRaw((prev) => ({ ...prev, [stat]: raw }));
-                          if (raw !== "") {
-                            updateBonusPoint(stat, parseInt(raw, 10));
+                          if (raw === "") {
+                            setEditRaw((prev) => ({ ...prev, [stat]: raw }));
+                          } else {
+                            const actual = updateBonusPoint(stat, parseInt(raw, 10));
+                            setEditRaw((prev) => ({ ...prev, [stat]: String(actual) }));
                           }
                         }}
                         onBlur={() => {
