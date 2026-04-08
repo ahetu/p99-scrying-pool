@@ -78,15 +78,15 @@ function BuffRow({
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <span className={`text-[10px] leading-tight ${active ? "text-amber-200" : "text-zinc-400"} group-hover:text-amber-200 transition-colors`}>
+          <span className={`text-[11px] leading-tight ${active ? "text-amber-200" : "text-zinc-400"} group-hover:text-amber-200 transition-colors`}>
             {buff.name}
           </span>
-          <span className="text-[8px] text-zinc-600 uppercase flex-shrink-0">{buff.casterTag}</span>
+          <span className="text-[9px] text-zinc-600 uppercase flex-shrink-0">{buff.casterTag}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[8px] text-zinc-600 leading-tight">{formatStats(buff.stats)}</span>
+          <span className="text-[9px] text-zinc-600 leading-tight">{formatStats(buff.stats)}</span>
           {blocked && (
-            <span className="text-[7px] text-red-400/70 flex items-center gap-0.5 flex-shrink-0">
+            <span className="text-[8px] text-red-400/70 flex items-center gap-0.5 flex-shrink-0">
               <svg className="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01" />
               </svg>
@@ -108,7 +108,7 @@ export default function BuffPanel({ className, activeBuffs, onToggle }: BuffPane
     <div className="space-y-2">
       {grouped.map(([cat, buffs]) => (
         <div key={cat}>
-          <div className="text-[8px] text-zinc-600 uppercase tracking-widest mb-0.5 font-bold">
+          <div className="text-[9px] text-zinc-600 uppercase tracking-widest mb-0.5 font-bold">
             {CATEGORY_LABELS[cat]}
           </div>
           {buffs.map((buff) => (
@@ -126,7 +126,7 @@ export default function BuffPanel({ className, activeBuffs, onToggle }: BuffPane
       {self.length > 0 && (
         <>
           <div className="border-t border-amber-900/20 pt-2 mt-2">
-            <div className="text-[8px] text-zinc-600 uppercase tracking-widest mb-0.5 font-bold">
+            <div className="text-[9px] text-zinc-600 uppercase tracking-widest mb-0.5 font-bold">
               Self Buffs
             </div>
             {self.map((buff) => (

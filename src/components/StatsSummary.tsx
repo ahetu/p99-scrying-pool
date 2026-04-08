@@ -186,7 +186,7 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
               const display = stat in editRaw ? editRaw[stat] : String(editBp[stat]);
               return (
                 <div key={stat} className="text-center">
-                  <label className="text-zinc-500 text-[9px] uppercase tracking-wide block mb-1">{stat}</label>
+                  <label className="text-zinc-500 text-[10px] uppercase tracking-wide block mb-1">{stat}</label>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -416,7 +416,7 @@ function StatBar({
       <div className="flex justify-between items-center text-xs mb-0.5">
         <span className="text-zinc-400 text-[10px] uppercase tracking-wide">{label}</span>
         <div className="flex items-center gap-1.5">
-          {sub && <span className="text-zinc-600 text-[9px]">({sub})</span>}
+          {sub && <span className="text-zinc-600 text-[10px]">({sub})</span>}
           <span className="text-amber-100 font-semibold text-[11px]">
             {gearOnly && value > 0 ? "+" : ""}{value}
           </span>
