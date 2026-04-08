@@ -10,6 +10,7 @@ import CharacterHeader from "@/components/CharacterHeader";
 import PaperDoll from "@/components/PaperDoll";
 import StatsSummary from "@/components/StatsSummary";
 import EquipmentList from "@/components/EquipmentList";
+import ShareButton from "@/components/ShareButton";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -108,10 +109,7 @@ export default async function CharacterPage({ params }: PageProps) {
         {/* Share */}
         <div className="mt-12 text-center">
           <div className="divider-ornate w-32 mx-auto mb-6" />
-          <p className="text-zinc-600 text-xs mb-2">Share this character</p>
-          <code className="inline-block bg-zinc-900/80 border border-amber-900/20 rounded-lg px-4 py-2 text-amber-400/60 text-xs select-all">
-            Copy this page&apos;s URL to share
-          </code>
+          <ShareButton />
         </div>
       </main>
     </div>
