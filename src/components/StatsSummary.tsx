@@ -20,6 +20,7 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
   const [editBp, setEditBp] = useState<BonusPointAllocation>(liveBp);
   const [editRaw, setEditRaw] = useState<Record<string, string>>({});
   const [activeBuffs, setActiveBuffs] = useState<Set<string>>(new Set());
+  const [buffsExpanded, setBuffsExpanded] = useState(false);
 
   const handleBuffToggle = useCallback((buffId: string) => {
     setActiveBuffs((prev) => {
@@ -263,14 +264,34 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Buff Panel */}
         <div className="card-fantasy rounded-xl p-4 lg:w-56 flex-shrink-0">
-          <div className="text-zinc-500 text-[10px] uppercase tracking-widest mb-3 font-bold">
-            Buffs
-          </div>
-          <BuffPanel
-            className={character.className}
-            activeBuffs={activeBuffs}
-            onToggle={handleBuffToggle}
-          />
+          <button
+            onClick={() => setBuffsExpanded((p) => !p)}
+            className="flex items-center justify-between w-full group"
+          >
+            <div className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold group-hover:text-zinc-400 transition-colors">
+              Buffs
+              {hasBuffs && (
+                <span className="ml-1.5 text-amber-500/70 normal-case tracking-normal">
+                  ({activeBuffs.size} active)
+                </span>
+              )}
+            </div>
+            <svg
+              className={`w-3 h-3 text-zinc-600 group-hover:text-zinc-400 transition-transform ${buffsExpanded ? "rotate-180" : ""}`}
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {buffsExpanded && (
+            <div className="mt-3">
+              <BuffPanel
+                className={character.className}
+                activeBuffs={activeBuffs}
+                onToggle={handleBuffToggle}
+              />
+            </div>
+          )}
         </div>
 
         {/* Divider */}
