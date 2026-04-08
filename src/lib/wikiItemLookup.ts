@@ -85,7 +85,11 @@ export async function fetchItemFromWiki(itemName: string): Promise<ItemData | nu
       fetchedAt: new Date().toISOString(),
     };
 
-    await cacheItem(itemName, itemData);
+    try {
+      await cacheItem(itemName, itemData);
+    } catch {
+      // Cache write fails on read-only filesystems (e.g. Vercel); non-fatal
+    }
     return itemData;
   } catch (error) {
     console.error(`Failed to fetch item "${itemName}" from wiki:`, error);
