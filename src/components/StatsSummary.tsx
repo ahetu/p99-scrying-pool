@@ -206,14 +206,27 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
       )}
 
       {!editing && !hasBonusPoints && (
-        <p className="text-zinc-600 text-[10px] text-center mb-3 italic">
-          Creation bonus points not set ({maxBonus} pts available)
-        </p>
+        <button
+          onClick={() => setEditing(true)}
+          className="w-full mb-4 py-2.5 px-4 rounded-lg border border-amber-600/30 bg-amber-900/15 hover:bg-amber-900/30 hover:border-amber-500/50 transition-all cursor-pointer text-center"
+        >
+          <p className="text-amber-400/90 text-xs font-semibold">
+            Set Creation Bonus Points
+          </p>
+          <p className="text-zinc-500 text-[10px] mt-0.5">
+            {maxBonus} points available — stats may be inaccurate without these
+          </p>
+        </button>
       )}
       {!editing && hasBonusPoints && usedBonus < maxBonus && (
-        <p className="text-amber-700/60 text-[10px] text-center mb-3 italic">
-          {maxBonus - usedBonus} unspent creation bonus points
-        </p>
+        <button
+          onClick={() => setEditing(true)}
+          className="w-full mb-4 py-2 px-4 rounded-lg border border-amber-700/20 bg-amber-900/10 hover:bg-amber-900/20 hover:border-amber-600/30 transition-all cursor-pointer text-center"
+        >
+          <p className="text-amber-500/70 text-[10px]">
+            {maxBonus - usedBonus} unspent creation bonus points
+          </p>
+        </button>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
