@@ -45,7 +45,7 @@ export async function listCharacters(limit: number = 50): Promise<CharacterSumma
   const characters = await redis.mget<(Character | null)[]>(...keys);
 
   return characters
-    .filter((char): char is Character => char !== null)
+    .filter((char): char is Character => char !== null && /^[A-Za-z]{4,15}$/.test(char.name))
     .map((char) => ({
       id: char.id,
       name: char.name,

@@ -38,6 +38,7 @@ export default function UploadForm() {
   const maxBonus = className ? getBonusPointsForClass(className) : 30;
   const usedBonus = Object.values(bonusPoints).reduce((a, b) => a + b, 0);
   const remainingBonus = maxBonus - usedBonus;
+  const nameValid = /^[A-Za-z]{4,15}$/.test(name.trim());
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -203,9 +204,15 @@ export default function UploadForm() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                minLength={4}
+                maxLength={15}
+                pattern="[A-Za-z]+"
                 placeholder="e.g. Naberial"
                 className={inputClasses}
               />
+              {name && !nameValid && (
+                <p className="text-red-400/80 text-[10px] mt-1">4-15 letters, no numbers or spaces</p>
+              )}
             </div>
 
             <div>
@@ -347,7 +354,7 @@ export default function UploadForm() {
 
           <button
             type="submit"
-            disabled={loading || !name || !className || !level || !race}
+            disabled={loading || !nameValid || !className || !level || !race}
             className={
               "w-full mt-6 py-3.5 px-6 rounded-lg font-semibold text-sm uppercase tracking-wider transition-all " +
               "bg-gradient-to-r from-amber-700 to-amber-600 text-amber-50 " +

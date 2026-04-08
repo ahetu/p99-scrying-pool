@@ -15,6 +15,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const trimmedName = (name as string).trim();
+    if (trimmedName.length < 4 || trimmedName.length > 15 || !/^[A-Za-z]+$/.test(trimmedName)) {
+      return NextResponse.json(
+        { error: "Character name must be 4-15 letters (no numbers or special characters)" },
+        { status: 400 }
+      );
+    }
+
     const equipment = parseInventoryFile(inventoryText);
 
     const id = generateSlug(name);
