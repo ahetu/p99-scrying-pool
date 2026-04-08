@@ -440,6 +440,8 @@ function VirtualUpgradeList({
   className: string;
 }) {
   const parentRef = useRef<HTMLDivElement>(null);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const [canScrollUp, setCanScrollUp] = useState(false);
 
   const virtualizer = useVirtualizer({
     count: upgrades.length,
@@ -448,38 +450,62 @@ function VirtualUpgradeList({
     overscan: 5,
   });
 
+  const checkScroll = useCallback(() => {
+    const el = parentRef.current;
+    if (!el) return;
+    setCanScrollUp(el.scrollTop > 4);
+    setCanScrollDown(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+  }, []);
+
+  useEffect(() => {
+    const el = parentRef.current;
+    if (!el) return;
+    checkScroll();
+    el.addEventListener("scroll", checkScroll, { passive: true });
+    const ro = new ResizeObserver(checkScroll);
+    ro.observe(el);
+    return () => { el.removeEventListener("scroll", checkScroll); ro.disconnect(); };
+  }, [checkScroll, upgrades.length]);
+
   return (
-    <div
-      ref={parentRef}
-      className="max-h-[400px] overflow-auto px-2 pb-2"
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div className="relative" onClick={(e) => e.stopPropagation()}>
+      {canScrollUp && (
+        <div className="absolute top-0 left-0 right-0 h-8 z-10 pointer-events-none bg-gradient-to-b from-zinc-950/90 to-transparent" />
+      )}
       <div
-        style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}
+        ref={parentRef}
+        className="max-h-[400px] overflow-auto px-2 pb-2 scroll-smooth"
       >
-        {virtualizer.getVirtualItems().map((virtualRow) => {
-          const upgrade = upgrades[virtualRow.index];
-          return (
-            <div
-              key={virtualRow.key}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                transform: `translateY(${virtualRow.start}px)`,
-              }}
-            >
-              <UpgradeRow
-                upgrade={upgrade}
-                currentScore={currentScore}
-                rank={virtualRow.index + 1}
-                className={className}
-              />
-            </div>
-          );
-        })}
+        <div
+          style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}
+        >
+          {virtualizer.getVirtualItems().map((virtualRow) => {
+            const upgrade = upgrades[virtualRow.index];
+            return (
+              <div
+                key={virtualRow.key}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  transform: `translateY(${virtualRow.start}px)`,
+                }}
+              >
+                <UpgradeRow
+                  upgrade={upgrade}
+                  currentScore={currentScore}
+                  rank={virtualRow.index + 1}
+                  className={className}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
+      {canScrollDown && (
+        <div className="absolute bottom-0 left-0 right-0 h-10 z-10 pointer-events-none bg-gradient-to-t from-zinc-950/90 to-transparent" />
+      )}
     </div>
   );
 }
