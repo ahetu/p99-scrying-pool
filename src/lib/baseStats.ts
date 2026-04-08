@@ -147,11 +147,12 @@ export function getManaStat(className: string): "wis" | "int" | null {
  * P99 mana calculation with 200 soft cap.
  * Source: https://www.project1999.com/forums/showthread.php?t=347380
  *
- * 1. MindLesserFactor = max(0, (wisOrInt - 199) / 2)
+ * The game uses integer arithmetic (floor at each division), not floating point.
+ * 1. MindLesserFactor = max(0, floor((wisOrInt - 199) / 2))
  * 2. MindFactor = wisOrInt - MindLesserFactor
- * 3. If wisOrInt > 100: baseMana = (((5 * (MindFactor + 20)) / 2) * 3 * level) / 40
- *    Else:              baseMana = (((5 * (MindFactor + 200)) / 2) * 3 * level) / 100
- * 4. Total = floor(baseMana) + itemMana
+ * 3. If wisOrInt > 100: baseMana = floor(floor(5 * (MindFactor + 20) / 2) * 3 * level / 40)
+ *    Else:              baseMana = floor(floor(5 * (MindFactor + 200) / 2) * 3 * level / 100)
+ * 4. Total = baseMana + itemMana
  */
 export function calculateMaxMana(
   className: string,
@@ -165,17 +166,17 @@ export function calculateMaxMana(
 
   const wisOrInt = manaStat === "wis" ? totalWis : totalInt;
 
-  const mindLesserFactor = Math.max(0, (wisOrInt - 199) / 2);
+  const mindLesserFactor = Math.max(0, Math.floor((wisOrInt - 199) / 2));
   const mindFactor = wisOrInt - mindLesserFactor;
 
   let baseMana: number;
   if (wisOrInt > 100) {
-    baseMana = (((5 * (mindFactor + 20)) / 2) * 3 * level) / 40;
+    baseMana = Math.floor(Math.floor(5 * (mindFactor + 20) / 2) * 3 * level / 40);
   } else {
-    baseMana = (((5 * (mindFactor + 200)) / 2) * 3 * level) / 100;
+    baseMana = Math.floor(Math.floor(5 * (mindFactor + 200) / 2) * 3 * level / 100);
   }
 
-  return Math.floor(baseMana) + itemMana;
+  return baseMana + itemMana;
 }
 
 /**
