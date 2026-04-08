@@ -474,7 +474,7 @@ function VirtualUpgradeList({
       )}
       <div
         ref={parentRef}
-        className="max-h-[400px] overflow-auto px-2 pb-2 scroll-smooth"
+        className="max-h-[368px] overflow-auto px-2 scroll-smooth"
       >
         <div
           style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}
