@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Character, ItemData, BonusPointAllocation } from "@/lib/types";
 import { getBaseStats, getBonusPointsForClass, calculateMaxMana, calculateMaxHp, getManaStat, calculateDisplayAC, getBaseResists, getClassResistBonuses } from "@/lib/baseStats";
+import { computeBuffStats, getConflicts } from "@/lib/buffs";
+import BuffPanel from "./BuffPanel";
 
 interface StatsSummaryProps {
   character: Character;
@@ -17,6 +19,24 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
   const [liveBp, setLiveBp] = useState<BonusPointAllocation>(character.bonusPoints || EMPTY_BP);
   const [editBp, setEditBp] = useState<BonusPointAllocation>(liveBp);
   const [editRaw, setEditRaw] = useState<Record<string, string>>({});
+  const [activeBuffs, setActiveBuffs] = useState<Set<string>>(new Set());
+
+  const handleBuffToggle = useCallback((buffId: string) => {
+    setActiveBuffs((prev) => {
+      const next = new Set(prev);
+      if (next.has(buffId)) {
+        next.delete(buffId);
+      } else {
+        const conflicts = getConflicts(buffId, next);
+        for (const c of conflicts) next.delete(c);
+        next.add(buffId);
+      }
+      return next;
+    });
+  }, []);
+
+  const buffStats = computeBuffStats(activeBuffs);
+  const hasBuffs = activeBuffs.size > 0;
 
   const base = getBaseStats(character.race, character.className);
   const bp = editing ? editBp : liveBp;
@@ -90,14 +110,18 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
   }
 
   function total(stat: "str" | "sta" | "agi" | "dex" | "wis" | "int" | "cha") {
-    return base[stat] + bp[stat] + gear[stat];
+    return base[stat] + bp[stat] + gear[stat] + (buffStats[stat] || 0);
   }
+
+  const buffHp = buffStats.hp || 0;
+  const buffAc = buffStats.ac || 0;
+  const buffMana = buffStats.mana || 0;
 
   const totalHp = calculateMaxHp(
     character.className,
     character.level,
     total("sta"),
-    gear.hp,
+    gear.hp + buffHp,
   );
 
   const ac = calculateDisplayAC(
@@ -105,7 +129,7 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
     character.race,
     character.level,
     total("agi"),
-    gear.ac,
+    gear.ac + buffAc,
   );
 
   const manaStat = getManaStat(character.className);
@@ -114,24 +138,24 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
     character.level,
     total("wis"),
     total("int"),
-    gear.mana,
+    gear.mana + buffMana,
   );
 
   const racialResists = getBaseResists(character.race);
   const classResists = getClassResistBonuses(character.className, character.level);
 
   const resists = {
-    fire:    { racial: racialResists.fr, classBonus: classResists.fr, gear: gear.svFire },
-    cold:    { racial: racialResists.cr, classBonus: classResists.cr, gear: gear.svCold },
-    disease: { racial: racialResists.dr, classBonus: classResists.dr, gear: gear.svDisease },
-    magic:   { racial: racialResists.mr, classBonus: classResists.mr, gear: gear.svMagic },
-    poison:  { racial: racialResists.pr, classBonus: classResists.pr, gear: gear.svPoison },
+    fire:    { racial: racialResists.fr, classBonus: classResists.fr, gear: gear.svFire, buff: buffStats.svFire || 0 },
+    cold:    { racial: racialResists.cr, classBonus: classResists.cr, gear: gear.svCold, buff: buffStats.svCold || 0 },
+    disease: { racial: racialResists.dr, classBonus: classResists.dr, gear: gear.svDisease, buff: buffStats.svDisease || 0 },
+    magic:   { racial: racialResists.mr, classBonus: classResists.mr, gear: gear.svMagic, buff: buffStats.svMagic || 0 },
+    poison:  { racial: racialResists.pr, classBonus: classResists.pr, gear: gear.svPoison, buff: buffStats.svPoison || 0 },
   };
 
   const remainingBonus = maxBonus - usedBonus;
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       <div className="flex items-center justify-center gap-3 mb-4">
         <h3 className="text-amber-300/80 text-sm font-bold uppercase tracking-wider">
           Character Stats
@@ -236,88 +260,112 @@ export default function StatsSummary({ character, items }: StatsSummaryProps) {
         </button>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Defense & Resources */}
-        <div className="card-fantasy rounded-xl p-4">
+      <div className="flex flex-col lg:flex-row gap-4">
+        {/* Buff Panel */}
+        <div className="card-fantasy rounded-xl p-4 lg:w-56 flex-shrink-0">
           <div className="text-zinc-500 text-[10px] uppercase tracking-widest mb-3 font-bold">
-            Defense &amp; Resources
+            Buffs
           </div>
-          <div className="space-y-2">
-            <StatBar
-              label="AC"
-              value={ac.total}
-              max={1200}
-              color="from-blue-500 to-blue-400"
-              sub={`${ac.worn} worn AC`}
-            />
-            <StatBar
-              label="HP"
-              value={totalHp}
-              max={5000}
-              color="from-green-500 to-emerald-400"
-              sub={`${totalHp - gear.hp} base+${gear.hp} items`}
-            />
-            {manaStat ? (
-              <StatBar
-                label="Mana"
-                value={totalMana}
-                max={3000}
-                color="from-blue-400 to-cyan-400"
-                sub={`${totalMana - gear.mana} base+${gear.mana} items`}
-              />
-            ) : (
-              <StatBar label="Mana" value={0} max={3000} color="from-blue-400 to-cyan-400" sub="N/A" />
-            )}
-          </div>
+          <BuffPanel
+            className={character.className}
+            activeBuffs={activeBuffs}
+            onToggle={handleBuffToggle}
+          />
         </div>
 
-        {/* Attributes */}
-        <div className="card-fantasy rounded-xl p-4">
-          <div className="text-zinc-500 text-[10px] uppercase tracking-widest mb-3 font-bold">
-            Attributes
-          </div>
-          <div className="space-y-2">
-            {(["str", "sta", "agi", "dex", "wis", "int", "cha"] as const).map((stat) => (
-              <StatBar
-                key={stat}
-                label={stat.toUpperCase()}
-                value={total(stat)}
-                max={255}
-                color="from-amber-500 to-amber-400"
-                sub={`${base[stat]}${bp[stat] ? "+" + bp[stat] : ""}+${gear[stat]}`}
-              />
-            ))}
-          </div>
-        </div>
+        {/* Divider */}
+        <div className="hidden lg:block w-px bg-amber-900/20 flex-shrink-0" />
+        <div className="lg:hidden h-px bg-amber-900/20" />
 
-        {/* Resistances */}
-        <div className="card-fantasy rounded-xl p-4">
-          <div className="text-zinc-500 text-[10px] uppercase tracking-widest mb-3 font-bold">
-            Resistances
-          </div>
-          <div className="space-y-2">
-            {([
-              { label: "Magic",   r: resists.magic,   color: "from-purple-500 to-violet-400" },
-              { label: "Fire",    r: resists.fire,     color: "from-red-500 to-orange-400" },
-              { label: "Cold",    r: resists.cold,     color: "from-sky-500 to-cyan-400" },
-              { label: "Poison",  r: resists.poison,   color: "from-lime-500 to-emerald-400" },
-              { label: "Disease", r: resists.disease,   color: "from-green-500 to-lime-400" },
-            ] as const).map(({ label, r, color }) => {
-              const total = r.racial + r.classBonus + r.gear;
-              const parts = [`${r.racial}`];
-              if (r.classBonus > 0) parts.push(`+${r.classBonus} class`);
-              if (r.gear !== 0) parts.push(`${r.gear > 0 ? "+" : ""}${r.gear} gear`);
-              return (
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1 min-w-0">
+          {/* Defense & Resources */}
+          <div className="card-fantasy rounded-xl p-4">
+            <div className="text-zinc-500 text-[10px] uppercase tracking-widest mb-3 font-bold">
+              Defense &amp; Resources
+            </div>
+            <div className="space-y-2">
+              <StatBar
+                label="AC"
+                value={ac.total}
+                max={1200}
+                color="from-blue-500 to-blue-400"
+                sub={buffAc ? `${ac.worn - buffAc} worn+${buffAc} buffs` : `${ac.worn} worn AC`}
+              />
+              <StatBar
+                label="HP"
+                value={totalHp}
+                max={5000}
+                color="from-green-500 to-emerald-400"
+                sub={buffHp ? `${totalHp - gear.hp - buffHp} base+${gear.hp} items+${buffHp} buffs` : `${totalHp - gear.hp} base+${gear.hp} items`}
+              />
+              {manaStat ? (
                 <StatBar
-                  key={label}
-                  label={label}
-                  value={total}
-                  max={200}
-                  color={color}
-                  sub={parts.join(" ")}
+                  label="Mana"
+                  value={totalMana}
+                  max={3000}
+                  color="from-blue-400 to-cyan-400"
+                  sub={buffMana ? `${totalMana - gear.mana - buffMana} base+${gear.mana} items+${buffMana} buffs` : `${totalMana - gear.mana} base+${gear.mana} items`}
                 />
-              );
-            })}
+              ) : (
+                <StatBar label="Mana" value={0} max={3000} color="from-blue-400 to-cyan-400" sub="N/A" />
+              )}
+            </div>
+          </div>
+
+          {/* Attributes */}
+          <div className="card-fantasy rounded-xl p-4">
+            <div className="text-zinc-500 text-[10px] uppercase tracking-widest mb-3 font-bold">
+              Attributes
+            </div>
+            <div className="space-y-2">
+              {(["str", "sta", "agi", "dex", "wis", "int", "cha"] as const).map((stat) => {
+                const b = buffStats[stat] || 0;
+                const sub = `${base[stat]}${bp[stat] ? "+" + bp[stat] : ""}+${gear[stat]}${b ? "+" + b + " buffs" : ""}`;
+                return (
+                  <StatBar
+                    key={stat}
+                    label={stat.toUpperCase()}
+                    value={total(stat)}
+                    max={255}
+                    color="from-amber-500 to-amber-400"
+                    sub={sub}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Resistances */}
+          <div className="card-fantasy rounded-xl p-4">
+            <div className="text-zinc-500 text-[10px] uppercase tracking-widest mb-3 font-bold">
+              Resistances
+            </div>
+            <div className="space-y-2">
+              {([
+                { label: "Magic",   r: resists.magic,   color: "from-purple-500 to-violet-400" },
+                { label: "Fire",    r: resists.fire,     color: "from-red-500 to-orange-400" },
+                { label: "Cold",    r: resists.cold,     color: "from-sky-500 to-cyan-400" },
+                { label: "Poison",  r: resists.poison,   color: "from-lime-500 to-emerald-400" },
+                { label: "Disease", r: resists.disease,   color: "from-green-500 to-lime-400" },
+              ] as const).map(({ label, r, color }) => {
+                const resistTotal = r.racial + r.classBonus + r.gear + r.buff;
+                const parts = [`${r.racial}`];
+                if (r.classBonus > 0) parts.push(`+${r.classBonus} class`);
+                if (r.gear !== 0) parts.push(`${r.gear > 0 ? "+" : ""}${r.gear} gear`);
+                if (r.buff > 0) parts.push(`+${r.buff} buffs`);
+                return (
+                  <StatBar
+                    key={label}
+                    label={label}
+                    value={resistTotal}
+                    max={200}
+                    color={color}
+                    sub={parts.join(" ")}
+                  />
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
