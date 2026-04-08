@@ -510,6 +510,9 @@ function UpgradeRow({
       return w > TIEBREAKER_THRESHOLD;
     })
     .sort(([a, av], [b, bv]) => {
+      const aPos = av > 0 ? 1 : 0;
+      const bPos = bv > 0 ? 1 : 0;
+      if (aPos !== bPos) return bPos - aPos;
       const wa = (weights[a as keyof typeof weights] as number) ?? 0;
       const wb = (weights[b as keyof typeof weights] as number) ?? 0;
       return Math.abs(bv) * wb - Math.abs(av) * wa;
@@ -665,7 +668,12 @@ function formatStatLabel(stat: string): string {
 function UpgradeTooltipCompact({ upgrade }: { upgrade: UpgradeItem }) {
   const statEntries = Object.entries(upgrade.keyStats)
     .filter(([, v]) => v !== 0)
-    .sort(([, a], [, b]) => Math.abs(b) - Math.abs(a));
+    .sort(([, a], [, b]) => {
+      const aPos = a > 0 ? 1 : 0;
+      const bPos = b > 0 ? 1 : 0;
+      if (aPos !== bPos) return bPos - aPos;
+      return Math.abs(b) - Math.abs(a);
+    });
 
   const sourceLines: string[] = [];
   if (upgrade.dropsfrom) sourceLines.push(`Drops: ${cleanZoneName(upgrade.dropsfrom)}`);
