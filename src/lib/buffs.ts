@@ -1,3 +1,5 @@
+import { FULL_CLASS_TO_ABBREV } from "./types";
+
 export interface BuffStats {
   ac?: number;
   hp?: number;
@@ -135,7 +137,7 @@ const EXTERNAL_BUFFS: BuffDefinition[] = [
     casterTag: "CLR",
     category: "resists",
     stats: { svFire: 40 },
-    conflicts: [],
+    conflicts: ["pomRedFlower"],
   },
   {
     id: "resistCold",
@@ -151,7 +153,7 @@ const EXTERNAL_BUFFS: BuffDefinition[] = [
     casterTag: "ENC",
     category: "resists",
     stats: { svMagic: 55 },
-    conflicts: [],
+    conflicts: ["pomBlueFlower"],
   },
   {
     id: "talismanOfShadoo",
@@ -167,6 +169,64 @@ const EXTERNAL_BUFFS: BuffDefinition[] = [
     casterTag: "SHM",
     category: "resists",
     stats: { svDisease: 45 },
+    conflicts: [],
+  },
+  {
+    id: "circleOfWinter",
+    name: "Circle of Winter",
+    casterTag: "DRU",
+    category: "resists",
+    stats: { svFire: 45 },
+    conflicts: ["pomRedFlower"],
+  },
+  {
+    id: "circleOfSummer",
+    name: "Circle of Summer",
+    casterTag: "DRU",
+    category: "resists",
+    stats: { svCold: 45 },
+    conflicts: [],
+  },
+
+  // Plane of Mischief flower click effects (+50 at level 60)
+  {
+    id: "pomRedFlower",
+    name: "Red Flower (FR)",
+    casterTag: "PoM",
+    category: "resists",
+    stats: { svFire: 50 },
+    conflicts: ["resistFire", "circleOfWinter"],
+  },
+  {
+    id: "pomBlueFlower",
+    name: "Blue Flower (MR)",
+    casterTag: "PoM",
+    category: "resists",
+    stats: { svMagic: 50 },
+    conflicts: ["groupResistMagic"],
+  },
+  {
+    id: "pomBlackFlower",
+    name: "Black Flower (DR)",
+    casterTag: "PoM",
+    category: "resists",
+    stats: { svDisease: 50 },
+    conflicts: [],
+  },
+  {
+    id: "pomWhiteFlower",
+    name: "White Flower (CR)",
+    casterTag: "PoM",
+    category: "resists",
+    stats: { svCold: 50 },
+    conflicts: [],
+  },
+  {
+    id: "pomGreenFlower",
+    name: "Green Flower (PR)",
+    casterTag: "PoM",
+    category: "resists",
+    stats: { svPoison: 50 },
     conflicts: [],
   },
 ];
@@ -279,9 +339,14 @@ export function getExternalBuffs(): BuffDefinition[] {
 }
 
 export function getSelfBuffs(className: string): BuffDefinition[] {
-  return SELF_BUFFS.filter(
-    (b) => !b.classRestriction || b.classRestriction.includes(className)
-  );
+  const abbrev = FULL_CLASS_TO_ABBREV[className] ?? className.toUpperCase().slice(0, 3);
+  return SELF_BUFFS
+    .filter((b) => !b.classRestriction || b.classRestriction.includes(className))
+    .map((b) =>
+      b.classRestriction && b.classRestriction.length > 1
+        ? { ...b, casterTag: abbrev }
+        : b
+    );
 }
 
 export function computeBuffStats(activeIds: Set<string>): BuffStats {
