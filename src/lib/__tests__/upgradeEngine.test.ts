@@ -280,6 +280,26 @@ describe("stat weight balance", () => {
     expect(tankScore).toBeGreaterThan(rogueScore);
   });
 
+  it("Shaman: caster head (WIS/MANA/resists) beats modest haste item", () => {
+    const hasteItem = makeStats({ ac: 5, haste: 17 });
+    const casterHead = makeStats({ wis: 12, mana: 25, svMagic: 10, ac: 13, svPoison: 10, hp: -15 });
+
+    const hasteScore = scoreItem(hasteItem, "Shaman", "head", 0);
+    const casterScore = scoreItem(casterHead, "Shaman", "head", 0);
+
+    expect(casterScore).toBeGreaterThan(hasteScore);
+  });
+
+  it("Rogue: haste item dominates caster head (haste is king for melee)", () => {
+    const hasteItem = makeStats({ ac: 5, haste: 17 });
+    const casterHead = makeStats({ wis: 12, mana: 25, svMagic: 10, ac: 13, svPoison: 10, hp: -15 });
+
+    const hasteScore = scoreItem(hasteItem, "Rogue", "head", 0);
+    const casterScore = scoreItem(casterHead, "Rogue", "head", 0);
+
+    expect(hasteScore).toBeGreaterThan(casterScore);
+  });
+
   it("non-tank classes: 1 svMagic per-point > 1 AC per-point", () => {
     const resistItem = makeStats({ svMagic: 1 });
     const acItem = makeStats({ ac: 1 });

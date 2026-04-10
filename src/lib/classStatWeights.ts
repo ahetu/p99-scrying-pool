@@ -134,7 +134,7 @@ const PROFILES: Record<string, ClassWeights> = {
     str: 0.1, sta: 0.8, dex: 0.1, agi: 0.1,
     wis: 5.5, int: 0.05, cha: 0.15,
     ...RESISTS,
-    weaponRatio: 0, hasteMultiplier: 8,
+    weaponRatio: 0, hasteMultiplier: 3,
   },
   Enchanter: {
     hp: 0.35, mana: 0.7, ac: 0.05,
