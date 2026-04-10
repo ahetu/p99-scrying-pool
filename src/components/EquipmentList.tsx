@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Character, ItemData, UpgradeItem } from "@/lib/types";
 import { getItemIconUrl } from "@/lib/itemUtils";
-import { getClassWeights, ROLE_TOGGLE_CLASSES } from "@/lib/classStatWeights";
+import { getClassWeights, ROLE_TOGGLE_CLASSES, getRoleLabels } from "@/lib/classStatWeights";
 import ItemTooltip from "./ItemTooltip";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
@@ -161,33 +161,36 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
 
   return (
     <div className="card-fantasy rounded-xl">
-      {hasRoleToggle && (
-        <div className="flex items-center gap-3 px-5 py-2.5 border-b border-zinc-800/30">
-          <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Gear Role</span>
-          <div className="flex rounded-md overflow-hidden border border-zinc-700/50">
-            <button
-              onClick={() => handleRoleChange("tank")}
-              className={`px-3 py-1 text-[11px] font-medium transition-colors ${
-                role === "tank"
-                  ? "bg-amber-900/40 text-amber-300 border-r border-zinc-700/50"
-                  : "bg-zinc-900/60 text-zinc-500 hover:text-zinc-300 border-r border-zinc-700/50"
-              }`}
-            >
-              Tank
-            </button>
-            <button
-              onClick={() => handleRoleChange("dps")}
-              className={`px-3 py-1 text-[11px] font-medium transition-colors ${
-                role === "dps"
-                  ? "bg-amber-900/40 text-amber-300"
-                  : "bg-zinc-900/60 text-zinc-500 hover:text-zinc-300"
-              }`}
-            >
-              DPS
-            </button>
+      {hasRoleToggle && (() => {
+        const labels = getRoleLabels(character.className);
+        return (
+          <div className="flex items-center gap-3 px-5 py-2.5 border-b border-zinc-800/30">
+            <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Gear Role</span>
+            <div className="flex rounded-md overflow-hidden border border-zinc-700/50">
+              <button
+                onClick={() => handleRoleChange("tank")}
+                className={`px-3 py-1 text-[11px] font-medium transition-colors ${
+                  role === "tank"
+                    ? "bg-amber-900/40 text-amber-300 border-r border-zinc-700/50"
+                    : "bg-zinc-900/60 text-zinc-500 hover:text-zinc-300 border-r border-zinc-700/50"
+                }`}
+              >
+                {labels.default}
+              </button>
+              <button
+                onClick={() => handleRoleChange("dps")}
+                className={`px-3 py-1 text-[11px] font-medium transition-colors ${
+                  role === "dps"
+                    ? "bg-amber-900/40 text-amber-300"
+                    : "bg-zinc-900/60 text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                {labels.alternate}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       <div className="divide-y divide-zinc-800/30">
         {entries.map(([slotId, item]) => {
@@ -218,6 +221,7 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
                   isLoading={isLoading}
                   currentScore={slotData?.currentScore ?? 0}
                   className={character.className}
+                  role={hasRoleToggle ? role : undefined}
                   showRaid={showRaid}
                   onRaidToggle={handleRaidToggle}
                 />
@@ -326,6 +330,7 @@ function UpgradePanel({
   isLoading,
   currentScore,
   className,
+  role,
   showRaid,
   onRaidToggle,
 }: {
@@ -333,6 +338,7 @@ function UpgradePanel({
   isLoading: boolean;
   currentScore: number;
   className: string;
+  role?: string;
   showRaid: boolean;
   onRaidToggle: () => void;
 }) {
@@ -424,7 +430,7 @@ function UpgradePanel({
           </p>
         </div>
       ) : (
-        <VirtualUpgradeList upgrades={filtered} currentScore={currentScore} className={className} />
+        <VirtualUpgradeList upgrades={filtered} currentScore={currentScore} className={className} role={role} />
       )}
     </div>
   );
@@ -434,10 +440,12 @@ function VirtualUpgradeList({
   upgrades,
   currentScore,
   className,
+  role,
 }: {
   upgrades: UpgradeItem[];
   currentScore: number;
   className: string;
+  role?: string;
 }) {
   const parentRef = useRef<HTMLDivElement>(null);
   const [canScrollDown, setCanScrollDown] = useState(false);
@@ -497,6 +505,7 @@ function VirtualUpgradeList({
                   currentScore={currentScore}
                   rank={virtualRow.index + 1}
                   className={className}
+                  role={role}
                 />
               </div>
             );
@@ -515,11 +524,13 @@ function UpgradeRow({
   currentScore,
   rank,
   className,
+  role,
 }: {
   upgrade: UpgradeItem;
   currentScore: number;
   rank: number;
   className: string;
+  role?: string;
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const rowRef = useRef<HTMLDivElement>(null);
@@ -528,7 +539,7 @@ function UpgradeRow({
   const isUpgrade = scoreDiff > 0;
   const raid = upgrade.isRaid;
 
-  const weights = getClassWeights(className);
+  const weights = getClassWeights(className, role);
   const allDiffs = Object.entries(upgrade.statDiffs)
     .filter(([stat, v]) => {
       if (v === 0) return false;
@@ -617,6 +628,11 @@ function UpgradeRow({
               isUpgrade ? "text-zinc-600" : "text-zinc-600"
             }`}>
               {sourceLines.join(" · ")}
+            </span>
+          )}
+          {isUpgrade && upgrade.effectNote && (
+            <span className="text-[10px] truncate block text-cyan-500/70 italic">
+              {upgrade.effectNote}
             </span>
           )}
         </div>
@@ -747,6 +763,12 @@ function UpgradeTooltipCompact({ upgrade }: { upgrade: UpgradeItem }) {
           </span>
         ))}
       </div>
+
+      {upgrade.effectNote && (
+        <div className="text-cyan-400/70 text-[10px] mt-1.5 italic border-t border-zinc-800/50 pt-1.5">
+          {upgrade.effectNote}
+        </div>
+      )}
 
       <div className="text-amber-500/60 text-[10px] mt-1.5">
         Score: {upgrade.score.toFixed(1)}

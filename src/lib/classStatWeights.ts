@@ -38,7 +38,7 @@ export interface ClassWeights {
   hasteMultiplier: number;
 }
 
-export const ROLE_TOGGLE_CLASSES = new Set(["Warrior", "Paladin", "Shadow Knight"]);
+export const ROLE_TOGGLE_CLASSES = new Set(["Warrior", "Paladin", "Shadow Knight", "Shaman"]);
 
 const RESISTS = {
   svFire: 0.5, svCold: 0.45, svDisease: 0.3, svMagic: 0.7, svPoison: 0.35,
@@ -136,6 +136,13 @@ const PROFILES: Record<string, ClassWeights> = {
     ...RESISTS,
     weaponRatio: 0, hasteMultiplier: 3,
   },
+  "Shaman:dps": {
+    hp: 0.55, mana: 0.35, ac: 0.5,
+    str: 3.5, sta: 2.0, dex: 1.5, agi: 0.3,
+    wis: 2.5, int: 0.05, cha: 0.05,
+    ...RESISTS,
+    weaponRatio: 8, hasteMultiplier: 18,
+  },
   Enchanter: {
     hp: 0.35, mana: 0.7, ac: 0.05,
     str: 0.1, sta: 0.2, dex: 0.05, agi: 0.05,
@@ -171,6 +178,20 @@ export function getClassWeights(className: string, role?: string): ClassWeights 
     return PROFILES[`${className}:dps`] ?? PROFILES[className] ?? PROFILES["Warrior"];
   }
   return PROFILES[className] ?? PROFILES["Warrior"];
+}
+
+const ROLE_LABELS: Record<string, { default: string; alternate: string }> = {
+  Shaman: { default: "Healing", alternate: "Melee" },
+};
+
+const DEFAULT_ROLE_LABELS = { default: "Tank", alternate: "DPS" };
+
+export function getRoleLabels(className: string): { default: string; alternate: string } {
+  return ROLE_LABELS[className] ?? DEFAULT_ROLE_LABELS;
+}
+
+export function isMeleeRole(className: string, role?: string): boolean {
+  return isMeleeClass(className) || (className === "Shaman" && role === "dps");
 }
 
 const MELEE_CLASSES = new Set([

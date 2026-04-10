@@ -1,5 +1,5 @@
 import { ItemData, ParsedStats, UpgradeItem } from "./types";
-import { getClassWeights, isMeleeClass, isCasterClass, ClassWeights } from "./classStatWeights";
+import { getClassWeights, isMeleeClass, isCasterClass, isMeleeRole, ClassWeights } from "./classStatWeights";
 import { getFilteredItemsForSlot } from "./itemDatabase";
 import { isRaidItem } from "./raidClassifier";
 
@@ -77,10 +77,73 @@ function getHasteBonus(
  * Uses startsWith() for type matching since the database stores compound
  * types like "Combat, Casting Time: Instant" or "Must Equip, Casting Time: 10.0".
  */
-function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWeights): number {
+/**
+ * Returns a short, class-aware note explaining why an item's effect
+ * contributes significantly to its score. Only generates notes for
+ * effects worth ≥15 points — low-value effects don't need explanation.
+ */
+function getEffectNote(stats: ParsedStats, className: string, role?: string): string | null {
+  if (!stats.effect) return null;
+  const effectLower = stats.effect.toLowerCase();
+  const type = (stats.effectType ?? "").toLowerCase();
+  const melee = isMeleeRole(className, role);
+
+  const isWorn = type.startsWith("worn");
+  const isCombatProc = type.startsWith("combat");
+  const isMustEquip = type.startsWith("must equip");
+  const isAnySlot = type.startsWith("any slot");
+
+  if (isWorn) {
+    if (effectLower.includes("flowing thought")) {
+      if (!isCasterClass(className) && className !== "Paladin" && className !== "Shadow Knight" && className !== "Ranger") {
+        return null;
+      }
+      const tierMatch = effectLower.match(/flowing thought\s+(\w+)/i);
+      const tierStr = tierMatch ? ` ${tierMatch[1].toUpperCase()}` : "";
+      return `Flowing Thought${tierStr} — worn mana regen`;
+    }
+
+    if (effectLower.includes("regeneration") || effectLower.includes("regrowth")) {
+      if (className === "Shaman") return "Worn HP regen — fuels Cannibalize for mana";
+      return melee ? "Worn HP regeneration" : "Worn HP regeneration";
+    }
+
+    if (effectLower.includes("aura of battle")) {
+      return melee ? "Aura of Battle — ATK buff" : null;
+    }
+
+    if (effectLower.includes("seething fury")) {
+      return melee ? "Seething Fury — melee proc buff" : null;
+    }
+
+    if (effectLower.includes("rubicite aura")) {
+      return melee ? "Rubicite Aura — AC buff" : null;
+    }
+
+    return null;
+  }
+
+  if (isCombatProc) {
+    if (!melee) return null;
+    if (effectLower.includes("haste")) return "Combat proc: haste";
+    return "Combat proc effect";
+  }
+
+  if (isMustEquip || isAnySlot) {
+    if (effectLower.includes("haste")) {
+      return melee ? "Haste clicky" : null;
+    }
+    return null;
+  }
+
+  return null;
+}
+
+function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWeights, role?: string): number {
   if (!stats.effect) return 0;
   const effectLower = stats.effect.toLowerCase();
   const type = (stats.effectType ?? "").toLowerCase();
+  const melee = isMeleeRole(className, role);
 
   const isWorn = type.startsWith("worn");
   const isCombatProc = type.startsWith("combat");
@@ -99,15 +162,15 @@ function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWei
     }
 
     if (effectLower.includes("regeneration") || effectLower.includes("regrowth")) {
-      return isMeleeClass(className) ? 35 : 20;
+      return melee ? 35 : 20;
     }
 
     if (effectLower.includes("aura of battle")) {
-      return isMeleeClass(className) ? 25 : 3;
+      return melee ? 25 : 3;
     }
 
     if (effectLower.includes("deadeye")) {
-      return isMeleeClass(className) ? 15 : 2;
+      return melee ? 15 : 2;
     }
 
     if (effectLower.includes("see invisible") || effectLower.includes("truesight") || effectLower.includes("ultravision")) {
@@ -127,11 +190,11 @@ function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWei
     }
 
     if (effectLower.includes("seething fury")) {
-      return isMeleeClass(className) ? 30 : 3;
+      return melee ? 30 : 3;
     }
 
     if (effectLower.includes("rubicite aura")) {
-      return isMeleeClass(className) ? 20 : 10;
+      return melee ? 20 : 10;
     }
 
     return 8;
@@ -139,14 +202,14 @@ function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWei
 
   if (isCombatProc) {
     if (effectLower.includes("haste")) {
-      return isMeleeClass(className) ? 20 : 2;
+      return melee ? 20 : 2;
     }
-    return isMeleeClass(className) ? 18 : 3;
+    return melee ? 18 : 3;
   }
 
   if (isMustEquip || isAnySlot) {
     if (effectLower.includes("haste")) {
-      return isMeleeClass(className) ? 15 : 2;
+      return melee ? 15 : 2;
     }
 
     if (effectLower.includes("spirit of wolf") || effectLower.includes("levitation") || effectLower.includes("gate")) {
@@ -213,8 +276,10 @@ export function scoreItem(
     DUAL_WIELD_CLASSES.has(className) ||
     (className === "Warrior" && role === "dps");
 
+  const melee = isMeleeRole(className, role);
+
   if (isWeaponSlot(slotId)) {
-    if (isMeleeClass(className)) {
+    if (melee) {
       if (className === "Rogue" && slotId === "primary") {
         const isPiercing = stats.skill?.toLowerCase() === "piercing";
         if (isPiercing) {
@@ -247,7 +312,7 @@ export function scoreItem(
   }
 
   score += getHasteBonus(stats, weights, currentEquippedHaste);
-  score += getEffectBonus(stats, className, weights);
+  score += getEffectBonus(stats, className, weights, role);
 
   score *= finalMultiplier;
 
@@ -374,6 +439,7 @@ export function getUpgradesForSlot(
       keyStats: extractKeyStats(candidate.stats),
       statDiffs: computeStatDiffs(candidate.stats, currentItem?.stats ?? null),
       flags: getItemFlags(candidate.stats),
+      effectNote: getEffectNote(candidate.stats, className, role),
     });
   }
 

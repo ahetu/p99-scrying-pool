@@ -54,6 +54,7 @@ export interface UpgradeItem {
   keyStats: Record<string, number>;
   statDiffs: Record<string, number>;
   flags: string[];
+  effectNote: string | null;
 }
 
 export interface ParsedStats {
