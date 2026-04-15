@@ -82,7 +82,7 @@ function getHasteBonus(
  * contributes significantly to its score. Only generates notes for
  * effects worth ≥15 points — low-value effects don't need explanation.
  */
-function getEffectNote(stats: ParsedStats, className: string, role?: string): string | null {
+function getEffectNote(stats: ParsedStats, className: string, slotId: string, role?: string): string | null {
   if (!stats.effect) return null;
   const effectLower = stats.effect.toLowerCase();
   const type = (stats.effectType ?? "").toLowerCase();
@@ -124,7 +124,7 @@ function getEffectNote(stats: ParsedStats, className: string, role?: string): st
   }
 
   if (isCombatProc) {
-    if (!melee) return null;
+    if (!melee || slotId === "range") return null;
     if (effectLower.includes("haste")) return "Combat proc: haste";
     return "Combat proc effect";
   }
@@ -139,7 +139,7 @@ function getEffectNote(stats: ParsedStats, className: string, role?: string): st
   return null;
 }
 
-function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWeights, role?: string): number {
+function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWeights, slotId: string, role?: string): number {
   if (!stats.effect) return 0;
   const effectLower = stats.effect.toLowerCase();
   const type = (stats.effectType ?? "").toLowerCase();
@@ -201,6 +201,7 @@ function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWei
   }
 
   if (isCombatProc) {
+    if (slotId === "range") return 0;
     if (effectLower.includes("haste")) {
       return melee ? 20 : 2;
     }
@@ -312,7 +313,7 @@ export function scoreItem(
   }
 
   score += getHasteBonus(stats, weights, currentEquippedHaste);
-  score += getEffectBonus(stats, className, weights, role);
+  score += getEffectBonus(stats, className, weights, slotId, role);
 
   score *= finalMultiplier;
 
@@ -439,7 +440,7 @@ export function getUpgradesForSlot(
       keyStats: extractKeyStats(candidate.stats),
       statDiffs: computeStatDiffs(candidate.stats, currentItem?.stats ?? null),
       flags: getItemFlags(candidate.stats),
-      effectNote: getEffectNote(candidate.stats, className, role),
+      effectNote: getEffectNote(candidate.stats, className, slotId, role),
     });
   }
 

@@ -312,6 +312,60 @@ describe("stat weight balance", () => {
   });
 });
 
+describe("ranged slot combat proc exclusion", () => {
+  it("combat proc gives zero bonus in ranged slot", () => {
+    const procWeapon = makeStats({
+      damage: 20, delay: 30, ratio: 0.67, hp: 10,
+      effect: "Strike of Thunder", effectType: "Combat",
+    });
+
+    const rangedScore = scoreItem(procWeapon, "Ranger", "range");
+    const primaryScore = scoreItem(procWeapon, "Ranger", "primary");
+
+    expect(primaryScore).toBeGreaterThan(rangedScore);
+  });
+
+  it("combat haste proc gives zero bonus in ranged slot", () => {
+    const hasteProc = makeStats({
+      damage: 15, delay: 25, ratio: 0.6,
+      effect: "Haste of the Zephyr", effectType: "Combat",
+    });
+
+    const rangedScore = scoreItem(hasteProc, "Warrior", "range");
+    const primaryScore = scoreItem(hasteProc, "Warrior", "primary");
+
+    expect(primaryScore).toBeGreaterThan(rangedScore);
+  });
+
+  it("worn effects still apply in ranged slot", () => {
+    const wornItem = makeStats({
+      hp: 10,
+      effect: "Regeneration", effectType: "Worn",
+    });
+
+    const rangedScore = scoreItem(wornItem, "Ranger", "range");
+    const fingersScore = scoreItem(wornItem, "Ranger", "finger1");
+
+    expect(rangedScore).toBe(fingersScore);
+  });
+
+  it("combat proc still scores for primary slot melee", () => {
+    const procWeapon = makeStats({
+      damage: 20, delay: 30, ratio: 0.67,
+      effect: "Lifetap", effectType: "Combat",
+    });
+
+    const noProc = makeStats({
+      damage: 20, delay: 30, ratio: 0.67,
+    });
+
+    const withProcScore = scoreItem(procWeapon, "Warrior", "primary");
+    const withoutProcScore = scoreItem(noProc, "Warrior", "primary");
+
+    expect(withProcScore).toBeGreaterThan(withoutProcScore);
+  });
+});
+
 describe("parseStatsBlock noRent detection", () => {
   it("detects TEMPORARY as noRent", async () => {
     const { parseStatsBlock } = await import("../parseStatsBlock");
