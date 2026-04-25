@@ -431,6 +431,23 @@ describe("worn haste stacking (only highest source applies)", () => {
   });
 });
 
+describe("unobtainable items are excluded", () => {
+  it("filters out Adarra's Bow of the Unseen (no longer drops)", () => {
+    const adarra = makeItem("Adarra's Bow of the Unseen", {
+      stats: makeStats({ damage: 30, delay: 50, ac: 7, str: 7, dex: 7, sta: 7, hp: 15 }),
+      dropsfrom: "Eastern Wastes",
+    });
+
+    mockGetFiltered.mockReturnValue([adarra]);
+
+    const { upgrades } = getUpgradesForSlot(
+      "range", "Rogue", "Human", null, new Set(), 0
+    );
+
+    expect(upgrades).toHaveLength(0);
+  });
+});
+
 describe("parseStatsBlock noRent detection", () => {
   it("detects TEMPORARY as noRent", async () => {
     const { parseStatsBlock } = await import("../parseStatsBlock");

@@ -5,6 +5,10 @@ import { isRaidItem } from "./raidClassifier";
 
 const WEAPON_SLOTS = new Set(["primary", "secondary", "range"]);
 
+const UNOBTAINABLE_ITEMS = new Set([
+  "adarra's bow of the unseen",
+]);
+
 const ROGUE_BACKSTAB_WEIGHT = 22;
 const ROGUE_NON_PIERCING_PENALTY = 0.15;
 
@@ -401,6 +405,7 @@ export function getUpgradesForSlot(
     if (!candidate.stats) continue;
 
     if (candidate.stats.noRent || /NO RENT|TEMPORARY/i.test(candidate.statsBlock)) continue;
+    if (UNOBTAINABLE_ITEMS.has(candidate.name.toLowerCase())) continue;
 
     const hasSource = candidate.dropsfrom
       || (candidate.dropmobs && candidate.dropmobs.length > 0)
