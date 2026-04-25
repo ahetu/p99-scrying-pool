@@ -89,15 +89,19 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
     [entries, items]
   );
 
-  const currentMaxHaste = useMemo(
-    () => entries.reduce((max, [, item]) => {
-      if (!item) return max;
-      const data = items[item.name];
-      const haste = data?.stats?.haste ?? 0;
-      return Math.max(max, haste);
-    }, 0),
-    [entries, items]
-  );
+  const maxHasteExcludingSlot = useMemo(() => {
+    const result: Record<string, number> = {};
+    for (const [slotId] of entries) {
+      let max = 0;
+      for (const [otherSlotId, otherItem] of entries) {
+        if (otherSlotId === slotId || !otherItem) continue;
+        const data = items[otherItem.name];
+        max = Math.max(max, data?.stats?.haste ?? 0);
+      }
+      result[slotId] = max;
+    }
+    return result;
+  }, [entries, items]);
 
   const upgradeCacheRef = useRef(upgradeCache);
   upgradeCacheRef.current = upgradeCache;
@@ -117,7 +121,8 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
       });
       if (equippedItem) params.set("currentItem", equippedItem.name);
       if (loreItems.length > 0) params.set("loreItems", loreItems.join("|"));
-      if (currentMaxHaste > 0) params.set("currentHaste", String(currentMaxHaste));
+      const slotHaste = maxHasteExcludingSlot[slotId] ?? 0;
+      if (slotHaste > 0) params.set("currentHaste", String(slotHaste));
       if (hasRoleToggle) params.set("role", role);
 
       try {
@@ -138,7 +143,7 @@ export default function EquipmentList({ character, items }: EquipmentListProps) 
         });
       }
     },
-    [character, loreItems, currentMaxHaste, role, hasRoleToggle]
+    [character, loreItems, maxHasteExcludingSlot, role, hasRoleToggle]
   );
 
   const toggleSlot = useCallback(

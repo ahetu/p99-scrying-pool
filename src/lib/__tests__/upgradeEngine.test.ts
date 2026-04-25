@@ -366,6 +366,71 @@ describe("ranged slot combat proc exclusion", () => {
   });
 });
 
+describe("worn haste stacking (only highest source applies)", () => {
+  it("haste on gloves is worthless when a weapon already provides higher haste", () => {
+    const hasteGloves = makeStats({ ac: 8, haste: 21, hp: 5 });
+    const plainGloves = makeStats({ ac: 8, hp: 5 });
+
+    const hasteScore = scoreItem(hasteGloves, "Warrior", "hands", 40);
+    const plainScore = scoreItem(plainGloves, "Warrior", "hands", 40);
+
+    expect(hasteScore).toBe(plainScore);
+  });
+
+  it("haste on gloves is valued when no other haste source exists", () => {
+    const hasteGloves = makeStats({ ac: 8, haste: 21, hp: 5 });
+    const plainGloves = makeStats({ ac: 8, hp: 5 });
+
+    const hasteScore = scoreItem(hasteGloves, "Warrior", "hands", 0);
+    const plainScore = scoreItem(plainGloves, "Warrior", "hands", 0);
+
+    expect(hasteScore).toBeGreaterThan(plainScore);
+  });
+
+  it("haste item that beats the existing source still gets marginal credit", () => {
+    const score21 = scoreItem(makeStats({ haste: 21 }), "Warrior", "hands", 0);
+    const score41 = scoreItem(makeStats({ haste: 41 }), "Warrior", "hands", 21);
+
+    expect(score41).toBeGreaterThan(0);
+    expect(score41).toBeLessThan(score21);
+  });
+
+  it("getUpgradesForSlot: non-haste candidates appear as upgrades for haste gloves when weapon has higher haste", () => {
+    const hasteGloves = makeItem("Haste Gloves", {
+      stats: makeStats({ ac: 5, haste: 21 }),
+    });
+    const betterStatGloves = makeItem("Stat Gloves", {
+      stats: makeStats({ ac: 15, hp: 50, str: 10, sta: 10 }),
+    });
+
+    mockGetFiltered.mockReturnValue([betterStatGloves]);
+
+    const { upgrades } = getUpgradesForSlot(
+      "hands", "Warrior", "Human", hasteGloves, new Set(), 40
+    );
+
+    expect(upgrades.length).toBeGreaterThanOrEqual(1);
+    expect(upgrades[0].name).toBe("Stat Gloves");
+  });
+
+  it("getUpgradesForSlot: haste gloves are valued when they ARE the best haste source", () => {
+    const hasteGloves = makeItem("Haste Gloves", {
+      stats: makeStats({ ac: 5, haste: 36 }),
+    });
+    const plainGloves = makeItem("Plain Gloves", {
+      stats: makeStats({ ac: 6 }),
+    });
+
+    mockGetFiltered.mockReturnValue([plainGloves]);
+
+    const { upgrades } = getUpgradesForSlot(
+      "hands", "Warrior", "Human", hasteGloves, new Set(), 0
+    );
+
+    expect(upgrades).toHaveLength(0);
+  });
+});
+
 describe("parseStatsBlock noRent detection", () => {
   it("detects TEMPORARY as noRent", async () => {
     const { parseStatsBlock } = await import("../parseStatsBlock");

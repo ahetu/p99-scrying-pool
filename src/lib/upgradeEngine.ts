@@ -391,13 +391,8 @@ export function getUpgradesForSlot(
 ): { upgrades: UpgradeItem[]; currentScore: number } {
   const candidates = getFilteredItemsForSlot(slotId, className, race);
 
-  const isCurrentSlotHasteSource =
-    currentItem?.stats?.haste != null && currentItem.stats.haste > 0;
-
-  const hasteForScoring = isCurrentSlotHasteSource ? 0 : currentEquippedHaste;
-
   const currentScore = currentItem?.stats
-    ? scoreItem(currentItem.stats, className, slotId, hasteForScoring, role)
+    ? scoreItem(currentItem.stats, className, slotId, currentEquippedHaste, role)
     : 0;
 
   const upgrades: UpgradeItem[] = [];
@@ -422,7 +417,7 @@ export function getUpgradesForSlot(
       continue;
     }
 
-    const candidateScore = scoreItem(candidate.stats, className, slotId, hasteForScoring, role);
+    const candidateScore = scoreItem(candidate.stats, className, slotId, currentEquippedHaste, role);
 
     const MIN_UPGRADE_DELTA = 1.0;
     if (candidateScore - currentScore < MIN_UPGRADE_DELTA) continue;
