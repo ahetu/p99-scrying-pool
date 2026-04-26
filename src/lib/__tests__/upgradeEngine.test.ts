@@ -349,6 +349,21 @@ describe("ranged slot combat proc exclusion", () => {
     expect(rangedScore).toBe(fingersScore);
   });
 
+  it("Rogue secondary: higher ratio beats lower ratio with combat proc", () => {
+    const goodRatio = makeStats({
+      damage: 20, delay: 25, ratio: 0.8,
+    });
+    const badRatioWithProc = makeStats({
+      damage: 15, delay: 30, ratio: 0.5,
+      effect: "Lifetap", effectType: "Combat",
+    });
+
+    const goodScore = scoreItem(goodRatio, "Rogue", "secondary");
+    const procScore = scoreItem(badRatioWithProc, "Rogue", "secondary");
+
+    expect(goodScore).toBeGreaterThan(procScore);
+  });
+
   it("combat proc still scores for primary slot melee", () => {
     const procWeapon = makeStats({
       damage: 20, delay: 30, ratio: 0.67,

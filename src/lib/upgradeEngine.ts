@@ -207,9 +207,9 @@ function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWei
   if (isCombatProc) {
     if (slotId === "range") return 0;
     if (effectLower.includes("haste")) {
-      return melee ? 20 : 2;
+      return melee ? 10 : 2;
     }
-    return melee ? 18 : 3;
+    return melee ? 6 : 3;
   }
 
   if (isMustEquip || isAnySlot) {
