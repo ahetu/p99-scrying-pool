@@ -213,7 +213,8 @@ function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWei
     const spellData = getProcSpellData(stats.effect!);
     if (!spellData) return 6;
     if (spellData.damage <= 0) return 1;
-    const base = Math.sqrt(spellData.damage) * 0.35;
+    const scaled = Math.sqrt(spellData.damage) * 0.35;
+    const base = Math.max(2, scaled);
     return spellData.isLifetap ? base * 1.3 : base;
   }
 
