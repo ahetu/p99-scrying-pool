@@ -18,7 +18,7 @@ const DUAL_WIELD_CLASSES = new Set(["Rogue", "Ranger", "Monk"]);
 const BARD_LOW_DELAY_BONUS = 2.0;
 const BARD_DELAY_BASELINE = 30;
 
-const WEAPON_SLOT_STAT_DISCOUNT = 0.2;
+const WEAPON_SLOT_STAT_DISCOUNT = 0.05;
 
 function isWeaponSlot(slotId: string): boolean {
   return WEAPON_SLOTS.has(slotId);
