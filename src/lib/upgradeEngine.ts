@@ -9,7 +9,7 @@ const UNOBTAINABLE_ITEMS = new Set([
   "adarra's bow of the unseen",
 ]);
 
-const ROGUE_BACKSTAB_WEIGHT = 22;
+const ROGUE_BACKSTAB_WEIGHT = 55;
 const ROGUE_NON_PIERCING_PENALTY = 0.15;
 
 const DUAL_WIELD_NON_WEAPON_PENALTY = 0.12;
@@ -215,7 +215,7 @@ function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWei
     const spellData = getProcSpellData(stats.effect!);
     if (!spellData) return 6;
     if (spellData.damage <= 0) return 1;
-    const base = Math.sqrt(spellData.damage) * 0.35;
+    const base = Math.sqrt(spellData.damage) * 0.1;
     return spellData.isLifetap ? base * 1.3 : base;
   }
 
