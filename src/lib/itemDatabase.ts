@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 
 const DB_PATH = path.join(process.cwd(), "data", "item-database.json");
+const PROC_SPELLS_PATH = path.join(process.cwd(), "data", "proc-spells.json");
 
 const SLOT_NORMALIZE: Record<string, string> = {
   FINGER: "FINGERS",
@@ -28,8 +29,14 @@ function canUse(list: string[], abbrev: string): boolean {
   return list.includes(abbrev);
 }
 
+export interface ProcSpellData {
+  damage: number;
+  isLifetap: boolean;
+}
+
 let nameIndex: Map<string, ItemData> | null = null;
 let slotIndex: Map<string, ItemData[]> | null = null;
+let procSpells: Record<string, ProcSpellData> | null = null;
 let dbAvailable = false;
 
 function ensureLoaded(): void {
@@ -63,6 +70,20 @@ function ensureLoaded(): void {
     slotIndex = new Map();
     dbAvailable = false;
   }
+}
+
+function ensureProcSpellsLoaded(): void {
+  if (procSpells) return;
+  try {
+    procSpells = JSON.parse(fs.readFileSync(PROC_SPELLS_PATH, "utf-8"));
+  } catch {
+    procSpells = {};
+  }
+}
+
+export function getProcSpellData(effectName: string): ProcSpellData | null {
+  ensureProcSpellsLoaded();
+  return procSpells![effectName] ?? null;
 }
 
 export function getItemByName(name: string): ItemData | null {

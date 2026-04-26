@@ -38,6 +38,7 @@ function makeItem(name: string, overrides: Partial<ItemData> = {}): ItemData {
 
 vi.mock("../itemDatabase", () => ({
   getFilteredItemsForSlot: vi.fn(() => []),
+  getProcSpellData: vi.fn(() => null),
 }));
 
 vi.mock("../raidClassifier", () => ({
@@ -45,11 +46,12 @@ vi.mock("../raidClassifier", () => ({
 }));
 
 import { getUpgradesForSlot, scoreItem } from "../upgradeEngine";
-import { getFilteredItemsForSlot } from "../itemDatabase";
+import { getFilteredItemsForSlot, getProcSpellData } from "../itemDatabase";
 import { isRaidItem } from "../raidClassifier";
 
 const mockGetFiltered = vi.mocked(getFilteredItemsForSlot);
 const mockIsRaid = vi.mocked(isRaidItem);
+const mockGetProcSpell = vi.mocked(getProcSpellData);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -378,6 +380,87 @@ describe("ranged slot combat proc exclusion", () => {
     const withoutProcScore = scoreItem(noProc, "Warrior", "primary");
 
     expect(withProcScore).toBeGreaterThan(withoutProcScore);
+  });
+});
+
+describe("dynamic proc damage scoring", () => {
+  it("high-damage proc scores higher than low-damage proc (same ratio)", () => {
+    mockGetProcSpell.mockImplementation((name: string) => {
+      if (name === "Flame of the Efreeti") return { damage: 100, isLifetap: false };
+      if (name === "Weak Poison") return { damage: 12, isLifetap: false };
+      return null;
+    });
+
+    const bigProc = makeStats({
+      damage: 20, delay: 30, ratio: 0.67,
+      effect: "Flame of the Efreeti", effectType: "Combat",
+    });
+    const weakProc = makeStats({
+      damage: 20, delay: 30, ratio: 0.67,
+      effect: "Weak Poison", effectType: "Combat",
+    });
+
+    const bigScore = scoreItem(bigProc, "Rogue", "secondary");
+    const weakScore = scoreItem(weakProc, "Rogue", "secondary");
+
+    expect(bigScore).toBeGreaterThan(weakScore);
+  });
+
+  it("zero-damage utility proc gets minimal bonus", () => {
+    mockGetProcSpell.mockReturnValue({ damage: 0, isLifetap: false });
+
+    const utilityProc = makeStats({
+      damage: 20, delay: 30, ratio: 0.67,
+      effect: "Snare", effectType: "Combat",
+    });
+    const noProc = makeStats({
+      damage: 20, delay: 30, ratio: 0.67,
+    });
+
+    const utilityScore = scoreItem(utilityProc, "Rogue", "secondary");
+    const plainScore = scoreItem(noProc, "Rogue", "secondary");
+
+    expect(utilityScore - plainScore).toBeLessThanOrEqual(1.5);
+    expect(utilityScore).toBeGreaterThan(plainScore);
+  });
+
+  it("lifetap proc gets bonus over same-damage non-lifetap", () => {
+    mockGetProcSpell.mockImplementation((name: string) => {
+      if (name === "Siphon") return { damage: 80, isLifetap: true };
+      if (name === "Spirit Strike") return { damage: 80, isLifetap: false };
+      return null;
+    });
+
+    const lifetap = makeStats({
+      damage: 20, delay: 30, ratio: 0.67,
+      effect: "Siphon", effectType: "Combat",
+    });
+    const directDamage = makeStats({
+      damage: 20, delay: 30, ratio: 0.67,
+      effect: "Spirit Strike", effectType: "Combat",
+    });
+
+    const ltScore = scoreItem(lifetap, "Rogue", "secondary");
+    const ddScore = scoreItem(directDamage, "Rogue", "secondary");
+
+    expect(ltScore).toBeGreaterThan(ddScore);
+  });
+
+  it("good ratio still beats bad ratio even with strong proc", () => {
+    mockGetProcSpell.mockReturnValue({ damage: 324, isLifetap: false });
+
+    const goodRatio = makeStats({
+      damage: 20, delay: 25, ratio: 0.8,
+    });
+    const badRatioStrongProc = makeStats({
+      damage: 15, delay: 30, ratio: 0.5,
+      effect: "Rain of Swords", effectType: "Combat",
+    });
+
+    const goodScore = scoreItem(goodRatio, "Rogue", "secondary");
+    const procScore = scoreItem(badRatioStrongProc, "Rogue", "secondary");
+
+    expect(goodScore).toBeGreaterThan(procScore);
   });
 });
 

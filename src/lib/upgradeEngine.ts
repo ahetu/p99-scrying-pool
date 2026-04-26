@@ -1,6 +1,6 @@
 import { ItemData, ParsedStats, UpgradeItem } from "./types";
 import { getClassWeights, isMeleeClass, isCasterClass, isMeleeRole, ClassWeights } from "./classStatWeights";
-import { getFilteredItemsForSlot } from "./itemDatabase";
+import { getFilteredItemsForSlot, getProcSpellData } from "./itemDatabase";
 import { isRaidItem } from "./raidClassifier";
 
 const WEAPON_SLOTS = new Set(["primary", "secondary", "range"]);
@@ -209,7 +209,12 @@ function getEffectBonus(stats: ParsedStats, className: string, weights: ClassWei
     if (effectLower.includes("haste")) {
       return melee ? 10 : 2;
     }
-    return melee ? 6 : 3;
+    if (!melee) return 3;
+    const spellData = getProcSpellData(stats.effect!);
+    if (!spellData) return 6;
+    if (spellData.damage <= 0) return 1;
+    const base = Math.sqrt(spellData.damage) * 0.35;
+    return spellData.isLifetap ? base * 1.3 : base;
   }
 
   if (isMustEquip || isAnySlot) {

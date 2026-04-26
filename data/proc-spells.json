@@ -1,0 +1,858 @@
+{
+  "Affliction": {
+    "damage": 36,
+    "isLifetap": false
+  },
+  "Anarchy": {
+    "damage": 273,
+    "isLifetap": false
+  },
+  "Avatar": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Banish Summoned": {
+    "damage": 585,
+    "isLifetap": false
+  },
+  "Banish Undead": {
+    "damage": 585,
+    "isLifetap": false
+  },
+  "Berserker Strength": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Blast of Cold": {
+    "damage": 11,
+    "isLifetap": false
+  },
+  "Blaze": {
+    "damage": 276,
+    "isLifetap": false
+  },
+  "Blessing of Nature": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Blessing of the Blackstar": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Blessing of the Theurgist": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Blinding Poison III": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Blood Claw": {
+    "damage": 35,
+    "isLifetap": false
+  },
+  "Boil Blood": {
+    "damage": 24,
+    "isLifetap": false
+  },
+  "Boiling Blood": {
+    "damage": 24,
+    "isLifetap": false
+  },
+  "Bone Melt": {
+    "damage": 75,
+    "isLifetap": false
+  },
+  "Bone Shatter": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Boneshear (Spell)": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Breath of the Sea": {
+    "damage": 20,
+    "isLifetap": false
+  },
+  "Burn": {
+    "damage": 11,
+    "isLifetap": false
+  },
+  "Burst of Flame": {
+    "damage": 3,
+    "isLifetap": false
+  },
+  "Call of Bones": {
+    "damage": 10,
+    "isLifetap": false
+  },
+  "Cancel Magic": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Cannibalize II": {
+    "damage": 134,
+    "isLifetap": false
+  },
+  "Careless Lightning": {
+    "damage": 94,
+    "isLifetap": false
+  },
+  "Chant of Battle": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Chaos Flux": {
+    "damage": 143,
+    "isLifetap": false
+  },
+  "Chaotic Feedback": {
+    "damage": 43,
+    "isLifetap": false
+  },
+  "Chill Sight": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Choke": {
+    "damage": 30,
+    "isLifetap": false
+  },
+  "Choking": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Cleanse": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Clockwork Poison": {
+    "damage": 6,
+    "isLifetap": false
+  },
+  "Color Shift": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Combust": {
+    "damage": 171,
+    "isLifetap": false
+  },
+  "Conflagration": {
+    "damage": 590,
+    "isLifetap": false
+  },
+  "Curse of the Garou": {
+    "damage": 25,
+    "isLifetap": true
+  },
+  "Dance of the Blade": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Dawncall": {
+    "damage": 125,
+    "isLifetap": false
+  },
+  "Disease": {
+    "damage": 12,
+    "isLifetap": false
+  },
+  "Disease Cloud": {
+    "damage": 6,
+    "isLifetap": false
+  },
+  "Disempower": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Dismiss Summoned": {
+    "damage": 140,
+    "isLifetap": false
+  },
+  "Dismiss Undead": {
+    "damage": 140,
+    "isLifetap": false
+  },
+  "Distraction": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Doljon's Rage": {
+    "damage": 140,
+    "isLifetap": false
+  },
+  "Dooming Darkness": {
+    "damage": 20,
+    "isLifetap": false
+  },
+  "Drones of Doom": {
+    "damage": 34,
+    "isLifetap": false
+  },
+  "Drowsy": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Earthcall": {
+    "damage": 20,
+    "isLifetap": false
+  },
+  "Earthquake": {
+    "damage": 226,
+    "isLifetap": false
+  },
+  "Energy Sap": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Engulfing Darkness": {
+    "damage": 11,
+    "isLifetap": false
+  },
+  "Engulfing Roots": {
+    "damage": 157,
+    "isLifetap": false
+  },
+  "Ensnare": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Ensnaring Roots": {
+    "damage": 34,
+    "isLifetap": false
+  },
+  "Envenomed Breath": {
+    "damage": 57,
+    "isLifetap": false
+  },
+  "Essence Drain": {
+    "damage": 0,
+    "isLifetap": true
+  },
+  "Essence Tap": {
+    "damage": 80,
+    "isLifetap": true
+  },
+  "Expel Undead": {
+    "damage": 261,
+    "isLifetap": false
+  },
+  "Fangol's Breath": {
+    "damage": 120,
+    "isLifetap": false
+  },
+  "Fear": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Feast of Blood": {
+    "damage": 30,
+    "isLifetap": true
+  },
+  "Feet like Cat": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Fellspine (spell)": {
+    "damage": 100,
+    "isLifetap": false
+  },
+  "Fingers of Fire": {
+    "damage": 22,
+    "isLifetap": false
+  },
+  "Fire Bolt": {
+    "damage": 45,
+    "isLifetap": false
+  },
+  "Fire Spiral of Al'Kabor": {
+    "damage": 71,
+    "isLifetap": false
+  },
+  "Firestrike": {
+    "damage": 282,
+    "isLifetap": false
+  },
+  "Flame Shock": {
+    "damage": 102,
+    "isLifetap": false
+  },
+  "Flame of the Efreeti": {
+    "damage": 100,
+    "isLifetap": false
+  },
+  "Flames of Ro": {
+    "damage": 400,
+    "isLifetap": false
+  },
+  "Flamesong]]": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Fleeting Fury": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Flesh Rot II": {
+    "damage": 9,
+    "isLifetap": false
+  },
+  "Force": {
+    "damage": 74,
+    "isLifetap": false
+  },
+  "Force Shock": {
+    "damage": 171,
+    "isLifetap": false
+  },
+  "Froglok Poison": {
+    "damage": 100,
+    "isLifetap": false
+  },
+  "Frost Shards": {
+    "damage": 620,
+    "isLifetap": false
+  },
+  "Frost Shock": {
+    "damage": 169,
+    "isLifetap": false
+  },
+  "Frost Strike": {
+    "damage": 137,
+    "isLifetap": false
+  },
+  "Frostbite (Spell)": {
+    "damage": 60,
+    "isLifetap": false
+  },
+  "Gale of Poison": {
+    "damage": 122,
+    "isLifetap": false
+  },
+  "Garzicor's Vengeance": {
+    "damage": 30,
+    "isLifetap": false
+  },
+  "Glamour": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Greater Wolf Form": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Greenmist (Spell)": {
+    "damage": 15,
+    "isLifetap": false
+  },
+  "Guard": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Haste": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Heat Blood": {
+    "damage": 17,
+    "isLifetap": false
+  },
+  "Holy Might": {
+    "damage": 29,
+    "isLifetap": false
+  },
+  "Holy Shock": {
+    "damage": 155,
+    "isLifetap": false
+  },
+  "Hungry Earth": {
+    "damage": 26,
+    "isLifetap": false
+  },
+  "Ice Rend": {
+    "damage": 30,
+    "isLifetap": false
+  },
+  "Ignite": {
+    "damage": 32,
+    "isLifetap": false
+  },
+  "Ikatiar's Revenge": {
+    "damage": 20,
+    "isLifetap": false
+  },
+  "Incapacitate": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Infectious Cloud": {
+    "damage": 25,
+    "isLifetap": false
+  },
+  "Inferno Shock": {
+    "damage": 237,
+    "isLifetap": false
+  },
+  "Injected Poison I": {
+    "damage": 4,
+    "isLifetap": false
+  },
+  "Insidious Fever": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Invigor": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Invoke Fear": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Jolt": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Judgment of Ice": {
+    "damage": 125,
+    "isLifetap": false
+  },
+  "Knight's Blessing": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Knockback": {
+    "damage": 10,
+    "isLifetap": false
+  },
+  "Kylie's Venom": {
+    "damage": 45,
+    "isLifetap": false
+  },
+  "Leech": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Lifedraw": {
+    "damage": 39,
+    "isLifetap": true
+  },
+  "Lifespike": {
+    "damage": 9,
+    "isLifetap": true
+  },
+  "Lifetap": {
+    "damage": 3,
+    "isLifetap": true
+  },
+  "Lightning Storm": {
+    "damage": 75,
+    "isLifetap": false
+  },
+  "Lightning Strike": {
+    "damage": 172,
+    "isLifetap": false
+  },
+  "Lightning_Call": {
+    "damage": 110,
+    "isLifetap": false
+  },
+  "Major Shielding": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Malaisement": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Mana Sink": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Melodious Befuddlement": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Mistwalker": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Muscle Lock I": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Nature's Holy Wrath": {
+    "damage": 150,
+    "isLifetap": false
+  },
+  "Nature's Wrath (Spell)": {
+    "damage": 102,
+    "isLifetap": false
+  },
+  "Neutralize Magic": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Obsidian Shatter": {
+    "damage": 30,
+    "isLifetap": false
+  },
+  "One Hundred Blows": {
+    "damage": 120,
+    "isLifetap": false
+  },
+  "Overthere": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Paralyzing Earth": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Poison": {
+    "damage": 22,
+    "isLifetap": false
+  },
+  "Poisonous Chill": {
+    "damage": 85,
+    "isLifetap": false
+  },
+  "Project Lightning": {
+    "damage": 57,
+    "isLifetap": false
+  },
+  "Rage of Vallon": {
+    "damage": 100,
+    "isLifetap": false
+  },
+  "Rage of Xyzith": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Rage of Zek": {
+    "damage": 175,
+    "isLifetap": false
+  },
+  "Rage of the Sky": {
+    "damage": 133,
+    "isLifetap": false
+  },
+  "Rain of Fire": {
+    "damage": 56,
+    "isLifetap": false
+  },
+  "Rain of Swords": {
+    "damage": 324,
+    "isLifetap": false
+  },
+  "Rampage": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Reckless Strength": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Rodrick's Gift": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Root": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Rune III": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Scourge": {
+    "damage": 64,
+    "isLifetap": false
+  },
+  "Screaming Mace (Spell)": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Sear": {
+    "damage": 1,
+    "isLifetap": false
+  },
+  "Sebilite Pox": {
+    "damage": 110,
+    "isLifetap": false
+  },
+  "Shadow": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Shadow Vortex": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Shallow Breath": {
+    "damage": 3,
+    "isLifetap": false
+  },
+  "Shards of Sorrow": {
+    "damage": 60,
+    "isLifetap": false
+  },
+  "Shield of Brambles": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Shield of Flame": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Shield of Thistles": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Shiftless Deeds": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Shock of Fire": {
+    "damage": 13,
+    "isLifetap": false
+  },
+  "Shock of Flame": {
+    "damage": 91,
+    "isLifetap": false
+  },
+  "Shock of Frost": {
+    "damage": 4,
+    "isLifetap": false
+  },
+  "Shock of Ice": {
+    "damage": 34,
+    "isLifetap": false
+  },
+  "Shock of Spikes": {
+    "damage": 158,
+    "isLifetap": false
+  },
+  "Shrieking Howl": {
+    "damage": 120,
+    "isLifetap": false
+  },
+  "Sicken": {
+    "damage": 10,
+    "isLifetap": false
+  },
+  "Silver Skin": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Siphon": {
+    "damage": 80,
+    "isLifetap": true
+  },
+  "Smite": {
+    "damage": 74,
+    "isLifetap": false
+  },
+  "Smolder_(spell)": {
+    "damage": 20,
+    "isLifetap": false
+  },
+  "Snare": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Song of the Deep Seas": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Soul Bond": {
+    "damage": 0,
+    "isLifetap": true
+  },
+  "Soul Consumption": {
+    "damage": 50,
+    "isLifetap": false
+  },
+  "Soul Leech": {
+    "damage": 75,
+    "isLifetap": true
+  },
+  "Specter Lifetap": {
+    "damage": 2,
+    "isLifetap": true
+  },
+  "Spirit Armor": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Spirit Strike": {
+    "damage": 74,
+    "isLifetap": false
+  },
+  "Spirit Tap": {
+    "damage": 132,
+    "isLifetap": true
+  },
+  "Static Strike": {
+    "damage": 133,
+    "isLifetap": false
+  },
+  "Steal Strength": {
+    "damage": 0,
+    "isLifetap": true
+  },
+  "Steelskin": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Storm Strike": {
+    "damage": 102,
+    "isLifetap": false
+  },
+  "Strike of Thunder": {
+    "damage": 125,
+    "isLifetap": false
+  },
+  "Strike of the Chosen": {
+    "damage": 80,
+    "isLifetap": true
+  },
+  "Strong Disease": {
+    "damage": 23,
+    "isLifetap": false
+  },
+  "Strong Poison": {
+    "damage": 44,
+    "isLifetap": false
+  },
+  "Stun": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Stunning Blow": {
+    "damage": 11,
+    "isLifetap": false
+  },
+  "Suffocate": {
+    "damage": 45,
+    "isLifetap": false
+  },
+  "Summon Bandages": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Swarming Pain": {
+    "damage": 50,
+    "isLifetap": false
+  },
+  "Symphonic Harmony": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Tagar's Insects": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Tainted Breath": {
+    "damage": 18,
+    "isLifetap": false
+  },
+  "Tashani": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Tashania": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Tepid Deeds": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Thunder Strike": {
+    "damage": 247,
+    "isLifetap": false
+  },
+  "Tishan's Clash": {
+    "damage": 30,
+    "isLifetap": false
+  },
+  "Togor's Insects": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Torment": {
+    "damage": 30,
+    "isLifetap": false
+  },
+  "Velium Shards": {
+    "damage": 9,
+    "isLifetap": false
+  },
+  "Walking Sleep": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Ward Summoned": {
+    "damage": 35,
+    "isLifetap": false
+  },
+  "Ward Undead": {
+    "damage": 35,
+    "isLifetap": false
+  },
+  "Waves of the Deep Sea": {
+    "damage": 20,
+    "isLifetap": false
+  },
+  "Weak Poison": {
+    "damage": 12,
+    "isLifetap": false
+  },
+  "Weaken": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Whirlwind": {
+    "damage": 100,
+    "isLifetap": false
+  },
+  "Winter's Roar": {
+    "damage": 251,
+    "isLifetap": false
+  },
+  "Word of Pain": {
+    "damage": 24,
+    "isLifetap": false
+  },
+  "Word of Shadow": {
+    "damage": 52,
+    "isLifetap": false
+  },
+  "Wrath": {
+    "damage": 198,
+    "isLifetap": false
+  },
+  "Yaulp": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Yaulp II": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Yaulp III": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Yaulp IV": {
+    "damage": 0,
+    "isLifetap": false
+  },
+  "Ykesha": {
+    "damage": 75,
+    "isLifetap": false
+  }
+}

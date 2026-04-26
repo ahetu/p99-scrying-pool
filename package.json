@@ -13,8 +13,9 @@
     "enrich-quests": "tsx scripts/enrich-quests.ts",
     "enrich-sources": "tsx scripts/enrich-sources.ts",
     "classify-raids": "tsx scripts/classify-raid-quests.ts",
-    "enrich:all": "tsx scripts/enrich-dropsfrom.ts && tsx scripts/enrich-dropmobs.ts && tsx scripts/enrich-quests.ts && tsx scripts/enrich-sources.ts && tsx scripts/classify-raid-quests.ts",
-    "pipeline": "tsx scripts/scrape-all-items.ts && tsx scripts/enrich-dropsfrom.ts && tsx scripts/enrich-dropmobs.ts && tsx scripts/enrich-quests.ts && tsx scripts/enrich-sources.ts && tsx scripts/classify-raid-quests.ts",
+    "enrich-procs": "tsx scripts/enrich-procs.ts",
+    "enrich:all": "tsx scripts/enrich-dropsfrom.ts && tsx scripts/enrich-dropmobs.ts && tsx scripts/enrich-quests.ts && tsx scripts/enrich-sources.ts && tsx scripts/classify-raid-quests.ts && tsx scripts/enrich-procs.ts",
+    "pipeline": "tsx scripts/scrape-all-items.ts && tsx scripts/enrich-dropsfrom.ts && tsx scripts/enrich-dropmobs.ts && tsx scripts/enrich-quests.ts && tsx scripts/enrich-sources.ts && tsx scripts/classify-raid-quests.ts && tsx scripts/enrich-procs.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
