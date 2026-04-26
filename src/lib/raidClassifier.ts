@@ -38,6 +38,11 @@ const RAID_NPCS = new Set([
   "Derakor the Vindicator", "The Avatar of War",
   "Tunare", "Bristlebane", "Rallos Zek",
   "Garzicor",
+  // Open-world raid dragons/NPCs in mixed zones
+  "Wuoshi", "Eashen of the Sky",
+  "Harla Dar", "Cekenar", "Aaryonar", "Jorlleag",
+  "Ikatiar the Venom",
+  "Tukaarak the Warmonger",
 ]);
 
 let raidQuestSet: Set<string> | null = null;

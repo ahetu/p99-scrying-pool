@@ -110,6 +110,14 @@ const MUST_BE_RAID: GoldenItem[] = [
     statsBlock: "MAGIC ITEM  LORE ITEM  <br>\nSlot: BACK SECONDARY<br>\nAC: 23<br>\nSTR: +10  CHA: +5  WIS: +10  AGI: -5<br>\nSV FIRE: +20  SV COLD: +20  SV MAGIC: +10<br>\nEffect:  [[Enduring Breath]] (Worn)<br>\nWT: 5.0  Size: LARGE<br>\nClass: ALL except MNK NEC WIZ MAG ENC<br>\nRace: ALL<br>",
   },
   {
+    name: "Crescent Blades of Luclin",
+    reason: "dropmobs include Wuoshi (open-world raid dragon in Wakening Land)",
+    dropsfrom: "The Wakening Land",
+    dropmobs: ["Wuoshi"],
+    relatedquests: null,
+    statsBlock: "MAGIC ITEM  LORE ITEM  <br>\nSlot: PRIMARY SECONDARY<br>\nSkill: Piercing  Atk Delay: 18<br>\nDMG: 10 <br>\nSV MAGIC: +10<br>\nEffect:  [[Shadow]] (Combat, Casting Time: Instant) at Level 40<br>\nWT: 3.2  Size: MEDIUM<br>\nClass: WAR RNG SHD BRD ROG<br>\nRace: ALL<br>",
+  },
+  {
     name: "Tobrin's Mystical Eyepatch",
     reason: "dropmobs include Lady Vox, Talendor (raid NPCs)",
     dropsfrom: "Permafrost",
