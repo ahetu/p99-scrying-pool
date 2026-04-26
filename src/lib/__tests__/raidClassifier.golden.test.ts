@@ -118,6 +118,22 @@ const MUST_BE_RAID: GoldenItem[] = [
     statsBlock: "MAGIC ITEM  LORE ITEM  <br>\nSlot: PRIMARY SECONDARY<br>\nSkill: Piercing  Atk Delay: 18<br>\nDMG: 10 <br>\nSV MAGIC: +10<br>\nEffect:  [[Shadow]] (Combat, Casting Time: Instant) at Level 40<br>\nWT: 3.2  Size: MEDIUM<br>\nClass: WAR RNG SHD BRD ROG<br>\nRace: ALL<br>",
   },
   {
+    name: "Belt of Fire",
+    reason: "dropmobs include Ixiblat Fer (open-world raid dragon in Burning Woods)",
+    dropsfrom: "Burning Woods",
+    dropmobs: ["Ixiblat Fer"],
+    relatedquests: null,
+    statsBlock: null,
+  },
+  {
+    name: "Willsapper",
+    reason: "dropmobs include Vaniki (raid dragon in Dragon Necropolis)",
+    dropsfrom: "Dragon Necropolis",
+    dropmobs: ["Vaniki"],
+    relatedquests: null,
+    statsBlock: "MAGIC ITEM  LORE ITEM  NO DROP<br>\nSlot: PRIMARY<br>\nSkill: Piercing  Atk Delay: 20<br>\nDMG: 13   AC: 9<br>\nHP: +35<br>\nEffect:  [[Energy Sap]] (Combat, Casting Time: Instant) at Level 50<br>\nWT: 1.9  Size: SMALL<br>\nClass: ALL except CLR DRU MNK<br>\nRace: ALL<br>",
+  },
+  {
     name: "Tobrin's Mystical Eyepatch",
     reason: "dropmobs include Lady Vox, Talendor (raid NPCs)",
     dropsfrom: "Permafrost",

@@ -43,6 +43,9 @@ const RAID_NPCS = new Set([
   "Harla Dar", "Cekenar", "Aaryonar", "Jorlleag",
   "Ikatiar the Venom",
   "Tukaarak the Warmonger",
+  "Zordakalicus Ragefire", "Ixiblat Fer",
+  // Dragon Necropolis raid targets (mixed zone)
+  "Vaniki", "Yeldema",
 ]);
 
 let raidQuestSet: Set<string> | null = null;
