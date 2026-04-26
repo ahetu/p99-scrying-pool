@@ -341,14 +341,14 @@ describe("ranged slot combat proc exclusion", () => {
 
   it("worn effects still apply in ranged slot", () => {
     const wornItem = makeStats({
-      hp: 10,
       effect: "Regeneration", effectType: "Worn",
     });
+    const plainItem = makeStats({});
 
-    const rangedScore = scoreItem(wornItem, "Ranger", "range");
-    const fingersScore = scoreItem(wornItem, "Ranger", "finger1");
+    const wornScore = scoreItem(wornItem, "Ranger", "range");
+    const plainScore = scoreItem(plainItem, "Ranger", "range");
 
-    expect(rangedScore).toBe(fingersScore);
+    expect(wornScore).toBeGreaterThan(plainScore);
   });
 
   it("Rogue secondary: higher ratio beats lower ratio with combat proc", () => {

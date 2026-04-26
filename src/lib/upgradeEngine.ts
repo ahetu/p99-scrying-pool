@@ -18,6 +18,8 @@ const DUAL_WIELD_CLASSES = new Set(["Rogue", "Ranger", "Monk"]);
 const BARD_LOW_DELAY_BONUS = 2.0;
 const BARD_DELAY_BASELINE = 30;
 
+const WEAPON_SLOT_STAT_DISCOUNT = 0.2;
+
 function isWeaponSlot(slotId: string): boolean {
   return WEAPON_SLOTS.has(slotId);
 }
@@ -279,6 +281,10 @@ export function scoreItem(
   score += (stats.svDisease ?? 0) * weights.svDisease;
   score += (stats.svMagic ?? 0) * weights.svMagic;
   score += (stats.svPoison ?? 0) * weights.svPoison;
+
+  if (isWeaponSlot(slotId)) {
+    score *= WEAPON_SLOT_STAT_DISCOUNT;
+  }
 
   let finalMultiplier = 1.0;
   const isActualWeapon = stats.damage !== null && stats.delay !== null;
