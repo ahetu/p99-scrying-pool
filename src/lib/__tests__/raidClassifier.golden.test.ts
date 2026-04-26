@@ -118,6 +118,14 @@ const MUST_BE_RAID: GoldenItem[] = [
     statsBlock: "MAGIC ITEM  LORE ITEM  <br>\nSlot: PRIMARY SECONDARY<br>\nSkill: Piercing  Atk Delay: 18<br>\nDMG: 10 <br>\nSV MAGIC: +10<br>\nEffect:  [[Shadow]] (Combat, Casting Time: Instant) at Level 40<br>\nWT: 3.2  Size: MEDIUM<br>\nClass: WAR RNG SHD BRD ROG<br>\nRace: ALL<br>",
   },
   {
+    name: "Di'zok Imperial Katana",
+    reason: "dropmobs include Prince Selrach Di'zok (Chardok royal, raid boss)",
+    dropsfrom: "Chardok",
+    dropmobs: ["Prince Selrach Di'zok"],
+    relatedquests: null,
+    statsBlock: "MAGIC ITEM  LORE ITEM  <br>\nSlot: PRIMARY<br>\nSkill: 2H Slashing  Atk Delay: 43<br>\nDMG: 35 <br>\nSTR: +12  WIS: +5  INT: +5  MANA: +30<br>\nSV DISEASE: +5  SV MAGIC: +5  SV POISON: +5<br>\nWT: 0.5  Size: MEDIUM<br>\nClass: WAR PAL RNG SHD<br>\nRace: ALL<br>",
+  },
+  {
     name: "Belt of Fire",
     reason: "dropmobs include Ixiblat Fer (open-world raid dragon in Burning Woods)",
     dropsfrom: "Burning Woods",

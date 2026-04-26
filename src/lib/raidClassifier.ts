@@ -42,10 +42,15 @@ const RAID_NPCS = new Set([
   "Wuoshi", "Eashen of the Sky",
   "Harla Dar", "Cekenar", "Aaryonar", "Jorlleag",
   "Ikatiar the Venom",
-  "Tukaarak the Warmonger",
+  "Tukaarak the Warder",
   "Zordakalicus Ragefire", "Ixiblat Fer",
+  // Chardok royals (mixed zone)
+  "Prince Selrach Di'zok",
+  "Queen Velazul Di'zok", "Queen Velazul Di`zok",
   // Dragon Necropolis raid targets (mixed zone)
   "Vaniki", "Yeldema",
+  // Ring War final boss (Great Divide)
+  "Narandi the Wretched",
 ]);
 
 let raidQuestSet: Set<string> | null = null;
